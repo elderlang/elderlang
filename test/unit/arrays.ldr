@@ -1,0 +1,64 @@
+/*
+ * NOTE: The syntax in these tests is occasionally written as bad as possible.
+ * This is done to ensure that the parser can handle it.
+ */
+
+/*
+ * Output of this should be:
+ * 1
+ * 3
+ * 2
+ * 5
+ * 4
+ * 1
+ * 2
+ * 3
+ * 4
+ * 5
+ */
+
+::test:array:something:bogus
+:.. //go up to "something" namespace.
+:..: //go up to "array" namespace.
+<
+	{}parent()<functor>
+>
+Print+SortArray( // <- this should be a valid functor name.
+	array = [1, 
+		3 2; 5
+		 4					]
+	
+	sorter<functor>(
+		value1,value2,
+	){(value2 > value1)?{@ true}
+		{
+			return false /* @ and return should be the same */ }
+	}, // <- \n, ,, ;, etc. should all be valid line endings here.
+
+	// default type should be functor.
+	// array is not the same as $array.
+	// what we call the assigned value is what matters, not what it's defined as; this should be $sort.
+	sort = snooort<>(array){
+		enumerate(array)[index, value]{
+			($sorter(value, array[index + 1]))?{
+				array[index] = array[index + 1]; array[index + 1] = value
+			}
+		}
+};)
+
+
+
+
+// This whitespace & this comment should not matter.
+
+
+
+
+
+{i=0;(i < array length){
+		print(array[i ++])
+}
+
+	$sort($array);array[
+										i /*I should be different now. Not the same as the i in the while loop above.*/
+	]{print(i);}}

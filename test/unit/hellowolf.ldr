@@ -1,0 +1,17 @@
+::test:hello
+<functor>
+hello_wolf(
+	hello = "hello"
+) {
+	// use python return syntax for now.
+	return f"{hello} wolf"
+}
+
+/**
+ * Should print:
+ * hello wolf
+ * good wolf
+ */
+print(hello_wolf().returned)
+print(hello_wolf(hello = "good").returned)
+
