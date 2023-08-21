@@ -43,28 +43,28 @@ def SpaceAutofillAutofillAndName(
 
 @eons.kind(StrictStructure)
 def IfElse (
-	match = r'\(PARAMETER\)\?{EXECUTION}{EXECUTION}',
+	match = r'\(PARAMETER\)\?{{EXECUTION}}{{EXECUTION}}',
 	replace = r'if \(\1\): TABOUT\(\2\) TABOUT\(else:\) TABOUT\(\3\)',
 ):
 	pass
 
 @eons.kind(StrictStructure)
 def If(
-	match = r'\(PARAMETER\)?{EXECUTION}',
+	match = r'\(PARAMETER\)\?{{EXECUTION}}',
 	replace = r'if \(\1\): TABOUT\(\2\)',
 ):
 	pass
 
 @eons.kind(StrictStructure)
 def For(
-	match = r'NAME\[CONTAINER\]{EXECUTION}',
+	match = r'NAME\[CONTAINER\]{{EXECUTION}}',
 	replace = r'for \2 in \1: TABOUT\(\2\)',
 ):
 	pass
 
 @eons.kind(StrictStructure)
 def While(
-	match = r'\(CONTAINER\){EXECUTION}',
+	match = r'\(CONTAINER\){{EXECUTION}}',
 	replace = r'while \(\1\): TABOUT\(\2\)',
 ):
 	pass

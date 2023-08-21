@@ -1,53 +1,69 @@
+type: lib
 next:
-- build: py_package
-	build_in: pkg
-	copy:
-	- "/definitions/src/": "src/"
+- build: default
+	build_in: definitions
 	config:
-		name: elderlangdefinitions
-		type: lib
-		clear_build_path: false
-		author_name: eons
-		author_email: support@eons.llc
-		description: Elder language definitions
-		package_url: https://github.com/constellatus/constellatus
-		license: MIT License
-		python_min: '3.7'
-		classifiers:
-		- 'Development Status :: 4 - Beta'
 		next:
-		- build: py_install
-			build_in: ../
+		- build: py_package
+			build_in: pkg
+			copy:
+			- "/src/definition/": "src/"
 			config:
-- build: py_package
-	build_in: pkg
+				name: elderlangdefinitions
+				clear_build_path: false
+				author_name: eons
+				author_email: support@eons.llc
+				description: Elder language definitions
+				package_url: https://github.com/constellatus/constellatus
+				license: MIT License
+				python_min: '3.7'
+				next:
+				- build: py_install
+					build_in: ../
+					config:
+						type: lib
+- build: arbitrary
+	path: ../
+	build_in: generator
 	copy:
-	- "/implementation/src/": "src/"
-	- "/implementation/inc/sly": "src/"
+	- "/src/generator/": "generator/src/"
 	config:
-		name: elderlangimplementation
-		type: lib
 		clear_build_path: false
-		author_name: eons
-		author_email: support@eons.llc
-		description: Elder language implementation
-		package_url: https://github.com/constellatus/constellatus
-		license: MIT License
-		python_min: '3.7'
-		classifiers:
-		- 'Development Status :: 4 - Beta'
+		commands:
+		- "python3 ./src/Generator.py"
+- build: default
+	path: ../
+	build_in: implementation
+	config:
+		clear_build_path: false
 		next:
-		- build: py_install
-			build_in: ../
+		- build: py_package
+			build_in: pkg
+			copy:
+			- "/src/sly": "src/"
+			- "../generator/lexer.py": "src/lexer.py"
+			- "/README.md": "README.md"
+			- "/LICENSE": "LICENSE"
 			config:
+				name: elderlang
+				clear_build_path: false
+				author_name: eons
+				author_email: support@eons.llc
+				description: The Elder Language 
+				package_url: https://github.com/elderlang/elderlang
+				license: MIT License
+				python_min: '3.7'
+				next:
+				- build: py_install
+					build_in: ../
+					config:
+							type: lib
 # - build: py_package
-# 	build_in: pkg
+# 	build_in: packaage
 # 	copy:
 # 	- "/src/": "src/"
 # 	- "/inc/": "inc/"
 # 	- "/test/": "test/"
-# 	- "/README.md": "README.md"
-# 	- "/LICENSE": "LICENSE"
 # 	config:
 # 		name: elderlang
 # 		type: lib

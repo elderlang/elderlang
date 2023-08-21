@@ -5,15 +5,15 @@
 
 /*
  * Output of this should be:
- * 1
+ * 0.1
  * 3
  * 2
  * 5
- * 4
- * 1
+ * 4.3
+ * 0.1
  * 2
  * 3
- * 4
+ * 4.3
  * 5
  */
 
@@ -24,9 +24,9 @@
 	{}parent()<functor>
 >
 Print+SortArray( // <- this should be a valid functor name.
-	array = [1, 
+	array = [0.1, 
 		3 2; 5
-		 4					]
+		 4.3					]
 	
 	sorter<functor>(
 		value1,value2,
@@ -55,8 +55,8 @@ Print+SortArray( // <- this should be a valid functor name.
 
 
 
-{i=0;(i < array length){
-		print(array[i ++])
+{i = 0;(i < array length){ //aka i.<(array.length) i= is a symbol
+		print(array[i ++]) //aka i.++() i++ is a valid name, not an operation.
 }
 
 	$sort($array);array[

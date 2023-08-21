@@ -3,17 +3,17 @@ import eons
 
 @eons.kind(Block)
 def UnformattedString(
-	openings = [r"'"],
-	closings = [r"'"],
-	representation = r"'UNFORMATTED_STRING'",
+	openings = ["\'"],
+	closings = ["\'"],
+	representation = "\\'UNFORMATTED_STRING\\'", #NOT a raw string
 ):
 	pass
 
 @eons.kind(Block)
 def FormattedString(
-	openings = [r'"', r'`'],
-	closings = [r'"', r'`'],
-	representation = r'"FORMATTED_STRING"',
+	openings = ['"', '`'],
+	closings = ['"', '`'],
+	representation = '\"FORMATTED_STRING\"', #NOT a raw string
 ):
 	pass
 
@@ -114,9 +114,10 @@ def Parameter(
 def Execution(
 	openings = [r'{'],
 	closings = [r'}'],
-	representation = r'{EXECUTION}',
+	representation = r'{{EXECUTION}}',
 	recurse = True,
 	nest = [
+		'Type',
 		'Expression',
 	]
 ):
