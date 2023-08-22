@@ -32,8 +32,15 @@ class GenLexer(eons.Functor):
 
 		for block in this.blocks:
 			block.WarmUp(executor = this.executor, precursor = this)
-			this.tokens.open[f"OPEN_{block.name.upper()}"] = fr"({'|'.join(block.openings)})"
-			this.tokens.close[f"CLOSE_{block.name.upper()}"] = fr"({'|'.join(block.closings)})"
+			for source, name in {'openings': 'open', 'closings': 'close'}.items():
+				matches = eval(f"block.{source}")
+				for emptyMatch in [r'^', r'$']:
+					try:
+						matches.remove(emptyMatch)
+					except:
+						pass
+				if (len(matches)):
+					this.tokens[name][f"name_{block.name}".upper()] = fr"({'|'.join(matches)})"
 
 		blockRepresentations = [block.representation for block in this.blocks]
 

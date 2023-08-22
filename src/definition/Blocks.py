@@ -3,16 +3,16 @@ import eons
 
 @eons.kind(Block)
 def UnformattedString(
-	openings = ["\'"],
-	closings = ["\'"],
+	openings = [r"\'"],
+	closings = [r"\'"],
 	representation = "\\'UNFORMATTED_STRING\\'", #NOT a raw string
 ):
 	pass
 
 @eons.kind(Block)
 def FormattedString(
-	openings = ['"', '`'],
-	closings = ['"', '`'],
+	openings = [r'"', r'`'],
+	closings = [r'"', r'`'],
 	representation = '\"FORMATTED_STRING\"', #NOT a raw string
 ):
 	pass
