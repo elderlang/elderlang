@@ -4,26 +4,37 @@ import eons
 from .Blocks import *
 from .Structures import *
 
+
+################################################################################
+#                                 ORDER MATTERS
+################################################################################
+
 # The Summary contains a list of all the blocks and structures that are defined in the Elder language.
 # This is used by the parser to determine what to parse.
 # Unfortunately, this is not automated (yet), so if you add a new block or structure, you must add it to the Summary below.
 
 summary = eons.util.DotDict()
 
+summary.builtins = [
+    'AUTOFILL'
+]
+
 summary.blocks = [
-	"UnformattedString",
-	"FormattedString",
 	"BlockComment",
 	"LineComment",
-	"Name",
+	"UnformattedString",
+	"FormattedString",
 	"GlobalNamespace",
 	"LocalNamespace",
-	"Expression",
-	"Type",
-	"Parameter",
-	"Execution",
 	"Container",
+	"Execution",
+	"Parameter",    
+	"Type",
+	"Expression",
+	"Name",
 ]
+
+summary.catchAllBlock = "Name"
 
 summary.structure = eons.util.DotDict()
 
@@ -39,7 +50,7 @@ summary.structure.strict = [
 	"If",
 	"For",
 	"While",
-	"Sigil",
+	# "Sigil",
 	"Not",
 	"And",
 	"DoubleAnd",

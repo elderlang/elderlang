@@ -1,6 +1,7 @@
 import eons
 import logging
 import inspect
+from .Blocks import *
 from .Summary import summary
 
 class GenLexer(eons.Functor):
@@ -32,7 +33,15 @@ class GenLexer(eons.Functor):
 
 		for block in this.blocks:
 			block.WarmUp(executor = this.executor, precursor = this)
-			for source, name in {'openings': 'open', 'closings': 'close'}.items():
+			
+			tokenSources = {'openings': 'open', 'closings': 'close'}
+
+			if (isinstance(block, OpenEndedBlock)):
+				del tokenSources['closings']
+			elif (isinstance(block, CatchAllBlock)):
+				continue
+
+			for source, name in tokenSources.items():
 				matches = eval(f"block.{source}")
 				for emptyMatch in [r'^', r'$']:
 					try:
@@ -40,7 +49,7 @@ class GenLexer(eons.Functor):
 					except:
 						pass
 				if (len(matches)):
-					this.tokens[name][f"name_{block.name}".upper()] = fr"({'|'.join(matches)})"
+					this.tokens[name][f"{name}_{block.name}".upper()] = fr"({'|'.join(matches)})"
 
 		blockRepresentations = [block.representation for block in this.blocks]
 
@@ -49,12 +58,16 @@ class GenLexer(eons.Functor):
 			possibleToken = structure.match
 			for representation in blockRepresentations:
 				possibleToken = possibleToken.replace(representation, '')
+			for builtin in summary.builtins:
+				possibleToken = possibleToken.replace(builtin, '')
 			if (len(possibleToken)):
 				this.tokens.structural[structure.name.upper()] = possibleToken
 
 		this.tokens.all = this.tokens.open
 		this.tokens.all.update(this.tokens.close)
 		this.tokens.all.update(this.tokens.structural)
+
+		this.tokens.all[summary.catchAllBlock.upper()] = fr"(?!{'|'.join([v[1:-1] for v in this.tokens.all.values() if len(v) > 2])})\S+"
 
 		logging.debug(f"Tokens: {this.tokens.all}")
 

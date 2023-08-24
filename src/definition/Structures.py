@@ -35,7 +35,7 @@ def SpaceAutofillNames(
 
 @eons.kind(StrictStructure)
 def SpaceAutofillAutofillAndName(
-	match = r'Name\s+AUTOFILL\(.*?\)',
+	match = r'NAME\s+AUTOFILL\(.*?\)',
 	replace = r'AUTOFILL\(\1, \2\)',
 	readDirection = '<',
 ):
@@ -64,17 +64,18 @@ def For(
 
 @eons.kind(StrictStructure)
 def While(
-	match = r'\(CONTAINER\){{EXECUTION}}',
+	match = r'\(PARAMETER\){{EXECUTION}}',
 	replace = r'while \(\1\): TABOUT\(\2\)',
 ):
 	pass
 
-@eons.kind(StrictStructure)
-def Sigil(
-	match = r'\$NAME',
-	replace = r'this.\1',
-):
-	pass
+# This is extraneous.
+# @eons.kind(StrictStructure)
+# def Sigil(
+# 	match = r'\$NAME',
+# 	replace = r'this.\1',
+# ):
+# 	pass
 
 @eons.kind(StrictStructure)
 def Not(

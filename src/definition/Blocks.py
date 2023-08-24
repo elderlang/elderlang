@@ -1,4 +1,4 @@
-from .Block import Block
+from .Block import *
 import eons
 
 @eons.kind(Block)
@@ -25,26 +25,22 @@ def BlockComment(
 ):
 	pass
 
-@eons.kind(Block)
+@eons.kind(OpenEndedBlock)
 def LineComment(
 	openings = [r'#', r'//'],
-	closings = [r'$'],
+	closings = [],
 	representation = r'//LINE_COMMENT',
 ):
 	pass
 
-@eons.kind(Block)
-def Name(
-	openings = [r'[^\s\(\)\[\]\|\?\\\.\$\'":,;&@!#]'],
-	closings = [r'[ \s\(\)\[\]\|\?\\\.\$\'":,;&@!#]', r'//'],
-	representation = r'NAME',
-):
-	pass
-
-@eons.kind(Block)
+@eons.kind(OpenEndedBlock)
 def GlobalNamespace(
 	openings = [r'::'],
-	closings = [r'$', r'//', r':'],
+	closings = [
+		'LineComment',
+		'BlockComment',
+		'LocalNamespace'
+	],
 	representation = r'::GLOBAL_NAMESPACE',
 	recurse = True,
 	nest = [
@@ -53,10 +49,13 @@ def GlobalNamespace(
 ):
 	pass
 
-@eons.kind(Block)
+@eons.kind(OpenEndedBlock)
 def LocalNamespace(
 	openings = [r':'],
-	closings = [r'$', r'//', r':'],
+	closings = [
+		'LineComment',
+		'BlockComment',
+	],
 	representation = r':LOCAL_NAMESPACE',
 	recurse = True,
 	nest = [
@@ -65,10 +64,13 @@ def LocalNamespace(
 ):
 	pass
 
-@eons.kind(Block)
+@eons.kind(OpenEndedBlock)
 def Expression(
 	openings = [r'^', r';', r','],
-	closings = [r',', r';', r'#', r'//', r'$'],
+	closings = [
+		'LineComment',
+		'BlockComment',
+	],
 	representation = r'EXPRESSION',
 	recurse = True,
 	nest = [
@@ -132,5 +134,11 @@ def Container(
 	nest = [
 		'Expression',
 	]
+):
+	pass
+
+@eons.kind(CatchAllBlock)
+def Name(
+	representation = r'NAME',
 ):
 	pass
