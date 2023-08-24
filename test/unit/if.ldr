@@ -1,21 +1,9 @@
 condition = true
 
-/* FUTURE
-
 (condition) ?
 {
 	print ("Should never be printed")
 }
 {
 	print ("Should always be printed")
-}
-*/
-
-if (condition)
-{
-	print ("Should always be printed")
-}
-else
-{
-	print ("Should never be printed")
 }

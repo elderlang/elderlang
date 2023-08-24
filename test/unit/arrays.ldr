@@ -36,11 +36,10 @@ Print+SortArray( // <- this should be a valid functor name.
 	}, // <- \n, ,, ;, etc. should all be valid line endings here.
 
 	// default type should be functor.
-	// array is not the same as $array.
-	// what we call the assigned value is what matters, not what it's defined as; this should be $sort.
+	// what we call the assigned value is what matters, not what it's defined as; this should be sort.
 	sort = snooort<>(array){
 		enumerate(array)[index, value]{
-			($sorter(value, array[index + 1]))?{
+			(sorter(value, array[index + 1]))?{
 				array[index] = array[index + 1]; array[index + 1] = value
 			}
 		}
@@ -59,6 +58,6 @@ Print+SortArray( // <- this should be a valid functor name.
 		print(array[i ++]) //aka i.++() i++ is a valid name, not an operation.
 }
 
-	$sort($array);array[
+	sort(array);array[
 										i /*I should be different now. Not the same as the i in the while loop above.*/
 	]{print(i);}}
