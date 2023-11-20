@@ -2,10 +2,18 @@ from elderlang.elderlang import ElderLexer
 
 ldrlxr = ElderLexer()
 
-hellowolfFile = open('./hellowolf.ldr', 'r')
-hellowolf = hellowolfFile.read()
+tests = [
+	'if',
+	'hellowolf',
+	'arrays',
+]
 
-for tok in ldrlxr.tokenize(hellowolf):
-    print(tok)
+for test in tests:
+    print(f"======================== {test} ========================")
+    testFile = open(f'./{test}.ldr', 'r')
+    ldr = testFile.read()
 
-hellowolfFile.close()
+    for tok in ldrlxr.tokenize(ldr):
+        print(tok)
+
+    testFile.close()

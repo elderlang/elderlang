@@ -83,7 +83,7 @@ class GenLexer(eons.Functor):
 		this.tokens.all.update(this.tokens.close)
 		this.tokens.all.update(this.tokens.syntactic)
 
-		this.tokens.all[summary.catchAllBlock.upper()] = fr"[{''.join(this.catchAllBlock.specialStarts)}]?(?:(?!{'|'.join([v[1:-1] for k, v in this.tokens.all.items() if len(v) > 2 and not k in this.tokens.excludeFromCatchAll])}).)+"
+		this.tokens.all[summary.catchAllBlock.upper()] = fr"[{''.join(this.catchAllBlock.specialStarts)}]?(?:(?!{'|'.join([v[1:-1] for k, v in this.tokens.all.items() if len(v) > 2 and not k in this.tokens.excludeFromCatchAll])})\S)+"
 
 		logging.debug(f"Tokens: {this.tokens.all}")
 
