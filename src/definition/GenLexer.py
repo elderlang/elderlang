@@ -1,6 +1,6 @@
 import eons
 import logging
-import inspect
+import re
 from .Blocks import *
 from .Summary import summary
 
@@ -13,23 +13,28 @@ class GenLexer(eons.Functor):
 	
 	def Function(this):
 		this.blocks = []
-		this.structure = eons.util.DotDict()
-		this.structure.abstract = []
-		this.structure.strict = []
+		this.syntax = eons.util.DotDict()
+		this.syntax.abstract = []
+		this.syntax.strict = []
+		this.catchAllBlock = None
 
 		for name in summary.blocks:
-			this.blocks.append(eons.SelfRegistering(name))
+			toAppend = eons.SelfRegistering(name)
+			this.blocks.append(toAppend)
+			if (isinstance(toAppend, CatchAllBlock)):
+				this.catchAllBlock = toAppend
 		
-		for name in summary.structure.abstract:
-			this.structure.abstract.append(eons.SelfRegistering(name))
+		for name in summary.syntax.abstract:
+			this.syntax.abstract.append(eons.SelfRegistering(name))
 		
-		for name in summary.structure.strict:
-			this.structure.strict.append(eons.SelfRegistering(name))
+		for name in summary.syntax.strict:
+			this.syntax.strict.append(eons.SelfRegistering(name))
 
 		this.tokens = eons.util.DotDict()
 		this.tokens.open = {}
 		this.tokens.close = {}
-		this.tokens.structural = {}
+		this.tokens.syntactic = {}
+		this.tokens.excludeFromCatchAll = []
 
 		for block in this.blocks:
 			block.WarmUp(executor = this.executor, precursor = this)
@@ -49,25 +54,36 @@ class GenLexer(eons.Functor):
 					except:
 						pass
 				if (len(matches)):
-					this.tokens[name][f"{name}_{block.name}".upper()] = fr"({'|'.join(matches)})"
+					blockName =f"{name}_{block.name}".upper()
+					this.tokens[name][blockName] = fr"({'|'.join(matches)})"
+					if (block.excludeFromCatchAll):
+						this.tokens.excludeFromCatchAll.append(blockName)
 
 		blockRepresentations = [block.representation for block in this.blocks]
 
-		for structure in this.structure.strict:
-			structure.WarmUp(executor = this.executor, precursor = this)
-			possibleToken = structure.match
+		for syntax in this.syntax.strict:
+			syntax.WarmUp(executor = this.executor, precursor = this)
+			possibleToken = syntax.match
 			for representation in blockRepresentations:
 				possibleToken = possibleToken.replace(representation, '')
 			for builtin in summary.builtins:
 				possibleToken = possibleToken.replace(builtin, '')
-			if (len(possibleToken)):
-				this.tokens.structural[structure.name.upper()] = possibleToken
+			possibleToken = fr"({possibleToken})"
+			if (
+				len(possibleToken) > 2
+				and possibleToken not in this.tokens.syntactic.values()
+			):
+				this.tokens.syntactic[syntax.name.upper()] = possibleToken
+				if (syntax.excludeFromCatchAll):
+					this.tokens.excludeFromCatchAll.append(syntax.name.upper())
+			else:
+				logging.info(f"Syntax {syntax.name} has no matchable tokens.")
 
 		this.tokens.all = this.tokens.open
 		this.tokens.all.update(this.tokens.close)
-		this.tokens.all.update(this.tokens.structural)
+		this.tokens.all.update(this.tokens.syntactic)
 
-		this.tokens.all[summary.catchAllBlock.upper()] = fr"(?!{'|'.join([v[1:-1] for v in this.tokens.all.values() if len(v) > 2])})\S+"
+		this.tokens.all[summary.catchAllBlock.upper()] = fr"[{''.join(this.catchAllBlock.specialStarts)}]?(?:(?!{'|'.join([v[1:-1] for k, v in this.tokens.all.items() if len(v) > 2 and not k in this.tokens.excludeFromCatchAll])}).)+"
 
 		logging.debug(f"Tokens: {this.tokens.all}")
 
@@ -86,12 +102,7 @@ class GenLexer(eons.Functor):
 class ElderLexer(Lexer):
 	tokens = {{ {', '.join([t for t in this.tokens.all.keys()])} }}
 
-	ignore = ' \\t'
-	ignore_newline = '\\n+'
-
-	# Extra action for newlines
-	def ignore_newline(self, t):
-		self.lineno += t.value.count('\\n')
+	ignore = '\\t+'
 
 	def error(self, t):
 		print("Illegal character '%s'" % t.value[0])

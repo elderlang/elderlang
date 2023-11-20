@@ -1,10 +1,9 @@
-::test:hello
-<functor>
+:test/hello
+$functor
 hello_wolf(
 	hello = "hello"
 ) {
-	// use python return syntax for now.
-	return f"{hello} wolf"
+	return "{$string hello} wolf"
 }
 
 /**

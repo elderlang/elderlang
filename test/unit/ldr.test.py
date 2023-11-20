@@ -1,4 +1,4 @@
-from elderlang import ElderLexer
+from elderlang.elderlang import ElderLexer
 
 ldrlxr = ElderLexer()
 

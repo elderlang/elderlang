@@ -17,18 +17,16 @@
  * 5
  */
 
-::test:array:something:bogus
+:test/array/something/bogus
 :.. //go up to "something" namespace.
-:..: //go up to "array" namespace.
-<
-	{}parent()<functor>
->
+:../ //go up to "array" namespace.
+${}/*junk should be ignored here*/functor
 Print+SortArray( // <- this should be a valid functor name.
 	array = [0.1, 
 		3 2; 5
 		 4.3					]
 	
-	sorter<functor>(
+	sorter $functor(
 		value1,value2,
 	){(value2 > value1)?{@ true}
 		{
@@ -37,7 +35,7 @@ Print+SortArray( // <- this should be a valid functor name.
 
 	// default type should be functor.
 	// what we call the assigned value is what matters, not what it's defined as; this should be sort.
-	sort = snooort<>(array){
+	sort = $$snooort(array){
 		enumerate(array)[index, value]{
 			(sorter(value, array[index + 1]))?{
 				array[index] = array[index + 1]; array[index + 1] = value

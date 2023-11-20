@@ -34,32 +34,21 @@ def LineComment(
 	pass
 
 @eons.kind(OpenEndedBlock)
-def GlobalNamespace(
-	openings = [r'::'],
-	closings = [
-		'LineComment',
-		'BlockComment',
-		'LocalNamespace'
-	],
-	representation = r'::GLOBAL_NAMESPACE',
-	recurse = True,
-	nest = [
-		'Expression',
-	]
-):
-	pass
-
-@eons.kind(OpenEndedBlock)
-def LocalNamespace(
+def Namespace(
 	openings = [r':'],
 	closings = [
+		'UnformattedString',
+		'FormattedString',
 		'LineComment',
-		'BlockComment',
+		'Parameter',
+		'Type',
 	],
-	representation = r':LOCAL_NAMESPACE',
+	representation = r':NAMESPACE',
 	recurse = True,
 	nest = [
-		'Expression',
+		'BlockComment',
+		'Execution',
+		'Container',
 	]
 ):
 	pass
@@ -69,33 +58,39 @@ def Expression(
 	openings = [r'^', r';', r','],
 	closings = [
 		'LineComment',
-		'BlockComment',
 	],
 	representation = r'EXPRESSION',
 	recurse = True,
 	nest = [
-		'String',
+		'UnformattedString',
+		'FormattedString',
 		'BlockComment',
-		'GlobalNamespace',
-		'LocalNamespace',
-		'Name',
+		'Namespace',
+		'Type',
 		'Parameter',
 		'Execution',
 		'Container',
+		'Name',
 	]
 ):
 	pass
 
-@eons.kind(Block)
+@eons.kind(OpenEndedBlock)
 def Type(
-	openings = [r'<'],
-	closings = [r'>'],
-	representation = r'<TYPE>',
+	openings = [r'\$'],
+	closings = [
+		'UnformattedString',
+		'FormattedString',
+		'LineComment',
+		'Parameter',
+	],
+	representation = r'\$TYPE',
 	recurse = True,
 	nest = [
-		'Type',
-		'Expression',
-	]
+		'BlockComment',
+		'Execution',
+		'Container',
+	],
 ):
 	pass
 
@@ -106,8 +101,10 @@ def Parameter(
 	representation = r'\(PARAMETER\)',
 	recurse = True,
 	nest = [
+		'BlockComment',
 		'Type',
-		'Expression',
+		'Execution',
+		'Container',
 	],
 ):
 	pass
@@ -119,7 +116,7 @@ def Execution(
 	representation = r'{{EXECUTION}}',
 	recurse = True,
 	nest = [
-		'Type',
+		'BlockComment',
 		'Expression',
 	]
 ):
@@ -132,7 +129,9 @@ def Container(
 	representation = r'\[CONTAINER\]',
 	recurse = True,
 	nest = [
-		'Expression',
+		'BlockComment',
+		'Execution',
+		'Type',
 	]
 ):
 	pass
@@ -140,5 +139,8 @@ def Container(
 @eons.kind(CatchAllBlock)
 def Name(
 	representation = r'NAME',
+	specialStarts = [ 
+		'/',
+	],
 ):
 	pass

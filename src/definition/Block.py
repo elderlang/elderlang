@@ -1,6 +1,7 @@
 import eons
+from .Structure import *
 
-@eons.kind(eons.Functor)
+@eons.kind(Structure)
 def Block(
 	openings = [],
 	closings = [],
@@ -27,6 +28,13 @@ def OpenEndedBlock(
 
 # There should only ever be one CatchAllBlock. We call it 'Name'.
 # This Block matches anything that is not explicitly matched by another Block.
+# specialStarts allows characters which normally cannot be inside a CatchAllBlock to start a CatchAllBlock.
+# For example, '/=' is valid, while '=/' is not.
 @eons.kind(Block)
-def CatchAllBlock():
+def CatchAllBlock(
+	specialStarts = [
+		# Example only
+		'/',
+	],
+):
 	pass
