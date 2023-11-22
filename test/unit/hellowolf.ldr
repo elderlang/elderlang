@@ -1,9 +1,9 @@
 :test/hello
-$functor
+~functor
 hello_wolf(
-	hello = "hello"
+	~string hello = 'hello'
 ) {
-	return "{$string hello} wolf"
+	return "{hello} wolf"
 }
 
 /**
@@ -11,6 +11,6 @@ hello_wolf(
  * hello wolf
  * good wolf
  */
-print(hello_wolf().returned)
-print(hello_wolf(hello = "good").returned)
+print(hello_wolf())
+print(hello_wolf(hello = `good`))
 

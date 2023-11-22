@@ -23,6 +23,7 @@ def OpenEndedBlock(
 		'BlockComment',
 		'LineComment'
 	],
+	doesSpaceClose = False,
 ):
 	pass
 

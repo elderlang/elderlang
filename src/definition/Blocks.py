@@ -77,15 +77,16 @@ def Expression(
 
 @eons.kind(OpenEndedBlock)
 def Type(
-	openings = [r'\$'],
+	openings = [r'~'],
 	closings = [
 		'UnformattedString',
 		'FormattedString',
 		'LineComment',
 		'Parameter',
 	],
-	representation = r'\$TYPE',
+	representation = r'~TYPE',
 	recurse = True,
+	doesSpaceClose = True,
 	nest = [
 		'BlockComment',
 		'Execution',
