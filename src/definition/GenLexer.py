@@ -6,7 +6,7 @@ from .Summary import summary
 
 class GenLexer(eons.Functor):
 
-	def	__init__(this, name = "SlyPy Parser Generator"):
+	def	__init__(this, name = "Sly Lexer Generator"):
 		super().__init__(name)
 
 		this.optionalKWArgs['outFileName'] = "lexer.py"

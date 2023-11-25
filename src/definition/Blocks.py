@@ -14,6 +14,9 @@ def FormattedString(
 	openings = [r'"', r'`'],
 	closings = [r'"', r'`'],
 	representation = '\"FORMATTED_STRING\"', #NOT a raw string
+	nest = [
+		'Execution',
+	],
 ):
 	pass
 
@@ -55,7 +58,7 @@ def Namespace(
 
 @eons.kind(OpenEndedBlock)
 def Expression(
-	openings = [r'^', r';', r','],
+	openings = [r';', r','],
 	closings = [
 		'LineComment',
 	],
@@ -88,9 +91,7 @@ def Type(
 	recurse = True,
 	doesSpaceClose = True,
 	nest = [
-		'BlockComment',
-		'Execution',
-		'Container',
+		'Expression',
 	],
 ):
 	pass
@@ -102,10 +103,7 @@ def Parameter(
 	representation = r'\(PARAMETER\)',
 	recurse = True,
 	nest = [
-		'BlockComment',
-		'Type',
-		'Execution',
-		'Container',
+		'Expression',
 	],
 ):
 	pass
@@ -117,7 +115,6 @@ def Execution(
 	representation = r'{{EXECUTION}}',
 	recurse = True,
 	nest = [
-		'BlockComment',
 		'Expression',
 	]
 ):
@@ -130,9 +127,7 @@ def Container(
 	representation = r'\[CONTAINER\]',
 	recurse = True,
 	nest = [
-		'BlockComment',
-		'Execution',
-		'Type',
+		'Expression',
 	]
 ):
 	pass
@@ -140,7 +135,7 @@ def Container(
 @eons.kind(CatchAllBlock)
 def Name(
 	representation = r'NAME',
-	specialStarts = [ 
+	specialStarts = [
 		'/',
 	],
 ):

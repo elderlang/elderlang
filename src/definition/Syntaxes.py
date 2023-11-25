@@ -3,24 +3,90 @@ import eons
 
 @eons.kind(AbstractSyntax)
 def Kind(
-	requiredBlocks = [
+	blocks = [
 		'Type',
 		'Name',
 		'Parameter',
+		'Execution',
 	],
-	optionalBlocks = [
+	allowInBlocks = [
+		'Parameter',
 		'Execution',
-		'Execution',
-		'BlockComment'
+	]
+):
+	pass
+
+@eons.kind(AbstractSyntax)
+def TypedName(
+	blocks = [
+		'Type',
+		'Name',
 	],
 ):
 	pass
 
 @eons.kind(AbstractSyntax)
 def Invokation(
-	requiredBlocks = [
+	blocks = [
+		'Name',
+	]
+):
+	pass
+
+@eons.kind(Invokation)
+def StandardInvokation(
+	blocks = [
 		'Name',
 		'Parameter',
+	]
+):
+	pass
+
+@eons.kind(Invokation)
+def InvokationWithParameterAndExecution(
+	blocks = [
+		'Name',
+		'Parameter',
+		'Execution',
+	]
+):
+	pass
+
+@eons.kind(Invokation)
+def InvokationWithExecution(
+	blocks = [
+		'Name',
+		'Execution',
+	]
+):
+	pass
+
+@eons.kind(Invokation)
+def ContainerInvokation(
+	blocks = [
+		'Name',
+		'Container',
+		'Execution',
+	],
+):
+	pass
+
+@eons.kind(Invokation)
+def ContainerInvokationWithParameters(
+	blocks = [
+		'Name',
+		'Parameter',
+		'Container',
+		'Execution',
+	],
+):
+	pass
+
+@eons.kind(AbstractSyntax)
+def ContainerAccess(
+	blocks = [
+		'Name',
+		'Container',
 	]
 ):
 	pass
@@ -28,110 +94,24 @@ def Invokation(
 @eons.kind(StrictSyntax)
 def EOL(
 	match = r'\\n',
-	replace = r'\\n',
-	readDirection = '<',
 ):
 	pass
 
 @eons.kind(StrictSyntax)
 def Autofill(
-	match = r'NAME[ +]NAME',
-	replace = r'AUTOFILL\(\1, \2\)',
-	readDirection = '<',
+	match = r'EXPRESSION[ +]NAME',
 	excludeFromCatchAll = True,
+	recurse = True,
 ):
 	pass
 
 @eons.kind(StrictSyntax)
 def Sequence(
 	match = r'NAME/NAME',
-	replace = r'SEQUENCE\(\1, \2\)',
+	recurse = True,
+	allowInBlocks = [
+		'Namespace',
+		'Expression',
+	]
 ):
 	pass
-
-# @eons.kind(StrictSyntax)
-# def SpaceAutofillAutofillAndName(
-# 	match = r'NAME[ +]AUTOFILL\(.*?\)',
-# 	replace = r'AUTOFILL\(\1, \2\)',
-# 	readDirection = '<',
-# 	excludeFromCatchAll = True,
-# ):
-# 	pass
-
-@eons.kind(StrictSyntax)
-def IfElse (
-	match = r'\(PARAMETER\)\?{{EXECUTION}}{{EXECUTION}}',
-	replace = r'if \(\1\): TABOUT\(\2\) TABOUT\(else:\) TABOUT\(\3\)',
-):
-	pass
-
-@eons.kind(StrictSyntax)
-def If(
-	match = r'\(PARAMETER\)\?{{EXECUTION}}',
-	replace = r'if \(\1\): TABOUT\(\2\)',
-):
-	pass
-
-@eons.kind(StrictSyntax)
-def For(
-	match = r'NAME\[CONTAINER\]{{EXECUTION}}',
-	replace = r'for \2 in \1: TABOUT\(\2\)',
-):
-	pass
-
-@eons.kind(StrictSyntax)
-def While(
-	match = r'\(PARAMETER\){{EXECUTION}}',
-	replace = r'while \(\1\): TABOUT\(\2\)',
-):
-	pass
-
-# This is extraneous.
-# @eons.kind(StrictSyntax)
-# def Sigil(
-# 	match = r'\$NAME',
-# 	replace = r'this.\1',
-# ):
-# 	pass
-
-# @eons.kind(StrictSyntax)
-# def Not(
-# 	match = r'!NAME',
-# 	replace = r'not \1',
-# ):
-# 	pass
-
-# @eons.kind(StrictSyntax)
-# def And(
-# 	match = r'&',
-# 	replace = r' and ',
-# ):
-# 	pass
-
-# @eons.kind(StrictSyntax)
-# def DoubleAnd(
-# 	match = r'&&',
-# 	replace = r' and ',
-# ):
-# 	pass
-
-# @eons.kind(StrictSyntax)
-# def Or(
-# 	match = r'\|',
-# 	replace = r' or ',
-# ):
-# 	pass
-
-# @eons.kind(StrictSyntax)
-# def DoubleOr(
-# 	match = r'\|\|',
-# 	replace = r' or ',
-# ):
-# 	pass
-
-# @eons.kind(StrictSyntax)
-# def Return(
-# 	match = r'@',
-# 	replace = r'return',
-# ):
-# 	pass

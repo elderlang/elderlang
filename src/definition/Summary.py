@@ -16,8 +16,6 @@ from .Syntaxes import *
 summary = eons.util.DotDict()
 
 summary.builtins = [
-    'AUTOFILL',
-	'SEQUENCE',
 ]
 
 summary.blocks = [
@@ -28,7 +26,7 @@ summary.blocks = [
 	"Namespace",
 	"Container",
 	"Execution",
-	"Parameter",    
+	"Parameter",
 	"Type",
 	"Expression",
 	"Name",
@@ -40,23 +38,17 @@ summary.syntax = eons.util.DotDict()
 
 summary.syntax.abstract = [
 	"Kind",
-	"Invokation",
+	"TypedName",
+	"InvokationWithParameterAndExecution",
+	"ContainerInvokation",
+	"ContainerInvokationWithParameters"
+	"InvokationWithExecution",
+	"StandardInvokation",
+	"ContainerAccess",
 ]
 
 summary.syntax.strict = [
 	"EOL",
 	"Autofill",
 	"Sequence",
-	# "SpaceAutofillAutofillAndName",
-	"IfElse",
-	"If",
-	"For",
-	"While",
-	# "Sigil",
-	# "Not",
-	# "And",
-	# "DoubleAnd",
-	# "Or",
-	# "DoubleOr",
-	# "Return",
 ]

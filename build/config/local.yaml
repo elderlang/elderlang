@@ -44,7 +44,7 @@ next:
 			- "../generator/lexer.py": "src/lexer.py"
 			- "/README.md": "README.md"
 			- "/LICENSE": "LICENSE"
-			config:
+			config:	
 				name: elderlang
 				clear_build_path: false
 				author_name: eons

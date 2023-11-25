@@ -4,7 +4,7 @@ from .Structure import *
 @eons.kind(Structure)
 def Syntax(
 	allowInBlocks = [
-		'Execution'
+		'Expression'
 	],
 ):
 	pass
@@ -12,14 +12,12 @@ def Syntax(
 @eons.kind(Syntax)
 def StrictSyntax(
 	match = r'',
-	replace = r'',
-	readDirection = '>',
+	recurse = False,
 ):
 	pass
 
 @eons.kind(Syntax)
 def AbstractSyntax(
-	requiredBlocks = [],
-	optionalBlocks = [],
+	blocks = [],
 ):
 	pass
