@@ -9,10 +9,16 @@ def Kind(
 		'Parameter',
 		'Execution',
 	],
-	allowInBlocks = [
+):
+	pass
+
+@eons.kind(AbstractSyntax)
+def StructKind(
+	blocks = [
+		'Type',
+		'Name',
 		'Parameter',
-		'Execution',
-	]
+	],
 ):
 	pass
 
@@ -22,14 +28,6 @@ def TypedName(
 		'Type',
 		'Name',
 	],
-):
-	pass
-
-@eons.kind(AbstractSyntax)
-def Invokation(
-	blocks = [
-		'Name',
-	]
 ):
 	pass
 
@@ -43,7 +41,7 @@ def StandardInvokation(
 	pass
 
 @eons.kind(Invokation)
-def InvokationWithParameterAndExecution(
+def InvokationWithParametersAndExecution(
 	blocks = [
 		'Name',
 		'Parameter',
@@ -94,24 +92,27 @@ def ContainerAccess(
 @eons.kind(StrictSyntax)
 def EOL(
 	match = r'\\n',
+	exclusions = [
+		'parser'
+	],
 ):
 	pass
 
 @eons.kind(StrictSyntax)
 def Autofill(
-	match = r'EXPRESSION[ +]NAME',
-	excludeFromCatchAll = True,
-	recurse = True,
+	match = r'NAMESPACENAME',
+	exclusions = [
+		'all.catch.block'
+	],
+	recurseOn = "NAME",
+	readDirection = "<"
 ):
 	pass
 
 @eons.kind(StrictSyntax)
 def Sequence(
 	match = r'NAME/NAME',
-	recurse = True,
-	allowInBlocks = [
-		'Namespace',
-		'Expression',
-	]
+	recurseOn = "NAME",
+	readDirection = ">"
 ):
 	pass

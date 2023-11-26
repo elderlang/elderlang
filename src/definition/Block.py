@@ -3,10 +3,9 @@ from .Structure import *
 
 @eons.kind(Structure)
 def Block(
+	p = None, # Used when parsing. Terrible name per Sly.
 	openings = [],
 	closings = [],
-	recurse = False,
-	nest = [],
 	content = "",
 ):
 	pass
@@ -38,4 +37,17 @@ def CatchAllBlock(
 		'/',
 	],
 ):
+	pass
+
+# DefaultBlocks build the contents of all other Blocks beside the CatchAllBlock.
+@eons.kind(OpenEndedBlock)
+def DefaultBlock(
+	nest = [], # List of blocks that can be nested inside this block.
+):
+	pass
+
+# DefaultBlockSet is constructed from a series of DefaultBlocks.
+# Each nest in a DefaultBlock is realized through a DefaultBlockSet.
+@eons.kind(Block)
+def DefaultBlockSet():
 	pass

@@ -14,7 +14,7 @@ next:
 				author_name: eons
 				author_email: support@eons.llc
 				description: Elder language definitions
-				package_url: https://github.com/constellatus/constellatus
+				package_url: https://github.com/elderlang/elderlang
 				license: MIT License
 				python_min: '3.7'
 				next:
@@ -42,6 +42,7 @@ next:
 			copy:
 			- "/src/sly": "src/"
 			- "../generator/lexer.py": "src/lexer.py"
+			- "../generator/parser.py": "src/parser.py"
 			- "/README.md": "README.md"
 			- "/LICENSE": "LICENSE"
 			config:	

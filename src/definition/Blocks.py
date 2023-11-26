@@ -1,11 +1,88 @@
 from .Block import *
 import eons
 
+@eons.kind(CatchAllBlock)
+def Name(
+	representation = r'NAME',
+	specialStarts = [
+		'/',
+	],
+):
+	pass
+
+@eons.kind(DefaultBlock)
+def Expression(
+	openings = [r';', r','],
+	closings = [
+		'LineComment',
+	],
+):
+	pass
+
+@eons.kind(Expression)
+def ProtoExpression(
+	representation = r'PROTOEXPRESSION',
+	nest = [
+		'Name',
+		# Include StrictSyntaxes as a bridge to greater blocks.
+		'Autofill',
+		'Sequence'
+	],
+):
+	pass
+
+@eons.kind(DefaultBlockSet)
+def ProtoExpressionSet(
+	representation = r'PROTOEXPRESSIONSET',
+	content = "ProtoExpression",
+):
+	pass
+
+@eons.kind(ProtoExpression)
+def LimitedExpression(
+	representation = r'LIMITEDEXPRESSION',
+	nest = [
+		'ProtoExpressionSet',
+		'BlockComment',
+		'Execution',
+		'Container',
+	]
+):
+	pass
+
+@eons.kind(DefaultBlockSet)
+def LimitedExpressionSet(
+	representation = r'LIMITEDEXPRESSIONSET',
+	content = "LimitedExpression",
+):
+	pass
+
+
+@eons.kind(ProtoExpression)
+def FullExpression(
+	representation = r'FULLEXPRESSION',
+	nest = [
+		'LimitedExpressionSet',
+		'Parameter',
+		'Namespace',
+		'Type'
+	]
+):
+	pass
+
+@eons.kind(DefaultBlockSet)
+def FullExpressionSet(
+	representation = r'FULLEXPRESSIONSET',
+	content = "FullExpression",
+):
+	pass
+
 @eons.kind(Block)
 def UnformattedString(
 	openings = [r"\'"],
 	closings = [r"\'"],
 	representation = "\\'UNFORMATTED_STRING\\'", #NOT a raw string
+	content = "FullExpressionSet",
 ):
 	pass
 
@@ -14,9 +91,7 @@ def FormattedString(
 	openings = [r'"', r'`'],
 	closings = [r'"', r'`'],
 	representation = '\"FORMATTED_STRING\"', #NOT a raw string
-	nest = [
-		'Execution',
-	],
+	content = "FullExpressionSet",
 ):
 	pass
 
@@ -25,6 +100,7 @@ def BlockComment(
 	openings = [r'/\*'],
 	closings = [r'\*/'],
 	representation = r'/\*BLOCK_COMMENT\*/',
+	content = "FullExpressionSet",
 ):
 	pass
 
@@ -33,6 +109,7 @@ def LineComment(
 	openings = [r'#', r'//'],
 	closings = [],
 	representation = r'//LINE_COMMENT',
+	content = "FullExpressionSet",
 ):
 	pass
 
@@ -47,34 +124,7 @@ def Namespace(
 		'Type',
 	],
 	representation = r':NAMESPACE',
-	recurse = True,
-	nest = [
-		'BlockComment',
-		'Execution',
-		'Container',
-	]
-):
-	pass
-
-@eons.kind(OpenEndedBlock)
-def Expression(
-	openings = [r';', r','],
-	closings = [
-		'LineComment',
-	],
-	representation = r'EXPRESSION',
-	recurse = True,
-	nest = [
-		'UnformattedString',
-		'FormattedString',
-		'BlockComment',
-		'Namespace',
-		'Type',
-		'Parameter',
-		'Execution',
-		'Container',
-		'Name',
-	]
+	content = "LimitedExpressionSet",
 ):
 	pass
 
@@ -88,11 +138,8 @@ def Type(
 		'Parameter',
 	],
 	representation = r'~TYPE',
-	recurse = True,
 	doesSpaceClose = True,
-	nest = [
-		'Expression',
-	],
+	content = "LimitedExpressionSet",
 ):
 	pass
 
@@ -101,10 +148,7 @@ def Parameter(
 	openings = [r'\('],
 	closings = [r'\)'],
 	representation = r'\(PARAMETER\)',
-	recurse = True,
-	nest = [
-		'Expression',
-	],
+	content = "FullExpressionSet",
 ):
 	pass
 
@@ -113,10 +157,7 @@ def Execution(
 	openings = [r'{'],
 	closings = [r'}'],
 	representation = r'{{EXECUTION}}',
-	recurse = True,
-	nest = [
-		'Expression',
-	]
+	content = "FullExpressionSet",
 ):
 	pass
 
@@ -125,18 +166,6 @@ def Container(
 	openings = [r'\['],
 	closings = [r'\]'],
 	representation = r'\[CONTAINER\]',
-	recurse = True,
-	nest = [
-		'Expression',
-	]
-):
-	pass
-
-@eons.kind(CatchAllBlock)
-def Name(
-	representation = r'NAME',
-	specialStarts = [
-		'/',
-	],
+	content = "FullExpressionSet",
 ):
 	pass

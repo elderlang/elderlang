@@ -2,17 +2,14 @@ import eons
 from .Structure import *
 
 @eons.kind(Structure)
-def Syntax(
-	allowInBlocks = [
-		'Expression'
-	],
-):
+def Syntax():
 	pass
 
 @eons.kind(Syntax)
 def StrictSyntax(
 	match = r'',
-	recurse = False,
+	recurseOn = "",
+	readDirection = ">"
 ):
 	pass
 
@@ -20,4 +17,8 @@ def StrictSyntax(
 def AbstractSyntax(
 	blocks = [],
 ):
+	pass
+
+@eons.kind(AbstractSyntax)
+def Invokation():
 	pass
