@@ -2,6 +2,7 @@ import eons
 import logging
 import re
 from .Blocks import *
+from .Expressions import *
 from .Summary import summary
 
 class GenLexer(eons.Functor):
@@ -17,15 +18,30 @@ class GenLexer(eons.Functor):
 				return block
 		return None
 	
-	def SubstituteRepresentations(this, string, substitution = "", quoteContents = False):
-		if (quoteContents):
+	def SubstituteRepresentations(this, 
+		string,
+		substitution = "",
+		separateTokensWith = " ",
+		quoteContents = False,
+		replaceContentsWith = None
+	):
+		if (quoteContents or replaceContentsWith is not None):
 			contents = string
 			for block in this.blocks:
 				contents = contents.replace(block.representation, '')
+				if (separateTokensWith is not None):
+					string = string.replace(block.representation, f"{separateTokensWith}{block.representation}{separateTokensWith}")
 			for builtin in summary.builtins:
 				contents = contents.replace(builtin, '')
-			for char in contents:
-				string = string.replace(char, f' "{char}" ')
+				if (separateTokensWith is not None):
+					string = string.replace(builtin, f"{separateTokensWith}{builtin}{separateTokensWith}")
+			
+			if (len(contents)):
+				if (replaceContentsWith is not None):
+					string = string.replace(contents, replaceContentsWith)
+				else:
+					for char in contents:
+						string = string.replace(char, f' "{char}" ')
 
 		for block in this.blocks:
 			sub = substitution.replace("Block", block.name)

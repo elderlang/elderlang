@@ -1,8 +1,9 @@
 import eons
 
 # These don't actually do anything, they just help in ordering the files appropriately.
-from .Blocks import *
+from .Blocks import * 
 from .Syntaxes import *
+from .Expressions import *
 
 
 ################################################################################

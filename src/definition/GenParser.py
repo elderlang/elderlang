@@ -1,6 +1,7 @@
 import eons
 import logging
 from .Blocks import *
+from .Expressions import *
 from .Summary import summary
 
 class GenParser(eons.Functor):
@@ -37,6 +38,10 @@ class GenParser(eons.Functor):
 					nestToken = nest.upper()
 				this.grammar[f"{block.name.lower()} {nestToken}"] = block
 				this.grammar[f"{nestToken}"] = adhere
+				this.grammar[f"{nestToken} EOL"] = adhere
+				this.grammar[f"{nestToken} CLOSE_{summary.defaultBlock.upper()}"] = adhere
+				for closing in adhere.closings:
+					this.grammar[f"{nestToken} {closing.lower()}"] = adhere
 			this.grammar[adhere.name.lower()] = block
 
 		# All Other Blocks
@@ -51,10 +56,6 @@ class GenParser(eons.Functor):
 
 			if (isinstance(block, DefaultBlock)):
 				closeName = f"CLOSE_{summary.defaultBlock.upper()}"
-				this.grammar[f"{block.content.lower()} EOL"] = block
-				this.grammar[f"{block.content.lower()} {closeName}"] = block
-				for closing in block.closings:
-					this.grammar[f"{block.content.lower()} OPEN_{closing.upper()}"] = block
 			elif (isinstance(block, OpenEndedBlock)):
 				this.grammar[f"{openName} {block.content.lower()} EOL"] = block
 				this.grammar[f"{openName} {block.content.lower()} {openName}"] = block
@@ -84,7 +85,15 @@ class GenParser(eons.Functor):
 			if ("parser" in syntax.exclusions):
 				continue
 
-			match = this.gen_lexer.SubstituteRepresentations(syntax.match, " block ", True).replace(summary.catchAllBlock.lower(), summary.catchAllBlock.upper())
+			match = this.gen_lexer.SubstituteRepresentations(
+				syntax.match,
+				" block ",
+				quoteContents = False,
+				replaceContentsWith = f" {syntax.name.upper()} "
+			).replace(
+				summary.catchAllBlock.lower(),
+				summary.catchAllBlock.upper()
+			)
 			this.grammar[match] = syntax
 			
 			if (len(syntax.recurseOn)):
