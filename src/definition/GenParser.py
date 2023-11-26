@@ -1,6 +1,7 @@
 import eons
 import logging
 from .Blocks import *
+from .Syntax import *
 from .Expressions import *
 from .Summary import summary
 
@@ -15,7 +16,9 @@ class GenParser(eons.Functor):
 
 	def Function(this):
 		this.grammar = {}
-		this.precedence = []
+		this.precedence = eons.util.DotDict()
+		this.precedence.token = []
+		this.precedence.rule = []
 		this.possibleNestings = []
 
 		this.parsableBlocks = [block for block in this.gen_lexer.blocks if not block in this.gen_lexer.defaultBlocks and not block in this.gen_lexer.defaultBlockSets and not isinstance(block, CatchAllBlock)]
@@ -68,7 +71,7 @@ class GenParser(eons.Functor):
 				blockPrecedenceOpen.append(openName)
 			if (closeName in this.gen_lexer.tokens.close.keys()):
 				blockPrecedenceClose.append(closeName)
-		this.precedence.append(f"('left', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
+		this.precedence.token.append(f"('left', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
 		
 		
 		# Abstract Syntax
@@ -103,10 +106,20 @@ class GenParser(eons.Functor):
 				elif (syntax.readDirection == "<"):
 					recursiveMatch = recursiveMatch[::-1].replace(syntax.recurseOn[::-1], syntax.name.lower()[::-1], 1)[::-1]
 				this.grammar[recursiveMatch] = syntax
-		this.precedence.append(f"('left', {', '.join([syntax.name.upper() for syntax in this.gen_lexer.syntax.strict if not 'parser' in syntax.exclusions and syntax.name.upper() in this.gen_lexer.tokens.syntactic.keys()])})")
+		this.precedence.token.append(f"('left', {', '.join([syntax.name.upper() for syntax in this.gen_lexer.syntax.strict if not 'parser' in syntax.exclusions and syntax.name.upper() in this.gen_lexer.tokens.syntactic.keys()])})")
 
 		# Builtins
-		this.precedence.append(f"('left', {', '.join([builtin.upper() for builtin in summary.builtins])})")
+		this.precedence.token.append(f"('left', {', '.join([builtin.upper() for builtin in summary.builtins])})")
+
+		# Rule Precedence
+		for block in summary.blocks:
+			this.precedence.rule.append(f"('right', '{block.upper()}')")
+
+		for syntax in summary.syntax.abstract:
+			this.precedence.rule.append(f"('right', '{syntax.upper()}')")
+
+		# Strict Syntax always has the highest precedence.
+		this.precedence.rule.append(f"('right', 'STRICT_SYNTAX')")
 
 		# Build Grammar
 		logging.debug(f"Grammar: {this.grammar.items}")
@@ -130,7 +143,9 @@ class GenParser(eons.Functor):
 			this.outFile.write(f"import {imp}\n")
 
 		# Has to be declared outside of f-string to use backslashes.
-		precedenceString = ',\n\t\t'.join(this.precedence)
+		precedenceString = ',\n\t\t'.join(this.precedence.token)
+		precedenceString += ',\n\t\t'
+		precedenceString += ',\n\t\t'.join(this.precedence.rule)
 		
 		this.outFile.write(f"""\
 class ElderParser(Parser):
@@ -146,8 +161,11 @@ class ElderParser(Parser):
 """)
 	
 		for rule,implementation in this.grammar.items():
+			precedence = f" %prec {implementation.name.upper()}"
+			if (isinstance(implementation, StrictSyntax)):
+				precedence = " %prec STRICT_SYNTAX"
 			this.outFile.write(f"""
-	@_('{rule}')
+	@_('{rule}{precedence}')
 	def {implementation.name.lower()}(this, p):
 		return this.executor.Execute("{implementation.name}", p=p).returned
 """)
