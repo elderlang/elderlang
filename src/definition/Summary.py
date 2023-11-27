@@ -41,7 +41,7 @@ summary.blocks = [
 ]
 
 summary.catchAllBlock = "Name"
-summary.startingBlock = "Execution"
+summary.startingBlock = "FullExpressionSet"
 summary.defaultBlock = "Expression"
 
 summary.syntax = eons.util.DotDict()

@@ -1,6 +1,8 @@
-from elderlang.elderlang import ElderLexer
+from elderlang.elderlang import ElderLexer, ElderParser
+from pathlib import Path
 
 ldrlxr = ElderLexer()
+ldrpsr = ElderParser()
 
 tests = [
 	'if',
@@ -8,12 +10,18 @@ tests = [
 	'arrays',
 ]
 
+testPath = str(Path(__file__).parent.absolute())
+
 for test in tests:
-    print(f"======================== {test} ========================")
-    testFile = open(f'./{test}.ldr', 'r')
-    ldr = testFile.read()
+	print(f"======================== {test} ========================")
+	testFile = open(f'{testPath}/{test}.ldr', 'r')
+	ldr = testFile.read()
 
-    for tok in ldrlxr.tokenize(ldr):
-        print(tok)
+	tokens = ldrlxr.tokenize(ldr)
 
-    testFile.close()
+	for tok in tokens:
+		print(tok)
+
+	ldrpsr.parse(tokens)
+
+	testFile.close()

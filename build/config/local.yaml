@@ -59,6 +59,15 @@ next:
 					build_in: ../
 					config:
 							type: lib
+- build: arbitrary
+	path: ../
+	build_in: test
+	copy:
+	- "/test/": "test/test/"
+	config:
+		clear_build_path: false
+		commands:
+		- "python3 ./test/unit/ldr.test.py"
 # - build: py_package
 # 	build_in: packaage
 # 	copy:

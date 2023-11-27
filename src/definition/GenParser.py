@@ -14,6 +14,8 @@ class GenParser(eons.Functor):
 
 		this.optionalKWArgs['outFileName'] = "parser.py"
 
+		this.optionalKWArgs['debug'] = True
+
 	def Function(this):
 		this.grammar = {}
 		this.precedence = eons.util.DotDict()
@@ -169,6 +171,9 @@ class ElderParser(Parser):
 	def {implementation.name.lower()}(this, p):
 		return this.executor.Execute("{implementation.name}", p=p).returned
 """)
+	
+		if (this.debug):
+			this.outFile.write("\n\tdebugfile = 'parsetab.out'\n")
 
 		this.outFile.close()
 
