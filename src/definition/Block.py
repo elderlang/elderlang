@@ -3,7 +3,6 @@ from .Structure import *
 
 @eons.kind(Structure)
 def Block(
-	p = None, # Used when parsing. Terrible name per Sly.
 	openings = [],
 	closings = [],
 	content = "",
@@ -19,8 +18,8 @@ def Block(
 def OpenEndedBlock(
 	closings = [
 		# Example only
-		'BlockComment',
-		'LineComment'
+		# 'BlockComment',
+		# 'LineComment'
 	],
 	doesSpaceClose = False,
 ):
@@ -34,7 +33,7 @@ def OpenEndedBlock(
 def CatchAllBlock(
 	specialStarts = [
 		# Example only
-		'/',
+		# '/',
 	],
 ):
 	pass

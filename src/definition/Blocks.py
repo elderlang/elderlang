@@ -8,7 +8,7 @@ def UnformattedString(
 	representation = "\\'UNFORMATTED_STRING\\'", #NOT a raw string
 	content = "FullExpressionSet",
 ):
-	pass
+	return str(this.p[1])
 
 @eons.kind(Block)
 def FormattedString(
@@ -17,7 +17,7 @@ def FormattedString(
 	representation = '\"FORMATTED_STRING\"', #NOT a raw string
 	content = "FullExpressionSet",
 ):
-	pass
+	return eval(f"f'{this.p[1]}'")
 
 @eons.kind(Block)
 def BlockComment(
@@ -26,7 +26,7 @@ def BlockComment(
 	representation = r'/\*BLOCK_COMMENT\*/',
 	content = "FullExpressionSet",
 ):
-	pass
+	return ""
 
 @eons.kind(OpenEndedBlock)
 def LineComment(
@@ -35,7 +35,7 @@ def LineComment(
 	representation = r'//LINE_COMMENT',
 	content = "FullExpressionSet",
 ):
-	pass
+	return ""
 
 @eons.kind(OpenEndedBlock)
 def Namespace(
@@ -50,7 +50,7 @@ def Namespace(
 	representation = r':NAMESPACE',
 	content = "LimitedExpressionSet",
 ):
-	pass
+	return "Namespace"
 
 @eons.kind(OpenEndedBlock)
 def Type(
@@ -65,7 +65,7 @@ def Type(
 	doesSpaceClose = True,
 	content = "LimitedExpressionSet",
 ):
-	pass
+	return "Type"
 
 @eons.kind(Block)
 def Parameter(
@@ -74,7 +74,7 @@ def Parameter(
 	representation = r'\(PARAMETER\)',
 	content = "FullExpressionSet",
 ):
-	pass
+	return "Parameter"
 
 @eons.kind(Block)
 def Execution(
@@ -83,7 +83,7 @@ def Execution(
 	representation = r'{{EXECUTION}}',
 	content = "FullExpressionSet",
 ):
-	pass
+	return "Execution"
 
 @eons.kind(Block)
 def Container(
@@ -92,4 +92,4 @@ def Container(
 	representation = r'\[CONTAINER\]',
 	content = "FullExpressionSet",
 ):
-	pass
+	return "Container"

@@ -137,10 +137,7 @@ class GenLexer(eons.Functor):
 			else:
 				logging.info(f"Syntax {syntax.name} has no matchable tokens.")
 
-		this.tokens.all = {
-			# Builtins
-			'SPACE': r' +',
-		}
+		this.tokens.all = {}
 		this.tokens.all.update(this.tokens.open)
 		this.tokens.all.update(this.tokens.close)
 		this.tokens.all.update(this.tokens.syntactic)
@@ -164,7 +161,7 @@ class GenLexer(eons.Functor):
 class ElderLexer(Lexer):
 	tokens = {{ {', '.join([t for t in this.tokens.all.keys()])} }}
 
-	ignore = '\\t+'
+	ignore = ' \\t'
 
 	def error(self, t):
 		print("Illegal character '%s'" % t.value[0])

@@ -33,6 +33,7 @@
 
 import sys
 import inspect
+import logging
 from collections import OrderedDict, defaultdict, Counter
 
 __all__        = [ 'Parser' ]
@@ -2107,6 +2108,8 @@ class Parser(metaclass=ParserMeta):
                 t = actions[self.state].get(ltype)
             else:
                 t = defaulted_states[self.state]
+
+            logging.debug(f"state {self.state}, token {lookahead.type}, action {t}")
 
             if t is not None:
                 if t > 0:

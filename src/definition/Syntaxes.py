@@ -100,14 +100,15 @@ def EOL(
 
 @eons.kind(StrictSyntax)
 def Autofill(
-	match = r'NAMESPACENAME',
+	match = r'NAME NAME',
+	literalMatch = True,
 	exclusions = [
 		'all.catch.block'
 	],
 	recurseOn = "NAME",
 	readDirection = "<"
 ):
-	pass
+	return f"Autofill({this.p[0]}, {this.p[1]})"
 
 @eons.kind(StrictSyntax)
 def Sequence(
@@ -115,4 +116,4 @@ def Sequence(
 	recurseOn = "NAME",
 	readDirection = ">"
 ):
-	pass
+	return f"Sequence({this.p[0]}, {this.p[2]})"

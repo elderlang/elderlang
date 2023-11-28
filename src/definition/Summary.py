@@ -18,48 +18,47 @@ from .Expressions import *
 summary = eons.util.DotDict()
 
 summary.builtins = [
-	"SPACE"
 ]
 
 summary.blocks = [
-	"BlockComment",
-	"LineComment",
-	"UnformattedString",
-	"FormattedString",
-	"Execution",
-	"Parameter",
-	"Container",
-	"FullExpressionSet",
-	"FullExpression",
-	"Type",
-	"Namespace",
-	"LimitedExpressionSet",
-	"LimitedExpression",
+	# "BlockComment",
+	# "LineComment",
+	# "UnformattedString",
+	# "FormattedString",
+	# "Execution",
+	# "Parameter",
+	# "Container",
+	# "FullExpressionSet",
+	# "FullExpression",
+	# "Type",
+	# "Namespace",
+	# "LimitedExpressionSet",
+	# "LimitedExpression",
 	"ProtoExpressionSet",
 	"ProtoExpression",
 	"Name",
 ]
 
 summary.catchAllBlock = "Name"
-summary.startingBlock = "FullExpressionSet"
+summary.startingBlock = "ProtoExpression"
 summary.defaultBlock = "Expression"
 
 summary.syntax = eons.util.DotDict()
 
-summary.syntax.abstract = [
-	"Kind",
-	"StructKind",
-	"ContainerInvokationWithParameters",
-	"InvokationWithParametersAndExecution",
-	"ContainerInvokation",
-	"TypedName",
-	"StandardInvokation",
-	"ContainerAccess",
-	"InvokationWithExecution",
-]
+summary.syntax.abstract = []
+# 	"Kind",
+# 	"StructKind",
+# 	"ContainerInvokationWithParameters",
+# 	"InvokationWithParametersAndExecution",
+# 	"ContainerInvokation",
+# 	"TypedName",
+# 	"StandardInvokation",
+# 	"ContainerAccess",
+# 	"InvokationWithExecution",
+# ]
 
 summary.syntax.strict = [
-	"Sequence",
+	# "Sequence",
 	"Autofill",
 	"EOL",
 ]

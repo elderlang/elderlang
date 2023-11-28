@@ -27,88 +27,10 @@ class GenParser(eons.Functor):
 
 		# NOTE: Block precedence < Strict Syntax precedence, so Block processing occurs first (buried deeper in the stack = lower precedence). 
 
-		# Default Blocks
-		# These will not have tokens associated with them and thus no precedence.
-		for block in this.gen_lexer.defaultBlockSets:
-			if ("parser" in block.exclusions):
-				continue
-
-			adhere = this.gen_lexer.GetBlock(block.content)
-			if (adhere is None):
-				logging.error(f"Block {block.content} does not exist.")
-				continue
-			for nest in adhere.nest:
-				nestToken = nest.lower()
-				if (nest == summary.catchAllBlock):
-					nestToken = nest.upper()
-				this.grammar[f"{block.name.lower()} {nestToken}"] = block
-				this.grammar[f"{nestToken}"] = adhere
-				this.grammar[f"{nestToken} EOL"] = adhere
-				this.grammar[f"{nestToken} CLOSE_{summary.defaultBlock.upper()}"] = adhere
-				for closing in adhere.closings:
-					this.grammar[f"{nestToken} {closing.lower()}"] = adhere
-			this.grammar[adhere.name.lower()] = block
-
-		# All Other Blocks
-		blockPrecedenceOpen = []
-		blockPrecedenceClose = []
-		for block in this.parsableBlocks:
-			if ("parser" in block.exclusions):
-				continue
-			
-			openName = f"OPEN_{block.name.upper()}"
-			closeName = f"CLOSE_{block.name.upper()}"
-
-			if (isinstance(block, DefaultBlock)):
-				closeName = f"CLOSE_{summary.defaultBlock.upper()}"
-			elif (isinstance(block, OpenEndedBlock)):
-				this.grammar[f"{openName} {block.content.lower()} EOL"] = block
-				this.grammar[f"{openName} {block.content.lower()} {openName}"] = block
-				for closing in block.closings:
-					this.grammar[f"{openName} {block.content.lower()} OPEN_{closing.upper()}"] = block
-			else:
-				this.grammar[f"{openName} {block.content.lower()} {closeName}"] = block
-
-			if (openName in this.gen_lexer.tokens.open.keys()):
-				blockPrecedenceOpen.append(openName)
-			if (closeName in this.gen_lexer.tokens.close.keys()):
-				blockPrecedenceClose.append(closeName)
-		this.precedence.token.append(f"('left', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
-		
-		
-		# Abstract Syntax
-		# Abstract Syntaxes will not have tokens associated with them and thus no precedence.
-		for syntax in this.gen_lexer.syntax.abstract:
-			if ("parser" in syntax.exclusions):
-				continue
-
-			match = ' '.join([block.lower() for block in syntax.blocks]).replace(summary.catchAllBlock.lower(), summary.catchAllBlock.upper())
-			this.grammar[match] = syntax
-
-		# Strict Syntax
-		for syntax in this.gen_lexer.syntax.strict:
-			if ("parser" in syntax.exclusions):
-				continue
-
-			match = this.gen_lexer.SubstituteRepresentations(
-				syntax.match,
-				" block ",
-				quoteContents = False,
-				replaceContentsWith = f" {syntax.name.upper()} "
-			).replace(
-				summary.catchAllBlock.lower(),
-				summary.catchAllBlock.upper()
-			)
-			this.grammar[match] = syntax
-			
-			if (len(syntax.recurseOn)):
-				recursiveMatch = match
-				if (syntax.readDirection == ">"):
-					recursiveMatch = recursiveMatch.replace(syntax.recurseOn, syntax.name.lower(), 1)
-				elif (syntax.readDirection == "<"):
-					recursiveMatch = recursiveMatch[::-1].replace(syntax.recurseOn[::-1], syntax.name.lower()[::-1], 1)[::-1]
-				this.grammar[recursiveMatch] = syntax
-		this.precedence.token.append(f"('left', {', '.join([syntax.name.upper() for syntax in this.gen_lexer.syntax.strict if not 'parser' in syntax.exclusions and syntax.name.upper() in this.gen_lexer.tokens.syntactic.keys()])})")
+		this.PopulateAbstractSyntaxGrammar()
+		this.PopulateBlockGrammar()
+		this.PopulateDefaultGrammar()
+		this.PopulateStrictSyntaxGrammar()
 
 		# Builtins
 		this.precedence.token.append(f"('left', {', '.join([builtin.upper() for builtin in summary.builtins])})")
@@ -145,9 +67,12 @@ class GenParser(eons.Functor):
 			this.outFile.write(f"import {imp}\n")
 
 		# Has to be declared outside of f-string to use backslashes.
-		precedenceString = ',\n\t\t'.join(this.precedence.token)
-		precedenceString += ',\n\t\t'
-		precedenceString += ',\n\t\t'.join(this.precedence.rule)
+		# precedenceString = ',\n\t\t'.join(this.precedence.token)
+		# precedenceString += ',\n\t\t'
+		# precedenceString += ',\n\t\t'.join(this.precedence.rule)
+
+		# FIXME: DELETEME
+		precedenceString = ',\n\t\t'.join(this.precedence.rule)
 		
 		this.outFile.write(f"""\
 class ElderParser(Parser):
@@ -161,13 +86,16 @@ class ElderParser(Parser):
 		this.executor = eons.Executor(name="Parser")
 		this.executor()
 """)
-	
-		for rule,implementation in this.grammar.items():
+
+		for implementation, rules in this.grammar.items():
 			precedence = f" %prec {implementation.name.upper()}"
 			if (isinstance(implementation, StrictSyntax)):
 				precedence = " %prec STRICT_SYNTAX"
+			this.outFile.write(f"\n\t@_(")
+			for rule in rules:
+				this.outFile.write(f"\n\t\t'{rule}{precedence}',")
+			this.outFile.write(f"\n\t)")
 			this.outFile.write(f"""
-	@_('{rule}{precedence}')
 	def {implementation.name.lower()}(this, p):
 		return this.executor.Execute("{implementation.name}", p=p).returned
 """)
@@ -178,3 +106,105 @@ class ElderParser(Parser):
 		this.outFile.close()
 
 		logging.debug(f"Done writing to {this.outFileName}")
+
+	
+	
+	def PopulateAbstractSyntaxGrammar(this):
+		for syntax in this.gen_lexer.syntax.abstract:
+			if ("parser" in syntax.exclusions):
+				continue
+
+			match = ' '.join([block.lower() for block in syntax.blocks]).replace(summary.catchAllBlock.lower(), summary.catchAllBlock.upper())
+			this.grammar[syntax] = [match]
+
+
+	def PopulateBlockGrammar(this):
+		blockPrecedenceOpen = []
+		blockPrecedenceClose = []
+		for block in this.parsableBlocks:
+			if ("parser" in block.exclusions):
+				continue
+			
+			openName = f"OPEN_{block.name.upper()}"
+			closeName = f"CLOSE_{block.name.upper()}"
+
+			if (isinstance(block, DefaultBlock)):
+				closeName = f"CLOSE_{summary.defaultBlock.upper()}"
+			elif (isinstance(block, OpenEndedBlock)):
+				this.grammar[block] = [
+					f"{openName} {block.content.lower()} EOL",
+					f"{openName} {block.content.lower()} {openName}",
+				]
+				
+				for closing in block.closings:
+					this.grammar[block].append(f"{openName} {block.content.lower()} OPEN_{closing.upper()}")
+			else:
+				this.grammar[block].append(f"{openName} {block.content.lower()} {closeName}")
+
+			if (openName in this.gen_lexer.tokens.open.keys()):
+				blockPrecedenceOpen.append(openName)
+			if (closeName in this.gen_lexer.tokens.close.keys()):
+				blockPrecedenceClose.append(closeName)
+		this.precedence.token.append(f"('left', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
+
+
+	# These will not have tokens associated with them and thus no precedence.
+	def PopulateDefaultGrammar(this):
+		for block in this.gen_lexer.defaultBlockSets:
+			if ("parser" in block.exclusions):
+				continue
+
+			adhere = this.gen_lexer.GetBlock(block.content)
+			if (adhere is None):
+				logging.error(f"Block {block.content} does not exist.")
+				continue
+			
+			this.grammar[block] = [
+				f"{adhere.name.lower()}",
+				f"{block.name.lower()} {adhere.name.lower()}",
+				f"{block.name.lower()} {block.name.lower()}",
+			]
+
+		for block in this.gen_lexer.defaultBlocks:
+			if ("parser" in block.exclusions):
+				continue
+
+			for nest in block.nest:
+				nestToken = nest.lower()
+				if (nest == summary.catchAllBlock):
+					nestToken = nest.upper()
+				this.grammar[block] = [
+					f"{nestToken}",
+					f"{nestToken} EOL",
+					f"{nestToken} CLOSE_{summary.defaultBlock.upper()}"
+				]
+				for closing in block.closings:
+					this.grammar[block].append(f"{nestToken} {closing.lower()}")
+
+
+	def PopulateStrictSyntaxGrammar(this):
+		for syntax in this.gen_lexer.syntax.strict:
+			if ("parser" in syntax.exclusions):
+				continue
+			
+			match = syntax.match
+			if (not syntax.literalMatch):
+				match = this.gen_lexer.SubstituteRepresentations(
+					syntax.match,
+					" block ",
+					quoteContents = False,
+					replaceContentsWith = f" {syntax.name.upper()} "
+				).replace(
+					summary.catchAllBlock.lower(),
+					summary.catchAllBlock.upper()
+				)
+			this.grammar[syntax] = [match]
+			
+			if (len(syntax.recurseOn)):
+				recursiveMatch = match
+				if (syntax.readDirection == ">"):
+					recursiveMatch = recursiveMatch.replace(syntax.recurseOn, syntax.name.lower(), 1)
+				elif (syntax.readDirection == "<"):
+					recursiveMatch = recursiveMatch[::-1].replace(syntax.recurseOn[::-1], syntax.name.lower()[::-1], 1)[::-1]
+				this.grammar[syntax].append(recursiveMatch)
+		this.precedence.token.append(f"('left', {', '.join([syntax.name.upper() for syntax in this.gen_lexer.syntax.strict if not 'parser' in syntax.exclusions and syntax.name.upper() in this.gen_lexer.tokens.syntactic.keys()])})")

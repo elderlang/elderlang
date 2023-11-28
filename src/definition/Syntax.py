@@ -8,6 +8,7 @@ def Syntax():
 @eons.kind(Syntax)
 def StrictSyntax(
 	match = r'',
+	literalMatch = False,
 	recurseOn = "",
 	readDirection = ">"
 ):

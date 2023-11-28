@@ -8,16 +8,16 @@ def Name(
 		'/',
 	],
 ):
-	pass
+	return this.p[0]
 
 @eons.kind(DefaultBlock)
 def Expression(
 	openings = [r';', r','],
 	closings = [
-		'LineComment',
+		# 'LineComment',
 	],
 ):
-	pass
+	return "Expression"
 
 @eons.kind(Expression)
 def ProtoExpression(
@@ -27,17 +27,17 @@ def ProtoExpression(
 		
 		# StrictSyntaxes
 		'Autofill',
-		'Sequence'
+		# 'Sequence'
 	],
 ):
-	pass
+	return f"{this.p[0]}"
 
 @eons.kind(DefaultBlockSet)
 def ProtoExpressionSet(
 	representation = r'PROTOEXPRESSIONSET',
 	content = "ProtoExpression",
 ):
-	pass
+	return f"{this.p[0]} {this.p[1]}"
 
 @eons.kind(ProtoExpression)
 def LimitedExpression(
@@ -49,14 +49,14 @@ def LimitedExpression(
 		'Container',
 	]
 ):
-	pass
+	return f"{this.p[0]} {this.p[1]}"
 
 @eons.kind(DefaultBlockSet)
 def LimitedExpressionSet(
 	representation = r'LIMITEDEXPRESSIONSET',
 	content = "LimitedExpression",
 ):
-	pass
+	return f"{this.p[0]} {this.p[1]}"
 
 
 @eons.kind(ProtoExpression)
@@ -82,11 +82,11 @@ def FullExpression(
 		'ContainerInvokationWithParameters',
 	]
 ):
-	pass
+	return f"{this.p[0]}"
 
 @eons.kind(DefaultBlockSet)
 def FullExpressionSet(
 	representation = r'FULLEXPRESSIONSET',
 	content = "FullExpression",
 ):
-	pass
+	return f"{this.p[0]} {this.p[1]}"

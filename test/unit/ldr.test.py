@@ -1,14 +1,20 @@
 from elderlang.elderlang import ElderLexer, ElderParser
 from pathlib import Path
+import eons
+import logging
 
 ldrlxr = ElderLexer()
 ldrpsr = ElderParser()
 
 tests = [
-	'if',
-	'hellowolf',
-	'arrays',
+	'op'
+	# 'if',
+	# 'hellowolf',
+	# 'arrays',
 ]
+
+ex = eons.Executor(name="Elder Language Tester")
+ex()
 
 testPath = str(Path(__file__).parent.absolute())
 
@@ -19,9 +25,6 @@ for test in tests:
 
 	tokens = ldrlxr.tokenize(ldr)
 
-	for tok in tokens:
-		print(tok)
-
-	ldrpsr.parse(tokens)
+	print(ldrpsr.parse(tokens))
 
 	testFile.close()
