@@ -110,7 +110,7 @@ class ElderParser(Parser):
 	@_('{summary.catchAllBlock.upper()}')
 	def {summary.catchAllBlock.lower()}(this, p):
 		ret = this.executor.Execute("{summary.catchAllBlock}", p=p).returned
-		logging.critical(f"{summary.catchAllBlock} produced {{ret}}")
+		logging.info(f"{summary.catchAllBlock} produced {{ret}}")
 		return ret
 """)
 
@@ -141,7 +141,7 @@ class ElderParser(Parser):
 		this.outFile.write(f"""
 	def {implementation.name.lower()}(this, p):
 		ret = this.executor.Execute("{implementation.name}", p=p).returned
-		logging.critical(f"{implementation.name} produced {{ret}}")
+		logging.info(f"{implementation.name} produced {{ret}}")
 		return ret
 """)
 

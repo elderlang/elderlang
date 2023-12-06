@@ -42,7 +42,7 @@ def ProtoExpressionSet(
 ):
 	return this.parent.Function(this)
 
-@eons.kind(ProtoExpression)
+@eons.kind(Expression)
 def LimitedExpression(
 	representation = r'LIMITEDEXPRESSION',
 	nest = [
@@ -64,7 +64,7 @@ def LimitedExpressionSet(
 	return this.parent.Function(this)
 
 
-@eons.kind(ProtoExpression)
+@eons.kind(Expression)
 def FullExpression(
 	representation = r'FULLEXPRESSION',
 	nest = [

@@ -21,41 +21,41 @@ summary.builtins = [
 ]
 
 summary.blocks = [
-	# "FullExpressionSet",
-	# "FullExpression",
-	# "BlockComment",
-	# "LineComment",
-	# "UnformattedString",
-	# "FormattedString",
-	# "Execution",
-	# "Parameter",
-	# "Container",
-	# "Type",
-	# "Namespace",
-	# "LimitedExpressionSet",
-	# "LimitedExpression",
+	"FullExpressionSet",
+	"FullExpression",
+	"BlockComment",
+	"LineComment",
+	"UnformattedString",
+	"FormattedString",
+	"Execution",
+	"Parameter",
+	"Container",
+	"Type",
+	"Namespace",
+	"LimitedExpressionSet",
+	"LimitedExpression",
 	"ProtoExpressionSet",
 	"ProtoExpression",
 	"Name",
 ]
 
 summary.catchAllBlock = "Name"
-summary.startingBlock = "ProtoExpressionSet"
+summary.startingBlock = "FullExpressionSet"
 summary.defaultBlock = "Expression"
 
 summary.syntax = eons.util.DotDict()
 
-summary.syntax.abstract = []
-# 	"Kind",
-# 	"StructKind",
-# 	"ContainerInvokationWithParameters",
-# 	"InvokationWithParametersAndExecution",
-# 	"ContainerInvokation",
-# 	"TypedName",
-# 	"StandardInvokation",
-# 	"ContainerAccess",
-# 	"InvokationWithExecution",
-# ]
+summary.syntax.abstract = [
+	"Kind",
+	"StructKind",
+	"ContainerInvokationWithParameters",
+	"InvokationWithParametersAndExecution",
+	"ContainerInvokation",
+	"TypedName",
+	"StandardInvokation",
+	"ContainerAccess",
+	"InvokationWithExecution",
+]
 
 summary.syntax.strict = [
 	"Sequence",

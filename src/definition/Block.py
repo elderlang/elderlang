@@ -55,10 +55,17 @@ def DefaultBlockSet():
 	if (isinstance(this.p[0], str)):
 		return [this.p[0]]
 	
-	# reduce set set -> set
-	if (isinstance(this.p[1], list)):
-		return this.p[0] + this.p[1]
-	
-	#reduce set expression -> set
-	else:
-		return this.p[0].append(this.p[1])
+	if (isinstance(this.p[0], list)):
+		try:
+			# reduce set set -> set
+			if (isinstance(this.p[1], list)):
+				return this.p[0] + this.p[1]
+			
+			# reduce set expression -> set
+			else:
+				return this.p[0].append(this.p[1])
+			
+		except:
+			# reduce (reduced) expression -> set
+			return this.p[0]
+		
