@@ -16,8 +16,9 @@ def Expression(
 	closings = [
 		# 'LineComment',
 	],
+	before = None
 ):
-	return "Expression"
+	return this.p[0]
 
 @eons.kind(Expression)
 def ProtoExpression(
@@ -27,17 +28,19 @@ def ProtoExpression(
 		
 		# StrictSyntaxes
 		'Autofill',
-		# 'Sequence'
+		'Sequence'
 	],
+	before = "Sequence",
 ):
-	return f"{this.p[0]}"
+	return this.parent.Function(this)
 
 @eons.kind(DefaultBlockSet)
 def ProtoExpressionSet(
 	representation = r'PROTOEXPRESSIONSET',
 	content = "ProtoExpression",
+	before = "ProtoExpression",
 ):
-	return f"{this.p[0]} {this.p[1]}"
+	return this.parent.Function(this)
 
 @eons.kind(ProtoExpression)
 def LimitedExpression(
@@ -47,16 +50,18 @@ def LimitedExpression(
 		'BlockComment',
 		'Execution',
 		'Container',
-	]
+	],
+	before = "ProtoExpressionSet"
 ):
-	return f"{this.p[0]} {this.p[1]}"
+	return this.parent.Function(this)
 
 @eons.kind(DefaultBlockSet)
 def LimitedExpressionSet(
 	representation = r'LIMITEDEXPRESSIONSET',
 	content = "LimitedExpression",
+	before = "LimitedExpression"
 ):
-	return f"{this.p[0]} {this.p[1]}"
+	return this.parent.Function(this)
 
 
 @eons.kind(ProtoExpression)
@@ -80,13 +85,15 @@ def FullExpression(
 		'ContainerAccess',
 		'ContainerInvokation',
 		'ContainerInvokationWithParameters',
-	]
+	],
+	before = "Kind",
 ):
-	return f"{this.p[0]}"
+	return this.parent.Function(this)
 
 @eons.kind(DefaultBlockSet)
 def FullExpressionSet(
 	representation = r'FULLEXPRESSIONSET',
 	content = "FullExpression",
+	before = "FullExpression",
 ):
-	return f"{this.p[0]} {this.p[1]}"
+	return this.parent.Function(this)

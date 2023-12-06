@@ -122,6 +122,8 @@ class GenLexer(eons.Functor):
 
 		for syntax in this.syntax.strict:
 			syntax.WarmUp(executor = this.executor, precursor = None)
+			if (syntax.noToken):
+				continue
 			possibleToken = syntax.match
 			possibleToken = this.SubstituteRepresentations(possibleToken, "")
 			for builtin in summary.builtins:

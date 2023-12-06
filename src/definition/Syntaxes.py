@@ -10,7 +10,7 @@ def Kind(
 		'Execution',
 	],
 ):
-	pass
+	return f"Kind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]}, execution = {this.p[3]})"
 
 @eons.kind(AbstractSyntax)
 def StructKind(
@@ -20,7 +20,7 @@ def StructKind(
 		'Parameter',
 	],
 ):
-	pass
+	return f"StructKind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]})"
 
 @eons.kind(AbstractSyntax)
 def TypedName(
@@ -29,7 +29,7 @@ def TypedName(
 		'Name',
 	],
 ):
-	pass
+	return f"TypedName(type = {this.p[0]}, name = {this.p[1]})"
 
 @eons.kind(Invokation)
 def StandardInvokation(
@@ -38,7 +38,7 @@ def StandardInvokation(
 		'Parameter',
 	]
 ):
-	pass
+	return f"StandardInvokation(name = {this.p[0]}, parameter = {this.p[1]})"
 
 @eons.kind(Invokation)
 def InvokationWithParametersAndExecution(
@@ -48,7 +48,7 @@ def InvokationWithParametersAndExecution(
 		'Execution',
 	]
 ):
-	pass
+	return f"InvokationWithParametersAndExecution(name = {this.p[0]}, parameter = {this.p[1]}, execution = {this.p[2]})"
 
 @eons.kind(Invokation)
 def InvokationWithExecution(
@@ -57,7 +57,7 @@ def InvokationWithExecution(
 		'Execution',
 	]
 ):
-	pass
+	return f"InvokationWithExecution(name = {this.p[0]}, execution = {this.p[1]})"
 
 @eons.kind(Invokation)
 def ContainerInvokation(
@@ -67,7 +67,7 @@ def ContainerInvokation(
 		'Execution',
 	],
 ):
-	pass
+	return f"ContainerInvokation(name = {this.p[0]}, container = {this.p[1]}, execution = {this.p[2]})"
 
 @eons.kind(Invokation)
 def ContainerInvokationWithParameters(
@@ -78,7 +78,7 @@ def ContainerInvokationWithParameters(
 		'Execution',
 	],
 ):
-	pass
+	return f"ContainerInvokationWithParameters(name = {this.p[0]}, parameter = {this.p[1]}, container = {this.p[2]}, execution = {this.p[3]})"
 
 @eons.kind(AbstractSyntax)
 def ContainerAccess(
@@ -87,7 +87,7 @@ def ContainerAccess(
 		'Container',
 	]
 ):
-	pass
+	return f"ContainerAccess(name = {this.p[0]}, container = {this.p[1]})"
 
 @eons.kind(StrictSyntax)
 def EOL(
@@ -100,12 +100,13 @@ def EOL(
 
 @eons.kind(StrictSyntax)
 def Autofill(
-	match = r'NAME NAME',
+	match = r'name name',
 	literalMatch = True,
+	noToken = True,
 	exclusions = [
 		'all.catch.block'
 	],
-	recurseOn = "NAME",
+	recurseOn = "name",
 	readDirection = "<"
 ):
 	return f"Autofill({this.p[0]}, {this.p[1]})"
@@ -113,7 +114,7 @@ def Autofill(
 @eons.kind(StrictSyntax)
 def Sequence(
 	match = r'NAME/NAME',
-	recurseOn = "NAME",
+	recurseOn = "name",
 	readDirection = ">"
 ):
 	return f"Sequence({this.p[0]}, {this.p[2]})"

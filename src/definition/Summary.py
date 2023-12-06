@@ -21,6 +21,8 @@ summary.builtins = [
 ]
 
 summary.blocks = [
+	# "FullExpressionSet",
+	# "FullExpression",
 	# "BlockComment",
 	# "LineComment",
 	# "UnformattedString",
@@ -28,8 +30,6 @@ summary.blocks = [
 	# "Execution",
 	# "Parameter",
 	# "Container",
-	# "FullExpressionSet",
-	# "FullExpression",
 	# "Type",
 	# "Namespace",
 	# "LimitedExpressionSet",
@@ -40,7 +40,7 @@ summary.blocks = [
 ]
 
 summary.catchAllBlock = "Name"
-summary.startingBlock = "ProtoExpression"
+summary.startingBlock = "ProtoExpressionSet"
 summary.defaultBlock = "Expression"
 
 summary.syntax = eons.util.DotDict()
@@ -58,7 +58,7 @@ summary.syntax.abstract = []
 # ]
 
 summary.syntax.strict = [
-	# "Sequence",
+	"Sequence",
 	"Autofill",
 	"EOL",
 ]

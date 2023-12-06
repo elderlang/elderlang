@@ -9,6 +9,7 @@ def Syntax():
 def StrictSyntax(
 	match = r'',
 	literalMatch = False,
+	noToken = False,
 	recurseOn = "",
 	readDirection = ">"
 ):
