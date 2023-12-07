@@ -46,10 +46,10 @@ class GenParser(eons.Functor):
 		for block in summary.blocks:
 			if (block == summary.catchAllBlock):
 				continue
-			this.precedence.rule.append(f"('right', '{block.upper()}')")
+			this.precedence.rule.append(f"('left', '{block.upper()}')")
 
 		for syntax in summary.syntax.abstract:
-			this.precedence.rule.append(f"('right', '{syntax.upper()}')")
+			this.precedence.rule.append(f"('left', '{syntax.upper()}')")
 
 		# Strict Syntax always has the highest precedence.
 		this.precedence.rule.append(f"('right', 'STRICT_SYNTAX')")
@@ -76,9 +76,12 @@ class GenParser(eons.Functor):
 			this.outFile.write(f"import {imp}\n")
 
 		# Has to be declared outside of f-string to use backslashes.
-		precedenceString = ',\n\t\t'.join(this.precedence.rule)
-		precedenceString += ',\n\t\t'
-		precedenceString += ',\n\t\t'.join(this.precedence.token)
+		precedenceJoiner = ",\n\t\t"
+		# precedenceString = f"('right', 'EXCLUDED'){precedenceJoiner}"
+		precedenceString = precedenceJoiner[2:]
+		precedenceString += precedenceJoiner.join(this.precedence.rule)
+		precedenceString += precedenceJoiner
+		precedenceString += precedenceJoiner.join(this.precedence.token)
 
 		
 		this.outFile.write(f"""\
@@ -128,6 +131,8 @@ class ElderParser(Parser):
 		
 		if (this.custom_precedence):
 			precedence = f" %prec {implementation.name.upper()}"
+			# if ('precedence' in implementation.exclusions):
+			# 	precedence = " %prec EXCLUDED"
 			if (isinstance(implementation, StrictSyntax)):
 				precedence = " %prec STRICT_SYNTAX"
 		else:
@@ -169,14 +174,46 @@ class ElderParser(Parser):
 				closeName = f"CLOSE_{summary.defaultBlock.upper()}"
 			elif (isinstance(block, OpenEndedBlock)):
 				this.grammar[block] = [
-					f"{openName} {block.content.lower()} EOL",
+					# f"{openName} {block.content.lower()} EOL", # Things like LimitedExpressionSet incorporate EOL, so using it here causes reduce/reduce conflicts.
+					f"{openName} {block.content.lower()}",
 					f"{openName} {block.content.lower()} {openName}",
+					f"{openName} {block.content.lower()} {openName} EOL",
 				]
 				
 				for closing in block.closings:
 					this.grammar[block].append(f"{openName} {block.content.lower()} {closing.lower()}")
+			
+			elif (isinstance(block, SymmetricBlock)):
+				this.grammar[block] = [
+					f"{openName} {block.content.lower()} {openName}",
+					f"{openName} EOL {block.content.lower()} EOL {openName}",
+					f"{openName} EOL {block.content.lower()} {openName}",
+					f"{openName} {block.content.lower()} EOL {openName}",
+					f"{openName} {block.content.lower()} {openName} EOL",
+					f"{openName} EOL {block.content.lower()} EOL {openName} EOL",
+					f"{openName} EOL {block.content.lower()} {openName} EOL",
+					f"{openName} {block.content.lower()} EOL {openName} EOL",
+					f"{openName} {openName}",
+					f"{openName} {openName} EOL",
+					f"{openName} EOL {openName}",
+					f"{openName} EOL {openName} EOL",
+				]
+			
 			else:
-				this.grammar[block] = [(f"{openName} {block.content.lower()} {closeName}")]
+				this.grammar[block] = [
+					f"{openName} {block.content.lower()} {closeName}",
+					f"{openName} EOL {block.content.lower()} EOL {closeName}",
+					f"{openName} {block.content.lower()} EOL {closeName}",
+					f"{openName} EOL {block.content.lower()} {closeName}",
+					f"{openName} {block.content.lower()} {closeName} EOL",
+					f"{openName} EOL {block.content.lower()} EOL {closeName} EOL",
+					f"{openName} {block.content.lower()} EOL {closeName} EOL",
+					f"{openName} EOL {block.content.lower()} {closeName} EOL",
+					f"{openName} {closeName}",
+					f"{openName} EOL {closeName}",
+					f"{openName} {closeName} EOL",
+					f"{openName} EOL {closeName} EOL",
+				]
 
 			if (openName in this.gen_lexer.tokens.open.keys()):
 				blockPrecedenceOpen.append(openName)
@@ -199,7 +236,10 @@ class ElderParser(Parser):
 			
 			this.grammar[block] = [
 				f"{adhere.name.lower()}",
+				f"{adhere.name.lower()} EOL",
+				f"{block.name.lower()} EOL",
 				f"{block.name.lower()} {adhere.name.lower()}",
+				f"{block.name.lower()} {adhere.name.lower()} EOL",
 				# f"{block.name.lower()} {block.name.lower()}",
 			]
 
@@ -212,8 +252,7 @@ class ElderParser(Parser):
 				nestToken = nest.lower()
 				this.grammar[block] += [
 					f"{nestToken}",
-					f"{nestToken} EOL",
-					f"{nestToken} CLOSE_{summary.defaultBlock.upper()}"
+					f"{nestToken} CLOSE_{summary.defaultBlock.upper()}",
 				]
 				for closing in block.closings:
 					this.grammar[block].append(f"{nestToken} {closing.lower()}")

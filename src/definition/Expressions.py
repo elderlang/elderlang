@@ -14,8 +14,9 @@ def Name(
 def Expression(
 	openings = [r';', r','],
 	closings = [
-		# 'LineComment',
+		'LineComment',
 	],
+	exclusions = [],
 	before = None
 ):
 	return this.p[0]
@@ -28,7 +29,8 @@ def ProtoExpression(
 		
 		# StrictSyntaxes
 		'Autofill',
-		'Sequence'
+		'Sequence',
+		'ExplicitAccess',
 	],
 	before = "Sequence",
 ):

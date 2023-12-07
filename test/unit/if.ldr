@@ -1,11 +1,9 @@
-{
-	condition = true
+condition = true
 
-	if (condition)
-	{
-		print("Should never be printed")
-	}
-	else {
-		print {"Should always be printed"}
-	}
+if (condition)
+{
+	print("Should never be printed")
+}
+else {
+	print ("Should always be printed")
 }

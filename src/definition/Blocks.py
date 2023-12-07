@@ -1,19 +1,17 @@
 from .Block import *
 import eons
 
-@eons.kind(Block)
+@eons.kind(SymmetricBlock)
 def UnformattedString(
 	openings = [r"\'"],
-	closings = [r"\'"],
 	representation = "\\'UNFORMATTED_STRING\\'", #NOT a raw string
 	content = "FullExpressionSet",
 ):
 	return this.parent.Function(this)
 
-@eons.kind(Block)
+@eons.kind(SymmetricBlock)
 def FormattedString(
 	openings = [r'"', r'`'],
-	closings = [r'"', r'`'],
 	representation = '\"FORMATTED_STRING\"', #NOT a raw string
 	content = "FullExpressionSet",
 	nest = [

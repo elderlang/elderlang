@@ -2,27 +2,6 @@ from .Syntax import *
 import eons
 
 @eons.kind(AbstractSyntax)
-def Kind(
-	blocks = [
-		'Type',
-		'Name',
-		'Parameter',
-		'Execution',
-	],
-):
-	return f"Kind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]}, execution = {this.p[3]})"
-
-@eons.kind(AbstractSyntax)
-def StructKind(
-	blocks = [
-		'Type',
-		'Name',
-		'Parameter',
-	],
-):
-	return f"StructKind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]})"
-
-@eons.kind(AbstractSyntax)
 def TypedName(
 	blocks = [
 		'Type',
@@ -30,6 +9,15 @@ def TypedName(
 	],
 ):
 	return f"TypedName(type = {this.p[0]}, name = {this.p[1]})"
+
+@eons.kind(AbstractSyntax)
+def ContainerAccess(
+	blocks = [
+		'Name',
+		'Container',
+	]
+):
+	return f"ContainerAccess(name = {this.p[0]}, container = {this.p[1]})"
 
 @eons.kind(Invokation)
 def StandardInvokation(
@@ -41,6 +29,25 @@ def StandardInvokation(
 	return f"StandardInvokation(name = {this.p[0]}, parameter = {this.p[1]})"
 
 @eons.kind(Invokation)
+def InvokationWithExecution(
+	blocks = [
+		'Name',
+		'Execution',
+	]
+):
+	return f"InvokationWithExecution(name = {this.p[0]}, execution = {this.p[1]})"
+
+@eons.kind(AbstractSyntax)
+def StructKind(
+	blocks = [
+		'Type',
+		'Name',
+		'Parameter',
+	],
+):
+	return f"StructKind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]})"
+
+@eons.kind(Invokation)
 def InvokationWithParametersAndExecution(
 	blocks = [
 		'Name',
@@ -49,15 +56,6 @@ def InvokationWithParametersAndExecution(
 	]
 ):
 	return f"InvokationWithParametersAndExecution(name = {this.p[0]}, parameter = {this.p[1]}, execution = {this.p[2]})"
-
-@eons.kind(Invokation)
-def InvokationWithExecution(
-	blocks = [
-		'Name',
-		'Execution',
-	]
-):
-	return f"InvokationWithExecution(name = {this.p[0]}, execution = {this.p[1]})"
 
 @eons.kind(Invokation)
 def ContainerInvokation(
@@ -81,19 +79,21 @@ def ContainerInvokationWithParameters(
 	return f"ContainerInvokationWithParameters(name = {this.p[0]}, parameter = {this.p[1]}, container = {this.p[2]}, execution = {this.p[3]})"
 
 @eons.kind(AbstractSyntax)
-def ContainerAccess(
+def Kind(
 	blocks = [
+		'Type',
 		'Name',
-		'Container',
-	]
+		'Parameter',
+		'Execution',
+	],
 ):
-	return f"ContainerAccess(name = {this.p[0]}, container = {this.p[1]})"
+	return f"Kind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]}, execution = {this.p[3]})"
 
 @eons.kind(StrictSyntax)
 def EOL(
-	match = r'\\n',
+	match = r'[\\n\\r\\s]+',
 	exclusions = [
-		'parser'
+		'parser',
 	],
 ):
 	pass
@@ -107,7 +107,7 @@ def Autofill(
 		'all.catch.block'
 	],
 	recurseOn = "name",
-	readDirection = "<"
+	readDirection = ">"
 ):
 	return f"Autofill({this.p[0]}, {this.p[1]})"
 
@@ -118,3 +118,11 @@ def Sequence(
 	readDirection = ">"
 ):
 	return f"Sequence({this.p[0]}, {this.p[2]})"
+
+@eons.kind(StrictSyntax)
+def ExplicitAccess(
+	match = r'NAME\.NAME',
+	recurseOn = "name",
+	readDirection = ">"
+):
+	return f"Get({this.p[0]}, {this.p[2]})"

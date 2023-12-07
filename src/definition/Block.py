@@ -10,6 +10,14 @@ def Block(
 	# Return only the content, not the open nor close.
 	return this.p[1]
 
+# SymmetricBlocks use the same symbols for both openings and closings.
+@eons.kind(Block)
+def SymmetricBlock(
+	openings = [],
+	content = "",
+):
+	return this.p[1]
+
 # OpenEndedBlocks only specify openings.
 # They are closed by the beginning of another block.
 # To make this possible, we just reinterpret closings as a list of blocks, not regexes.
@@ -43,6 +51,9 @@ def CatchAllBlock(
 @eons.kind(OpenEndedBlock)
 def DefaultBlock(
 	nest = [], # List of blocks that can be nested inside this block.
+	exclusions = [
+		'EOL',
+	]
 ):
 	return this.parent.Function(this).returned
 

@@ -7,8 +7,8 @@ ldrlxr = ElderLexer()
 ldrpsr = ElderParser()
 
 tests = [
-	'op'
-	# 'if',
+	'op',
+	'if',
 	# 'hellowolf',
 	# 'arrays',
 ]
@@ -19,12 +19,12 @@ ex()
 testPath = str(Path(__file__).parent.absolute())
 
 for test in tests:
-	print(f"======================== {test} ========================")
+	logging.critical(f"======================== {test} ========================")
 	testFile = open(f'{testPath}/{test}.ldr', 'r')
 	ldr = testFile.read()
 
 	tokens = ldrlxr.tokenize(ldr)
 
-	print(ldrpsr.parse(tokens))
+	logging.critical(ldrpsr.parse(tokens))
 
 	testFile.close()

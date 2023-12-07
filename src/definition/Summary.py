@@ -42,22 +42,24 @@ summary.blocks = [
 summary.catchAllBlock = "Name"
 summary.startingBlock = "FullExpressionSet"
 summary.defaultBlock = "Expression"
+summary.eol = "EOL"
 
 summary.syntax = eons.util.DotDict()
 
 summary.syntax.abstract = [
-	"Kind",
+	"TypedName",
+	"ContainerAccess",
+	"StandardInvokation",
+	"InvokationWithExecution",
 	"StructKind",
-	"ContainerInvokationWithParameters",
 	"InvokationWithParametersAndExecution",
 	"ContainerInvokation",
-	"TypedName",
-	"StandardInvokation",
-	"ContainerAccess",
-	"InvokationWithExecution",
+	"ContainerInvokationWithParameters",
+	"Kind",
 ]
 
 summary.syntax.strict = [
+	"ExplicitAccess",
 	"Sequence",
 	"Autofill",
 	"EOL",

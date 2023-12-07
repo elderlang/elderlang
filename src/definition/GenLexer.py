@@ -92,7 +92,7 @@ class GenLexer(eons.Functor):
 
 			if (isinstance(block, DefaultBlock)):
 				continue
-			elif (isinstance(block, OpenEndedBlock)):
+			elif (isinstance(block, OpenEndedBlock) or isinstance(block, SymmetricBlock)):
 				del tokenSources['closings']
 			elif (isinstance(block, CatchAllBlock)):
 				continue
