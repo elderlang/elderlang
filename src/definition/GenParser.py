@@ -145,8 +145,10 @@ class ElderParser(Parser):
 		this.outFile.write(f"\n\t)")
 		this.outFile.write(f"""
 	def {implementation.name.lower()}(this, p):
+		pstr = ''.join([str(p[i]) for i in range(len(p))])
+		logging.critical(f"Given {{pstr}}...")
 		ret = this.executor.Execute("{implementation.name}", p=p).returned
-		logging.info(f"{implementation.name} produced {{ret}}")
+		logging.critical(f"...{implementation.name} produced {{ret}}")
 		return ret
 """)
 

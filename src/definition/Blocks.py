@@ -75,6 +75,7 @@ def Parameter(
 	representation = r'\(PARAMETER\)',
 	content = "FullExpressionSet",
 ):
+	logging.critical(f"{this.name} executing function from {this.parent}")
 	return this.parent.Function(this)
 
 @eons.kind(Block)

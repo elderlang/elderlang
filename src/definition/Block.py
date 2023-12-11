@@ -1,5 +1,8 @@
 import eons
+import re
+import logging
 from .Structure import *
+from .Exceptions import *
 
 @eons.kind(Structure)
 def Block(
@@ -8,7 +11,41 @@ def Block(
 	content = "",
 ):
 	# Return only the content, not the open nor close.
-	return this.p[1]
+	# We must also filter for EOL tokens.
+	possibleContent = None
+	i = 0
+	failedMatches = []
+	reject = [r'\S+'] + openings + closings
+	while (True):
+		try:
+			possibleContent = this.p[i]
+
+			if (isinstance(possibleContent, str)):
+				for r in reject:
+					if (re.match(r, possibleContent)):
+						failedMatches.append(possibleContent)
+						i += 1
+						break
+				else:
+					continue
+
+			elif (isinstance(possibleContent, list)):
+				# Sets and friends will return lists, so this is probably what we're looking for.
+				break
+
+			else:
+				i += 1
+
+		except Exception as e:
+			pass
+
+			# Empty blocks are acceptable.
+			if (not len(failedMatches)):
+				logging.debug(f"Block {this.name} is empty.")
+				return ""
+
+			raise SyntaxError(f"Could not find content for {this.name} block in {failedMatches}.")
+	return possibleContent
 
 # SymmetricBlocks use the same symbols for both openings and closings.
 @eons.kind(Block)
@@ -16,7 +53,7 @@ def SymmetricBlock(
 	openings = [],
 	content = "",
 ):
-	return this.p[1]
+	return this.parent.Function(this)
 
 # OpenEndedBlocks only specify openings.
 # They are closed by the beginning of another block.
@@ -32,7 +69,7 @@ def OpenEndedBlock(
 	],
 	doesSpaceClose = False,
 ):
-	return this.p[1]
+	return this.parent.Function(this)
 
 # There should only ever be one CatchAllBlock. We call it 'Name'.
 # This Block matches anything that is not explicitly matched by another Block.
@@ -55,28 +92,25 @@ def DefaultBlock(
 		'EOL',
 	]
 ):
-	return this.parent.Function(this).returned
+	return this.parent.Function(this)
 
 # DefaultBlockSet is constructed from a series of DefaultBlocks.
 # Each nest in a DefaultBlock is realized through a DefaultBlockSet.
 @eons.kind(Block)
 def DefaultBlockSet():
 
-	# reduce expression -> set
 	if (isinstance(this.p[0], str)):
 		return [this.p[0]]
 	
+	ret = this.p[0]
+	
 	if (isinstance(this.p[0], list)):
 		try:
-			# reduce set set -> set
 			if (isinstance(this.p[1], list)):
-				return this.p[0] + this.p[1]
-			
-			# reduce set expression -> set
+				ret = this.p[0] + this.p[1]			
 			else:
-				return this.p[0].append(this.p[1])
-			
-		except:
-			# reduce (reduced) expression -> set
-			return this.p[0]
-		
+				ret.append(this.p[1])
+		except Exception as e:
+			pass
+	
+	return ret
