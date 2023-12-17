@@ -2,8 +2,9 @@ condition = true
 
 if (condition)
 {
-	print("Should never be printed")
+	// standard invokation
+	print('Should never be printed')
 }
 else {
-	print ("Should always be printed")
+	print ("Should always be printed") //also standard invokation
 }

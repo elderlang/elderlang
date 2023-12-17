@@ -15,7 +15,7 @@ def Block(
 	possibleContent = None
 	i = 0
 	failedMatches = []
-	reject = [r'\S+'] + openings + closings
+	reject = [r'\s+'] + openings + closings
 	while (True):
 		try:
 			possibleContent = this.p[i]
@@ -37,8 +37,6 @@ def Block(
 				i += 1
 
 		except Exception as e:
-			pass
-
 			# Empty blocks are acceptable.
 			if (not len(failedMatches)):
 				logging.debug(f"Block {this.name} is empty.")
@@ -53,7 +51,8 @@ def SymmetricBlock(
 	openings = [],
 	content = "",
 ):
-	return this.parent.Function(this)
+	# SymmetricBlocks should always have 1 opening and 1 closing.
+	return this.p[1]
 
 # OpenEndedBlocks only specify openings.
 # They are closed by the beginning of another block.

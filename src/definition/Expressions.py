@@ -30,6 +30,7 @@ def ProtoExpression(
 		# StrictSyntaxes
 		'Autofill',
 		'Sequence',
+		'UnformattedString',
 		'ExplicitAccess',
 	],
 	before = "Sequence",

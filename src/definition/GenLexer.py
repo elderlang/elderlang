@@ -80,10 +80,12 @@ class GenLexer(eons.Functor):
 			this.syntax.strict.append(eons.SelfRegistering(name))
 
 		this.tokens = eons.util.DotDict()
+		this.tokens.unparsed = {}
 		this.tokens.open = {}
 		this.tokens.close = {}
 		this.tokens.syntactic = {}
 		this.tokens.excludeFromCatchAll = []
+		this.tokens.partial = []
 
 		for block in this.blocks:
 			block.WarmUp(executor = this.executor, precursor = None)
@@ -97,13 +99,20 @@ class GenLexer(eons.Functor):
 			elif (isinstance(block, CatchAllBlock)):
 				continue
 
+			if (block.content is None):
+				closings = block.closings
+				if (isinstance(block, OpenEndedBlock)):
+					closings = ['\\n']
+				elif (isinstance(block, SymmetricBlock)):
+					closings = block.openings
+				regex = fr"({'|'.join(block.openings)}).*?({'|'.join(closings)})"
+				this.tokens.unparsed[block.name.upper()] = regex
+				if (not "all.catch.block" in block.exclusions):
+					this.tokens.partial = this.tokens.partial + block.openings + block.closings
+				continue
+
 			for source, name in tokenSources.items():
 				matches = eval(f"block.{source}")
-				for emptyMatch in [r'^', r'$']:
-					try:
-						matches.remove(emptyMatch)
-					except:
-						pass
 				if (len(matches)):
 					blockName =f"{name}_{block.name}".upper()
 					this.tokens[name][blockName] = fr"({'|'.join(matches)})"
@@ -144,7 +153,11 @@ class GenLexer(eons.Functor):
 		this.tokens.all.update(this.tokens.close)
 		this.tokens.all.update(this.tokens.syntactic)
 
-		this.tokens.all[summary.catchAllBlock.upper()] = fr"[{''.join(this.catchAllBlock.specialStarts)}]?(?:(?!{'|'.join([v[1:-1] for k, v in this.tokens.all.items() if len(v) > 2 and not k in this.tokens.excludeFromCatchAll])})\S)+"
+		this.tokens.all[summary.catchAllBlock.upper()] = fr"[{''.join(this.catchAllBlock.specialStarts)}]?(?:(?!{'|'.join([v[1:-1] for k, v in this.tokens.all.items() if len(v) > 2 and not k in this.tokens.excludeFromCatchAll])}{'|'.join(t for t in this.tokens.partial)})\S)+"
+
+		allTokens = this.tokens.unparsed
+		allTokens.update(this.tokens.all)
+		this.tokens.all = allTokens
 
 		logging.debug(f"Tokens: {this.tokens.all}")
 

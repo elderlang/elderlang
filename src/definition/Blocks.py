@@ -5,9 +5,10 @@ import eons
 def UnformattedString(
 	openings = [r"\'"],
 	representation = "\\'UNFORMATTED_STRING\\'", #NOT a raw string
-	content = "FullExpressionSet",
+	content = None
 ):
-	return this.parent.Function(this)
+	# UnformattedStrings are lexed wholesale.
+	return this.p[0]
 
 @eons.kind(SymmetricBlock)
 def FormattedString(
@@ -25,18 +26,20 @@ def BlockComment(
 	openings = [r'/\*'],
 	closings = [r'\*/'],
 	representation = r'/\*BLOCK_COMMENT\*/',
-	content = "FullExpressionSet",
+	content = None,
+	exclusions = ['parser'],
 ):
-	return this.parent.Function(this)
+	pass
 
 @eons.kind(OpenEndedBlock)
 def LineComment(
 	openings = [r'#', r'//'],
 	closings = [],
 	representation = r'//LINE_COMMENT',
-	content = "FullExpressionSet",
+	content = None,
+	exclusions = ['parser'],
 ):
-	return this.parent.Function(this)
+	pass
 
 @eons.kind(OpenEndedBlock)
 def Namespace(

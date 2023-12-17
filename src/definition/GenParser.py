@@ -22,6 +22,7 @@ class GenParser(eons.Functor):
 		this.precedence = eons.util.DotDict()
 		this.precedence.token = []
 		this.precedence.rule = []
+		this.precedence.unparsedBlock = []
 		this.possibleNestings = []
 
 		this.parsableBlocks = [block for block in this.gen_lexer.blocks 
@@ -36,23 +37,7 @@ class GenParser(eons.Functor):
 		this.PopulateBlockGrammar()
 		this.PopulateDefaultGrammar()
 		this.PopulateStrictSyntaxGrammar()
-
-		# Builtins
-		builtins = [builtin.upper() for builtin in summary.builtins]
-		if (len(builtins)):
-			this.precedence.token.append(f"('left', {', '.join(builtins)})")
-
-		# Rule Precedence
-		for block in summary.blocks:
-			if (block == summary.catchAllBlock):
-				continue
-			this.precedence.rule.append(f"('left', '{block.upper()}')")
-
-		for syntax in summary.syntax.abstract:
-			this.precedence.rule.append(f"('left', '{syntax.upper()}')")
-
-		# Strict Syntax always has the highest precedence.
-		this.precedence.rule.append(f"('right', 'STRICT_SYNTAX')")
+		this.PopulatePrecedence()
 
 		# Build Grammar
 		logging.debug(f"Grammar: {this.grammar.items}")
@@ -81,6 +66,8 @@ class GenParser(eons.Functor):
 		precedenceString = precedenceJoiner[2:]
 		precedenceString += precedenceJoiner.join(this.precedence.rule)
 		precedenceString += precedenceJoiner
+		precedenceString += precedenceJoiner.join(this.precedence.unparsedBlock)
+		precedenceString += precedenceJoiner
 		precedenceString += precedenceJoiner.join(this.precedence.token)
 
 		
@@ -93,7 +80,7 @@ class ElderParser(Parser):
 		if (this.custom_precedence):
 			this.outFile.write(f"""
 	precedence = (
-		{precedenceString}
+{precedenceString}
 	)
 """)
 		if (this.debug):
@@ -121,6 +108,34 @@ class ElderParser(Parser):
 
 		logging.debug(f"Done writing to {this.outFileName}")
 
+
+	def PopulatePrecedence(this):
+		# Builtins
+		builtins = [builtin.upper() for builtin in summary.builtins]
+		if (len(builtins)):
+			this.precedence.token.append(f"('left', {', '.join(builtins)})")
+
+		# Rule Precedence
+		for block in summary.blocks:
+			if (block == summary.catchAllBlock):
+				continue
+			blockObject = this.gen_lexer.GetBlock(block)
+			if (blockObject is None):
+				continue
+			if (blockObject.content is None): # NOTE: This must come BEFORE the exclusions check.
+				this.precedence.unparsedBlock.append(f"('left', '{block.upper()}')")
+				continue
+			if ("parser" in blockObject.exclusions):
+				continue
+			this.precedence.rule.append(f"('left', '{block.upper()}')")
+
+		for syntax in summary.syntax.abstract:
+			this.precedence.rule.append(f"('left', '{syntax.upper()}')")
+
+		
+
+		# Strict Syntax always has the highest precedence.
+		this.precedence.rule.append(f"('right', 'STRICT_SYNTAX')")
 
 	# Recursive to implement the "before" keyword.
 	def WriteGrammar(this, implementation, rules):
@@ -166,7 +181,11 @@ class ElderParser(Parser):
 		blockPrecedenceOpen = []
 		blockPrecedenceClose = []
 		for block in this.parsableBlocks:
-			if ("parser" in block.exclusions):
+			if (block.content is None):
+				this.grammar[block] = [
+					f"{block.name.upper()}",
+					f"{block.name.upper()} EOL"
+				]
 				continue
 			
 			openName = f"OPEN_{block.name.upper()}"
