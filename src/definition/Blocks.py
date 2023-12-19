@@ -12,14 +12,63 @@ def UnformattedString(
 
 @eons.kind(SymmetricBlock)
 def FormattedString(
+	lexer = None,
+	parser = None,
 	openings = [r'"', r'`'],
 	representation = '\"FORMATTED_STRING\"', #NOT a raw string
-	content = "FullExpressionSet",
+	content = None,
 	nest = [
 		'Execution',
 	]
 ):
-	return this.parent.Function(this)
+	if (lexer is None):
+		lexer = this.FetchWithout(['this'], 'lexer')
+	if (parser is None):
+		parser = this.Fetch(['this'], 'parser')
+	
+	rawString = this.p[0]
+	
+	# This is what we want to do, but python does not support the P<-...> module (only P<...>)
+	# executionBlocks = re.findall(r'{(?:[^{}]|(?P<open>{)|(?P<-open>}))*(?(open)(?!))}', rawString)
+
+	executionBlocks = []
+
+	openCount = 0
+	openPos = 0
+	for i,char in enumerate(rawString):
+		if (char == '{'):
+			openCount += 1
+			openPos = i
+		elif (char == '}'):
+			openCount -= 1
+		if (not openCount and openPos):
+			executionBlocks.append(rawString[openPos:i])
+	
+	if (openCount > 0):
+		raise SyntaxError(f"Unbalanced curly braces in formatted string: {rawString}")
+	
+	# logging.critical(f"Execution blocks: {executionBlocks}")
+
+	stringComponents = [rawString]
+	for i, block in enumerate(executionBlocks):
+		stringComponents[0].replace(block, f"{{i}}", 1)
+		stringComponents.append(parser.parse(lexer.tokenize(block)))
+
+	# logging.critical(f"String components: {stringComponents}")
+
+	return stringComponents
+
+@eons.kind(MetaBlock)
+def String(
+	compose = [
+		'UnformattedString',
+		'FormattedString',
+	],
+	representation = r'`STRING`',
+	content = None,
+	exclusions = ['lexer'],
+):
+	return this.p[0] # already parsed.
 
 @eons.kind(Block)
 def BlockComment(
@@ -27,9 +76,8 @@ def BlockComment(
 	closings = [r'\*/'],
 	representation = r'/\*BLOCK_COMMENT\*/',
 	content = None,
-	exclusions = ['parser'],
 ):
-	pass
+	return ''
 
 @eons.kind(OpenEndedBlock)
 def LineComment(
@@ -37,19 +85,17 @@ def LineComment(
 	closings = [],
 	representation = r'//LINE_COMMENT',
 	content = None,
-	exclusions = ['parser'],
 ):
-	pass
+	return ''
 
 @eons.kind(OpenEndedBlock)
 def Namespace(
 	openings = [r':'],
 	closings = [
-		'UnformattedString',
-		'FormattedString',
-		'LineComment',
+		'String',
 		'Parameter',
 		'Type',
+		'LineComment',
 	],
 	representation = r':NAMESPACE',
 	content = "LimitedExpressionSet",
@@ -60,10 +106,9 @@ def Namespace(
 def Type(
 	openings = [r'~'],
 	closings = [
-		'UnformattedString',
-		'FormattedString',
-		'LineComment',
+		'String',
 		'Parameter',
+		'LineComment',
 	],
 	representation = r'~TYPE',
 	doesSpaceClose = True,
@@ -78,7 +123,6 @@ def Parameter(
 	representation = r'\(PARAMETER\)',
 	content = "FullExpressionSet",
 ):
-	logging.critical(f"{this.name} executing function from {this.parent}")
 	return this.parent.Function(this)
 
 @eons.kind(Block)

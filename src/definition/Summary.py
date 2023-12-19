@@ -18,15 +18,12 @@ from .Expressions import *
 summary = eons.util.DotDict()
 
 summary.builtins = [
+	"NUMBER",
 ]
 
 summary.blocks = [
 	"FullExpressionSet",
 	"FullExpression",
-	"BlockComment",
-	"LineComment",
-	"UnformattedString",
-	"FormattedString",
 	"Execution",
 	"Parameter",
 	"Container",
@@ -36,17 +33,22 @@ summary.blocks = [
 	"LimitedExpression",
 	"ProtoExpressionSet",
 	"ProtoExpression",
+	"BlockComment",
+	"LineComment",
+	"UnformattedString",
+	"FormattedString",
+	"String",
 	"Name",
 ]
 
 summary.catchAllBlock = "Name"
 summary.startingBlock = "FullExpressionSet"
-summary.defaultBlock = "Expression"
+summary.expression = "Expression" # The DefaultBlock
 summary.eol = "EOL"
 
 summary.syntax = eons.util.DotDict()
 
-summary.syntax.abstract = [
+summary.syntax.block = [
 	"TypedName",
 	"ContainerAccess",
 	"StandardInvokation",
@@ -58,9 +60,10 @@ summary.syntax.abstract = [
 	"Kind",
 ]
 
-summary.syntax.strict = [
+summary.syntax.exact = [
 	"ExplicitAccess",
 	"Sequence",
-	"Autofill",
+	"AutofillAccessOrInvokation",
+	"AutofillInvokation",
 	"EOL",
 ]

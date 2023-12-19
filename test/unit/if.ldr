@@ -6,5 +6,5 @@ if (condition)
 	print('Should never be printed')
 }
 else {
-	print ("Should always be printed") //also standard invokation
+	print "Should always be printed" //also standard invokation
 }

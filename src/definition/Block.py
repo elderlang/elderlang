@@ -70,6 +70,12 @@ def OpenEndedBlock(
 ):
 	return this.parent.Function(this)
 
+@eons.kind(Block)
+def MetaBlock(
+	compose = [],
+):
+	return this.parent.Function(this)
+
 # There should only ever be one CatchAllBlock. We call it 'Name'.
 # This Block matches anything that is not explicitly matched by another Block.
 # specialStarts allows characters which normally cannot be inside a CatchAllBlock to start a CatchAllBlock.
@@ -83,20 +89,21 @@ def CatchAllBlock(
 ):
 	return this.p[0]
 
-# DefaultBlocks build the contents of all other Blocks beside the CatchAllBlock.
+# Expressions build the contents of all other Blocks beside the CatchAllBlock.
 @eons.kind(OpenEndedBlock)
-def DefaultBlock(
+def Expression(
+	openings = [r';', r','],
 	nest = [], # List of blocks that can be nested inside this block.
 	exclusions = [
 		'EOL',
 	]
 ):
-	return this.parent.Function(this)
+	return this.p[0]
 
-# DefaultBlockSet is constructed from a series of DefaultBlocks.
-# Each nest in a DefaultBlock is realized through a DefaultBlockSet.
+# ExpressionSet is constructed from a series of Expressions.
+# Each nest in a Expression is realized through a ExpressionSet.
 @eons.kind(Block)
-def DefaultBlockSet():
+def ExpressionSet():
 
 	if (isinstance(this.p[0], str)):
 		return [this.p[0]]

@@ -1,7 +1,7 @@
 from .Syntax import *
 import eons
 
-@eons.kind(AbstractSyntax)
+@eons.kind(BlockSyntax)
 def TypedName(
 	blocks = [
 		'Type',
@@ -10,7 +10,7 @@ def TypedName(
 ):
 	return f"TypedName(type = {this.p[0]}, name = {this.p[1]})"
 
-@eons.kind(AbstractSyntax)
+@eons.kind(BlockSyntax)
 def ContainerAccess(
 	blocks = [
 		'Name',
@@ -37,7 +37,7 @@ def InvokationWithExecution(
 ):
 	return f"InvokationWithExecution(name = {this.p[0]}, execution = {this.p[1]})"
 
-@eons.kind(AbstractSyntax)
+@eons.kind(BlockSyntax)
 def StructKind(
 	blocks = [
 		'Type',
@@ -78,7 +78,7 @@ def ContainerInvokationWithParameters(
 ):
 	return f"ContainerInvokationWithParameters(name = {this.p[0]}, parameter = {this.p[1]}, container = {this.p[2]}, execution = {this.p[3]})"
 
-@eons.kind(AbstractSyntax)
+@eons.kind(BlockSyntax)
 def Kind(
 	blocks = [
 		'Type',
@@ -89,7 +89,7 @@ def Kind(
 ):
 	return f"Kind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]}, execution = {this.p[3]})"
 
-@eons.kind(StrictSyntax)
+@eons.kind(ExactSyntax)
 def EOL(
 	match = r'[\\n\\r\\s]+',
 	exclusions = [
@@ -98,20 +98,28 @@ def EOL(
 ):
 	pass
 
-@eons.kind(StrictSyntax)
-def Autofill(
-	match = r'name name',
-	literalMatch = True,
-	noToken = True,
-	exclusions = [
-		'all.catch.block'
+@eons.kind(FlexibleTokenSyntax)
+def AutofillAccessOrInvokation(
+	match = [
+		r'name name',
+		r'name autofillinvokation',
 	],
 	recurseOn = "name",
 	readDirection = ">"
 ):
 	return f"Autofill({this.p[0]}, {this.p[1]})"
 
-@eons.kind(StrictSyntax)
+@eons.kind(FlexibleTokenSyntax)
+def AutofillInvokation(
+	match = [
+		r'name string',
+		r'name number',
+	],
+	readDirection = ">"
+):
+	return f"{this.p[0]}({this.p[1]})"
+
+@eons.kind(ExactSyntax)
 def Sequence(
 	match = r'NAME/NAME',
 	recurseOn = "name",
@@ -119,7 +127,7 @@ def Sequence(
 ):
 	return f"Sequence({this.p[0]}, {this.p[2]})"
 
-@eons.kind(StrictSyntax)
+@eons.kind(ExactSyntax)
 def ExplicitAccess(
 	match = r'NAME\.NAME',
 	recurseOn = "name",

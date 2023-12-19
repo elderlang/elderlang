@@ -57,10 +57,10 @@ class GenLexer(eons.Functor):
 	def Function(this):
 		this.blocks = []
 		this.syntax = eons.util.DotDict()
-		this.syntax.abstract = []
-		this.syntax.strict = []
-		this.defaultBlocks = []
-		this.defaultBlockSets = []
+		this.syntax.block = []
+		this.syntax.exact = []
+		this.expressions = []
+		this.expressionSets = []
 		this.catchAllBlock = None
 
 		for name in summary.blocks:
@@ -68,16 +68,16 @@ class GenLexer(eons.Functor):
 			this.blocks.append(toAppend)
 			if (isinstance(toAppend, CatchAllBlock)):
 				this.catchAllBlock = toAppend
-			elif (isinstance(toAppend, DefaultBlock)):
-				this.defaultBlocks.append(toAppend)
-			elif (isinstance(toAppend, DefaultBlockSet)):
-				this.defaultBlockSets.append(toAppend)
+			elif (isinstance(toAppend, Expression)):
+				this.expressions.append(toAppend)
+			elif (isinstance(toAppend, ExpressionSet)):
+				this.expressionSets.append(toAppend)
 		
-		for name in summary.syntax.abstract:
-			this.syntax.abstract.append(eons.SelfRegistering(name))
+		for name in summary.syntax.block:
+			this.syntax.block.append(eons.SelfRegistering(name))
 		
-		for name in summary.syntax.strict:
-			this.syntax.strict.append(eons.SelfRegistering(name))
+		for name in summary.syntax.exact:
+			this.syntax.exact.append(eons.SelfRegistering(name))
 
 		this.tokens = eons.util.DotDict()
 		this.tokens.unparsed = {}
@@ -89,10 +89,13 @@ class GenLexer(eons.Functor):
 
 		for block in this.blocks:
 			block.WarmUp(executor = this.executor, precursor = None)
+
+			if ('lexer' in block.exclusions):
+				continue
 			
 			tokenSources = {'openings': 'open', 'closings': 'close'}
 
-			if (isinstance(block, DefaultBlock)):
+			if (isinstance(block, Expression)):
 				continue
 			elif (isinstance(block, OpenEndedBlock) or isinstance(block, SymmetricBlock)):
 				del tokenSources['closings']
@@ -119,19 +122,19 @@ class GenLexer(eons.Functor):
 					if ("all.catch.block" in block.exclusions):
 						this.tokens.excludeFromCatchAll.append(blockName)
 		
-		# NOTE: "Openings" function as "closings" for the DefaultBlock only.
+		# NOTE: "Openings" function as "closings" for the Expression only.
 		# For example, start(expression); open(next_expression) // ; closes the first, even though it opens the second.
-		this.defaultBlock = eons.SelfRegistering(summary.defaultBlock)
-		this.defaultBlock.WarmUp(executor = this.executor, precursor = None)
-		this.tokens['close'][f"CLOSE_{this.defaultBlock.name.upper()}"] = fr"({'|'.join(this.defaultBlock.openings)})"
+		this.expression = eons.SelfRegistering(summary.expression)
+		this.expression.WarmUp(executor = this.executor, precursor = None)
+		this.tokens['close'][f"CLOSE_{this.expression.name.upper()}"] = fr"({'|'.join(this.expression.openings)})"
 
-		for syntax in this.syntax.abstract:
+		for syntax in this.syntax.block:
 			syntax.WarmUp(executor = this.executor, precursor = None)
 			# Nothing to do yet, but everything needs to be warm before we pass *this off to the Parser.
 
-		for syntax in this.syntax.strict:
+		for syntax in this.syntax.exact:
 			syntax.WarmUp(executor = this.executor, precursor = None)
-			if (syntax.noToken):
+			if ('lexer' in syntax.exclusions):
 				continue
 			possibleToken = syntax.match
 			possibleToken = this.SubstituteRepresentations(possibleToken, "")
@@ -174,7 +177,12 @@ class GenLexer(eons.Functor):
 			this.outFile.write(f"from .{imp} import *\n")
 		this.outFile.write(f"""\
 class ElderLexer(Lexer):
-	tokens = {{ {', '.join([t for t in this.tokens.all.keys()])} }}
+	def t_NUMBER(t):
+		r'\d+'
+		t.value = int(t.value)
+		return t
+
+	tokens = {{ {', '.join(summary.builtins)}, {', '.join([t for t in this.tokens.all.keys()])} }}
 
 	ignore = ' \\t'
 

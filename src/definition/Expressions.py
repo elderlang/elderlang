@@ -10,34 +10,27 @@ def Name(
 ):
 	return this.p[0]
 
-@eons.kind(DefaultBlock)
-def Expression(
-	openings = [r';', r','],
-	closings = [
-		'LineComment',
-	],
-	exclusions = [],
-	before = None
-):
-	return this.p[0]
-
 @eons.kind(Expression)
 def ProtoExpression(
 	representation = r'PROTOEXPRESSION',
 	nest = [
 		'Name',
+		'Number',
+		'String',
+		'BlockComment',
+		'LineComment',
 		
-		# StrictSyntaxes
-		'Autofill',
+		# ExactSyntaxes
+		'AutofillAccessOrInvokation',
+		'AutofillInvokation',
 		'Sequence',
-		'UnformattedString',
 		'ExplicitAccess',
 	],
 	before = "Sequence",
 ):
 	return this.parent.Function(this)
 
-@eons.kind(DefaultBlockSet)
+@eons.kind(ExpressionSet)
 def ProtoExpressionSet(
 	representation = r'PROTOEXPRESSIONSET',
 	content = "ProtoExpression",
@@ -50,7 +43,6 @@ def LimitedExpression(
 	representation = r'LIMITEDEXPRESSION',
 	nest = [
 		'ProtoExpressionSet',
-		'BlockComment',
 		'Execution',
 		'Container',
 	],
@@ -58,7 +50,7 @@ def LimitedExpression(
 ):
 	return this.parent.Function(this)
 
-@eons.kind(DefaultBlockSet)
+@eons.kind(ExpressionSet)
 def LimitedExpressionSet(
 	representation = r'LIMITEDEXPRESSIONSET',
 	content = "LimitedExpression",
@@ -72,13 +64,11 @@ def FullExpression(
 	representation = r'FULLEXPRESSION',
 	nest = [
 		'LimitedExpressionSet',
-		'UnformattedString',
-		'FormattedString',
 		'Parameter',
 		'Namespace',
 		'Type',
 		
-		# AbstractSyntaxes
+		# BlockSyntaxes
 		'Kind',
 		'StructKind',
 		'TypedName',
@@ -93,7 +83,7 @@ def FullExpression(
 ):
 	return this.parent.Function(this)
 
-@eons.kind(DefaultBlockSet)
+@eons.kind(ExpressionSet)
 def FullExpressionSet(
 	representation = r'FULLEXPRESSIONSET',
 	content = "FullExpression",

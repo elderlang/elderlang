@@ -6,21 +6,30 @@ def Syntax():
 	pass
 
 @eons.kind(Syntax)
-def StrictSyntax(
+def ExactSyntax(
 	match = r'',
 	literalMatch = False,
-	noToken = False,
 	recurseOn = "",
 	readDirection = ">"
 ):
 	pass
 
+@eons.kind(ExactSyntax)
+def FlexibleTokenSyntax(
+	match = [],
+	exclusions = [
+		'lexer',
+		'all.catch.block'
+	],
+):
+	pass
+
 @eons.kind(Syntax)
-def AbstractSyntax(
+def BlockSyntax(
 	blocks = [],
 ):
 	pass
 
-@eons.kind(AbstractSyntax)
+@eons.kind(BlockSyntax)
 def Invokation():
 	pass
