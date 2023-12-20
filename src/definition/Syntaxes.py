@@ -96,7 +96,7 @@ def EOL(
 		'parser',
 	],
 ):
-	pass
+	return ''
 
 @eons.kind(FlexibleTokenSyntax)
 def AutofillAccessOrInvokation(

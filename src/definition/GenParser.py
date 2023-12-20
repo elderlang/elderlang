@@ -121,10 +121,7 @@ class ElderParser(Parser):
 
 		builtins = [builtin.upper() for builtin in summary.builtins]
 		if (len(builtins)):
-			this.precedence.token.append(f"('left', {', '.join(builtins)})")
-
-		for syntax in summary.syntax.block:
-			this.precedence.rule.append(f"('left', '{syntax.upper()}')")
+			this.precedence.token.append(f"('right', {', '.join(builtins)})")
 
 		for block in summary.blocks:
 			if (block == summary.catchAllBlock):
@@ -135,27 +132,35 @@ class ElderParser(Parser):
 			if ('parser' in blockObject.exclusions):
 				continue
 			if (blockObject.content is None): # NOTE: This must come BEFORE the exclusions check (we'll use it later).
-				this.precedence.unparsedBlock.append(f"('left', '{block.upper()}')")
+				this.precedence.unparsedBlock.append(f"('right', '{block.upper()}')")
 				continue
 			if ("parser" in blockObject.exclusions):
 				continue
-			this.precedence.rule.append(f"('left', '{block.upper()}')")
+			this.precedence.rule.append(f"('right', '{block.upper()}')")
+
+		for syntax in summary.syntax.block:
+			this.precedence.rule.append(f"('right', '{syntax.upper()}')")
 		
 
 		# Exact Syntax always has precedence over Block Syntax.
-		this.precedence.rule.append(f"('left', 'EXACT_SYNTAX')")
+		this.precedence.rule.append(f"('right', 'EXACT_SYNTAX')")
 
 	# Recursive to implement the "before" keyword.
 	def WriteGrammar(this, implementation, rules):
-		logging.debug(f"Writing grammar for {implementation.name}")
+		implName = ""
+		if (isinstance(implementation, str)):
+			implName = implementation
+		else:
+			implName = implementation.name
+		logging.debug(f"Writing grammar for {implName}")
 
 		for queuedImplementation, queuedRules in list(this.grammarQueue.items()):
-			if (implementation.name == queuedImplementation.before):
+			if (implName == queuedImplementation.before):
 				this.WriteGrammar(queuedImplementation, queuedRules)
 				del this.grammarQueue[queuedImplementation]
 		
 		if (this.custom_precedence):
-			precedence = f" %prec {implementation.name.upper()}"
+			precedence = f" %prec {implName.upper()}"
 			# if ('precedence' in implementation.exclusions):
 			# 	precedence = " %prec EXCLUDED"
 			if (isinstance(implementation, ExactSyntax)):
@@ -165,15 +170,23 @@ class ElderParser(Parser):
 		
 		this.outFile.write(f"\n\t@_(")
 		for rule in rules:
+			if (rule == 'NULL'):
+				continue
 			this.outFile.write(f"\n\t\t'{rule}{precedence}',")
-			# this.outFile.write(f"\n\t\t'{rule}',") # precedence is currently per grammar order
+
 		this.outFile.write(f"\n\t)")
 		this.outFile.write(f"""
-	def {implementation.name.lower()}(this, p):
+	def {implName.lower()}(this, p):
 		pstr = ''.join([str(p[i]) for i in range(len(p))])
 		logging.critical(f"Given {{pstr}}...")
-		ret = this.executor.Execute("{implementation.name}", p=p).returned
-		logging.critical(f"...{implementation.name} produced {{ret}}")
+""")
+		if ('NULL' in rules):
+			this.outFile.write("\t\tret = ''")
+		else:
+			this.outFile.write(f'\t\tret = this.executor.Execute("{implName}", p=p).returned')
+		
+		this.outFile.write(f"""
+		logging.critical(f"...{implName} produced {{ret}}")
 		return ret
 """)
 
@@ -184,7 +197,7 @@ class ElderParser(Parser):
 		for syntax in this.gen_lexer.syntax.block:
 			if ("parser" in syntax.exclusions):
 				continue
-			
+
 			standardMatch = ' '.join([block.lower() for block in syntax.blocks]) + ' '
 			matches = [standardMatch]
 
@@ -203,17 +216,18 @@ class ElderParser(Parser):
 				remainingBlocks = syntax.blocks[len(predecessor.blocks):]
 				predecessorMatch = predecessor.name.lower() + ' ' + ' '.join([block.lower() for block in remainingBlocks]) + ' '
 				matches.append(predecessorMatch)
-			
+
 			for match in [standardMatch, predecessorMatch]:
 				if (match is None):
 					continue
-				for i in range(len(syntax.blocks)):
-					matches.append(match.replace(' ', ' EOL ', i))
-					i += 1
-				for i in range(len(syntax.blocks)):
-					matches.append(match[::-1].replace(' ', ' LOE ', i)[::-1])
-					i += 1
-			
+				matches.append(match)
+				# for i in range(len(syntax.blocks)):
+				# 	matches.append(match.replace(' ', ' EOL ', i))
+				# 	i += 1
+				# for i in range(len(syntax.blocks)):
+				# 	matches.append(match[::-1].replace(' ', ' LOE ', i)[::-1])
+				# 	i += 1
+
 			this.grammar[syntax] = list(set(matches))
 
 
@@ -249,9 +263,8 @@ class ElderParser(Parser):
 			elif (isinstance(block, OpenEndedBlock)):
 				this.grammar[block] = [
 					# f"{openName} {block.content.lower()} EOL", # Things like LimitedExpressionSet incorporate EOL, so using it here causes reduce/reduce conflicts.
-					f"{openName} {block.content.lower()}",
-					f"{openName} {block.content.lower()} {openName}",
-					f"{openName} {block.content.lower()} {openName} EOL",
+					f"{openName.lower()} {block.content.lower()}",
+					f"{openName.lower()} {block.content.lower()} {openName.lower()}",
 				]
 				
 				for closing in block.closings:
@@ -259,42 +272,34 @@ class ElderParser(Parser):
 			
 			elif (isinstance(block, SymmetricBlock)):
 				this.grammar[block] = [
-					f"{openName} {block.content.lower()} {openName}",
-					f"{openName} EOL {block.content.lower()} EOL {openName}",
-					f"{openName} EOL {block.content.lower()} {openName}",
-					f"{openName} {block.content.lower()} EOL {openName}",
-					f"{openName} {block.content.lower()} {openName} EOL",
-					f"{openName} EOL {block.content.lower()} EOL {openName} EOL",
-					f"{openName} EOL {block.content.lower()} {openName} EOL",
-					f"{openName} {block.content.lower()} EOL {openName} EOL",
-					f"{openName} {openName}",
-					f"{openName} {openName} EOL",
-					f"{openName} EOL {openName}",
-					f"{openName} EOL {openName} EOL",
+					f"{openName.lower()} {block.content.lower()} {openName.lower()}",
+					f"{openName.lower()} {openName.lower()}",
 				]
 			
 			else:
 				this.grammar[block] = [
-					f"{openName} {block.content.lower()} {closeName}",
-					f"{openName} EOL {block.content.lower()} EOL {closeName}",
-					f"{openName} {block.content.lower()} EOL {closeName}",
-					f"{openName} EOL {block.content.lower()} {closeName}",
-					f"{openName} {block.content.lower()} {closeName} EOL",
-					f"{openName} EOL {block.content.lower()} EOL {closeName} EOL",
-					f"{openName} {block.content.lower()} EOL {closeName} EOL",
-					f"{openName} EOL {block.content.lower()} {closeName} EOL",
-					f"{openName} {closeName}",
-					f"{openName} EOL {closeName}",
-					f"{openName} {closeName} EOL",
-					f"{openName} EOL {closeName} EOL",
+					f"{openName.lower()} {block.content.lower()} {closeName.lower()}",
+					f"{openName.lower()} {closeName.lower()}",
 				]
 
-			if (openName in this.gen_lexer.tokens.open.keys()):
-				blockPrecedenceOpen.append(openName)
-			if (closeName in this.gen_lexer.tokens.close.keys()):
-				blockPrecedenceClose.append(closeName)
+			for name, key in {'openName': 'open', 'closeName': 'close'}.items():
+				actualName = eval(name)
+				if (actualName.upper() in this.gen_lexer.tokens[key].keys()):
+					exec(f"blockPrecedence{key.title()}.append({name}.upper())")
+					# TODO: can we simplify these? i.e. will EOL OPEN_... always be reduced to open_... before OPEN_... EOL?
+					this.grammar[actualName] = [
+						'NULL',
+						f"{actualName.upper()}",
+						f"{actualName.upper()} EOL",
+						f"EOL {actualName.upper()}",
+						f"EOL {actualName.upper()} EOL",
+						f"{actualName.lower()} EOL",
+						f"EOL {actualName.lower()}",
+						f"EOL {actualName.lower()} EOL",
+					]
+
 		if (len(blockPrecedenceOpen) and len(blockPrecedenceClose)):
-			this.precedence.token.append(f"('left', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
+			this.precedence.token.append(f"('right', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
 
 
 	# These will not have tokens associated with them and thus no precedence.
@@ -309,7 +314,7 @@ class ElderParser(Parser):
 			if (adhere is None):
 				logging.error(f"Block {block.content} does not exist.")
 				continue
-			
+
 			this.grammar[block] = [
 				f"{adhere.name.lower()}",
 				f"{adhere.name.lower()} EOL",
@@ -369,4 +374,4 @@ class ElderParser(Parser):
 			and syntax.name.upper() in this.gen_lexer.tokens.syntactic.keys()
 		]
 		tokens.append(summary.catchAllBlock.upper())
-		this.precedence.token.append(f"('left', {', '.join(tokens)})")
+		this.precedence.token.append(f"('right', {', '.join(tokens)})")

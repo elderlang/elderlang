@@ -19,8 +19,13 @@ def Block(
 	while (True):
 		try:
 			possibleContent = this.p[i]
+			logging.debug(f"{this.name} Block has possibleContent '{possibleContent}' ({i}).")
 
 			if (isinstance(possibleContent, str)):
+				if (not len(possibleContent)):
+					i += 1
+					continue
+				
 				for r in reject:
 					if (re.match(r, possibleContent)):
 						failedMatches.append(possibleContent)

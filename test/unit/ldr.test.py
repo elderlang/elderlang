@@ -24,8 +24,9 @@ for test in tests:
 	ldr = testFile.read()
 
 	tokens = ldrlxr.tokenize(ldr)
-	# [logging.info(t) for t in tokens]
-
-	logging.critical(ldrpsr.parse(tokens))
+	[logging.info(t) for t in tokens]
+	logging.info(f"================================================")
+	logging.critical(ldrpsr.parse(ldrlxr.tokenize(ldr)))
+	logging.info(f"================================================")
 
 	testFile.close()

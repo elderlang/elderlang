@@ -91,12 +91,7 @@ def LineComment(
 @eons.kind(OpenEndedBlock)
 def Namespace(
 	openings = [r':'],
-	closings = [
-		'String',
-		'Parameter',
-		'Type',
-		'LineComment',
-	],
+	closings = [],
 	representation = r':NAMESPACE',
 	content = "LimitedExpressionSet",
 ):
@@ -105,11 +100,7 @@ def Namespace(
 @eons.kind(OpenEndedBlock)
 def Type(
 	openings = [r'~'],
-	closings = [
-		'String',
-		'Parameter',
-		'LineComment',
-	],
+	closings = [],
 	representation = r'~TYPE',
 	doesSpaceClose = True,
 	content = "LimitedExpressionSet",
