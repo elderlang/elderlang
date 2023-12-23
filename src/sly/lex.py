@@ -391,6 +391,7 @@ class Lexer(metaclass=LexerMeta):
 
 
 		# --- Main tokenization function
+		text += ';'
 		self.text = text
 		try:
 			while True:

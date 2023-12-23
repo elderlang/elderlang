@@ -129,7 +129,12 @@ class GenLexer(eons.Functor):
 				if (len(matches)):
 					blockName =f"{name}_{block.name}".upper()
 					this.tokens.partial += matches
-					this.tokens[name][blockName] = fr"\s*({'|'.join(matches)})\s*"
+					matchRegex = fr"({'|'.join(matches)})"
+					if (name == 'open'):
+						matchRegex = r'\s*' + matchRegex + r'\s*'
+					elif (name == 'close'):
+						matchRegex = r'\s*' + matchRegex
+					this.tokens[name][blockName] = matchRegex
 					if ("all.catch.block" in block.exclusions):
 						this.tokens.excludeFromCatchAll.append(blockName)
 		

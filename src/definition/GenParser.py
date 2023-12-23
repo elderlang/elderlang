@@ -279,10 +279,11 @@ class ElderParser(Parser):
 				for closing in block.closings:
 					this.grammar[block].append(f"{openName} {block.content.lower()} {closing.lower()}")
 
-				if (block.content.endswith('Set')):
-					this.grammar[block] += [
-						rule.replace('set', '') for rule in this.grammar[block]
-					]
+				# Not necessary, now that we inject CLOSE_EXPRESSION tokens before other CLOSings.
+				# if (block.content.endswith('Set')):
+				# 	this.grammar[block] += [
+				# 		rule.replace('set', '') for rule in this.grammar[block]
+				# 	]
 			
 			elif (isinstance(block, SymmetricBlock)):
 				continue
