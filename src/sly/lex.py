@@ -10,12 +10,12 @@
 # met:
 #
 # * Redistributions of source code must retain the above copyright notice,
-#   this list of conditions and the following disclaimer.
+#	this list of conditions and the following disclaimer.
 # * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
+#	this list of conditions and the following disclaimer in the documentation
+#	and/or other materials provided with the distribution.
 # * Neither the name of the David Beazley or Dabeaz LLC may be used to
-#   endorse or promote products derived from this software without
+#	endorse or promote products derived from this software without
 #  specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -169,7 +169,7 @@ class LexerMeta(type):
 
 		# Create attributes for use in the actual class body
 		cls_attributes = { str(key): str(val) if isinstance(val, TokenStr) else val
-						   for key, val in attributes.items() }
+							for key, val in attributes.items() }
 		cls = super().__new__(meta, clsname, bases, cls_attributes)
 
 		# Attach various metadata to the class
@@ -202,7 +202,7 @@ class Lexer(metaclass=LexerMeta):
 	@classmethod
 	def _collect_rules(cls):
 		# Collect all of the rules from class definitions that look like token
-		# information.   There are a few things that govern this:
+		# information.	There are a few things that govern this:
 		#
 		# 1.  Any definition of the form NAME = str is a token if NAME is
 		#	 is defined in the tokens set.
@@ -276,17 +276,17 @@ class Lexer(metaclass=LexerMeta):
 
 		for (key, val), newtok in cls._remap.items():
 			if key not in cls._remapping:
-				cls._remapping[key] = {}
-			cls._remapping[key][val] = newtok
+				cls._remapping[key] = newtok #{}
+			# cls._remapping[key][val] = newtok
 
-		remapped_toks = set()
-		for d in cls._remapping.values():
-			remapped_toks.update(d.values())
-			
-		undefined = remapped_toks - set(cls._token_names)
-		if undefined:
-			missing = ', '.join(undefined)
-			raise LexerBuildError(f'{missing} not included in token(s)')
+		# remapped_toks = set()
+		# for d in cls._remapping.values():
+		# 	remapped_toks.update(d.values())
+
+		# undefined = remapped_toks - set(cls._token_names)
+		# if undefined:
+		# 	missing = ', '.join(undefined)
+		# 	raise LexerBuildError(f'{missing} not included in token(s)')
 
 		cls._collect_rules()
 
@@ -411,21 +411,28 @@ class Lexer(metaclass=LexerMeta):
 					tok.type = m.lastgroup
 
 					if tok.type in _remapping:
-						tok.type = _remapping[tok.type].get(tok.value, tok.type)
+						tok.type = _remapping[tok.type]
 
-					if tok.type in _token_funcs:
-						self.index = index
-						self.lineno = lineno
-						tok = _token_funcs[tok.type](self, tok)
-						index = self.index
-						lineno = self.lineno
-						if not tok:
+					# This isn't the safest, but this file is not for general consumption, so removing the guardrails is okay for Elderlang.
+					if isinstance(tok.type, list):
+						tokList = tok.type
+						for tok.type in tokList:
+							yield tok
+
+					else:
+						if tok.type in _token_funcs:
+							self.index = index
+							self.lineno = lineno
+							tok = _token_funcs[tok.type](self, tok)
+							index = self.index
+							lineno = self.lineno
+							if not tok:
+								continue
+
+						if tok.type in _ignored_tokens:
 							continue
 
-					if tok.type in _ignored_tokens:
-						continue
-
-					yield tok
+						yield tok
 
 				else:
 					# No match, see if the character is in literals

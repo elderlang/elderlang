@@ -191,7 +191,7 @@ class ElderLexer(Lexer):
 	def error(self, t):
 		print("Illegal character '%s'" % t.value[0])
 		self.index += 1
-					 
+
 	def t_NUMBER(t):
 		r'\d+'
 		t.value = int(t.value)
@@ -203,11 +203,25 @@ class ElderLexer(Lexer):
 """)
 		for token,regex in this.tokens.ignore.items():
 			this.outFile.write(f"\n\tignore_{token.lower()} = r'{regex}'")
-		
+
 		this.outFile.write("\n\n")
-	
+
 		for token,regex in this.tokens.use.items():
 			this.outFile.write(f"\t{token} = r'{regex}'\n")
+
+		for block in this.blocks:
+			if ('lexer' in block.exclusions
+				or isinstance(block, Expression)
+				or isinstance(block, ExpressionSet)
+				or isinstance(block, OpenEndedBlock) 
+				or isinstance(block, SymmetricBlock)
+				or isinstance(block, CatchAllBlock)
+				or block.content is None
+			):
+				continue
+			this.outFile.write(f"\n\tCLOSE_{block.name.upper()}[''] = ['CLOSE_EXPRESSION', 'CLOSE_{block.name.upper()}']")
+
+		this.outFile.write("\n\n")
 
 		this.outFile.close()
 
