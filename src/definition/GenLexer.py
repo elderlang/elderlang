@@ -84,6 +84,7 @@ class GenLexer(eons.Functor):
 		this.tokens.open = {}
 		this.tokens.close = {}
 		this.tokens.syntactic = {}
+		this.tokens.ignore = {}
 		this.tokens.excludeFromCatchAll = []
 		this.tokens.partial = []
 
@@ -103,13 +104,22 @@ class GenLexer(eons.Functor):
 				continue
 
 			if (block.content is None):
+				regex = None
+
 				closings = block.closings
 				if (isinstance(block, OpenEndedBlock)):
-					closings = ['\\n']
+					regex = fr"({'|'.join(block.openings)})(?:(?!:\n).)+"
 				elif (isinstance(block, SymmetricBlock)):
 					closings = block.openings
-				regex = fr"({'|'.join(block.openings)}).*?({'|'.join(closings)})"
-				this.tokens.unparsed[block.name.upper()] = regex
+				
+				if (regex is None):
+					regex = fr"({'|'.join(block.openings)}).*?({'|'.join(closings)})"
+				
+				if ('tokens' in block.exclusions):
+					this.tokens.ignore[block.name] = regex
+				else:
+					this.tokens.unparsed[block.name.upper()] = regex
+				
 				if (not "all.catch.block" in block.exclusions):
 					this.tokens.partial = this.tokens.partial + block.openings + block.closings
 				continue
@@ -118,7 +128,8 @@ class GenLexer(eons.Functor):
 				matches = eval(f"block.{source}")
 				if (len(matches)):
 					blockName =f"{name}_{block.name}".upper()
-					this.tokens[name][blockName] = fr"({'|'.join(matches)})"
+					this.tokens.partial += matches
+					this.tokens[name][blockName] = fr"\s*({'|'.join(matches)})\s*"
 					if ("all.catch.block" in block.exclusions):
 						this.tokens.excludeFromCatchAll.append(blockName)
 		
@@ -126,6 +137,7 @@ class GenLexer(eons.Functor):
 		# For example, start(expression); open(next_expression) // ; closes the first, even though it opens the second.
 		this.expression = eons.SelfRegistering(summary.expression)
 		this.expression.WarmUp(executor = this.executor, precursor = None)
+		this.tokens.partial += this.expression.openings
 		this.tokens['close'][f"CLOSE_{this.expression.name.upper()}"] = fr"({'|'.join(this.expression.openings)})"
 
 		for syntax in this.syntax.block:
@@ -156,11 +168,10 @@ class GenLexer(eons.Functor):
 		this.tokens.all.update(this.tokens.close)
 		this.tokens.all.update(this.tokens.syntactic)
 
-		this.tokens.all[summary.catchAllBlock.upper()] = fr"[{''.join(this.catchAllBlock.specialStarts)}]?(?:(?!{'|'.join([v[1:-1] for k, v in this.tokens.all.items() if len(v) > 2 and not k in this.tokens.excludeFromCatchAll])}{'|'.join(t for t in this.tokens.partial)})\S)+"
+		this.tokens.all[summary.catchAllBlock.upper()] = fr"[{''.join(this.catchAllBlock.specialStarts)}]?(?:(?!{'|'.join(t for t in this.tokens.partial)})\S)+"
 
-		allTokens = this.tokens.unparsed
-		allTokens.update(this.tokens.all)
-		this.tokens.all = allTokens
+		this.tokens.use = this.tokens.unparsed
+		this.tokens.use.update(this.tokens.all)
 
 		logging.debug(f"Tokens: {this.tokens.all}")
 
@@ -177,21 +188,25 @@ class GenLexer(eons.Functor):
 			this.outFile.write(f"from .{imp} import *\n")
 		this.outFile.write(f"""\
 class ElderLexer(Lexer):
+	def error(self, t):
+		print("Illegal character '%s'" % t.value[0])
+		self.index += 1
+					 
 	def t_NUMBER(t):
 		r'\d+'
 		t.value = int(t.value)
 		return t
 
-	tokens = {{ {', '.join(summary.builtins)}, {', '.join([t for t in this.tokens.all.keys()])} }}
+	tokens = {{ {', '.join(summary.builtins)}, {', '.join([t for t in this.tokens.use.keys()])} }}
 
 	ignore = ' \\t'
-
-	def error(self, t):
-		print("Illegal character '%s'" % t.value[0])
-		self.index += 1
 """)
+		for token,regex in this.tokens.ignore.items():
+			this.outFile.write(f"\n\tignore_{token.lower()} = r'{regex}'")
+		
+		this.outFile.write("\n\n")
 	
-		for token,regex in this.tokens.all.items():
+		for token,regex in this.tokens.use.items():
 			this.outFile.write(f"\t{token} = r'{regex}'\n")
 
 		this.outFile.close()

@@ -15,7 +15,7 @@ def Block(
 	possibleContent = None
 	i = 0
 	failedMatches = []
-	reject = [r'\s+'] + openings + closings
+	reject = [r'^\s*$'] + openings + closings
 	while (True):
 		try:
 			possibleContent = this.p[i]
@@ -25,14 +25,19 @@ def Block(
 				if (not len(possibleContent)):
 					i += 1
 					continue
-				
+
+				shouldReject = False
 				for r in reject:
 					if (re.match(r, possibleContent)):
 						failedMatches.append(possibleContent)
-						i += 1
+						shouldReject = True
 						break
-				else:
+				if (shouldReject):
+					i += 1
 					continue
+
+				# String not skipped or rejected. This should be it.
+				break
 
 			elif (isinstance(possibleContent, list)):
 				# Sets and friends will return lists, so this is probably what we're looking for.
@@ -42,12 +47,14 @@ def Block(
 				i += 1
 
 		except Exception as e:
+			logging.error(f"{this.name} Block failed to find content due to {type(e)}: {e}")
 			# Empty blocks are acceptable.
 			if (not len(failedMatches)):
 				logging.debug(f"Block {this.name} is empty.")
 				return ""
 
 			raise SyntaxError(f"Could not find content for {this.name} block in {failedMatches}.")
+
 	return possibleContent
 
 # SymmetricBlocks use the same symbols for both openings and closings.
@@ -111,6 +118,8 @@ def Expression(
 def ExpressionSet():
 
 	if (isinstance(this.p[0], str)):
+		if (not len(this.p[0])):
+			return []
 		return [this.p[0]]
 	
 	ret = this.p[0]
@@ -118,7 +127,12 @@ def ExpressionSet():
 	if (isinstance(this.p[0], list)):
 		try:
 			if (isinstance(this.p[1], list)):
-				ret = this.p[0] + this.p[1]			
+				ret = this.p[0] + this.p[1]
+			elif (isinstance(this.p[1], str)):
+				if (not len(this.p[1])):
+					ret = this.p[0]
+				else:
+					ret = this.p[0] + [this.p[1]]
 			else:
 				ret.append(this.p[1])
 		except Exception as e:

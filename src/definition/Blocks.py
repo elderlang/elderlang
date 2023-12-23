@@ -76,6 +76,10 @@ def BlockComment(
 	closings = [r'\*/'],
 	representation = r'/\*BLOCK_COMMENT\*/',
 	content = None,
+	exclusions = [
+		'tokens',
+		'parser',
+	],
 ):
 	return ''
 
@@ -85,6 +89,10 @@ def LineComment(
 	closings = [],
 	representation = r'//LINE_COMMENT',
 	content = None,
+	exclusions = [
+		'tokens',
+		'parser',
+	],
 ):
 	return ''
 

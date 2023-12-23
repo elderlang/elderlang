@@ -17,8 +17,6 @@ def ProtoExpression(
 		'Name',
 		'Number',
 		'String',
-		'BlockComment',
-		'LineComment',
 		
 		# ExactSyntaxes
 		'AutofillAccessOrInvokation',
@@ -42,9 +40,15 @@ def ProtoExpressionSet(
 def LimitedExpression(
 	representation = r'LIMITEDEXPRESSION',
 	nest = [
+		'ProtoExpression',
 		'ProtoExpressionSet',
-		'Execution',
-		'Container',
+		# 'Execution',
+		# 'Container',
+
+		# BlockSyntaxes
+		'InvokationWithExecution',
+		'ContainerAccess',
+		'ContainerInvokation',
 	],
 	before = "ProtoExpressionSet"
 ):
@@ -63,10 +67,12 @@ def LimitedExpressionSet(
 def FullExpression(
 	representation = r'FULLEXPRESSION',
 	nest = [
+		'LimitedExpression',
 		'LimitedExpressionSet',
-		'Parameter',
 		'Namespace',
-		'Type',
+		# 'Parameter',
+		# 'Namespace',
+		# 'Type',
 		
 		# BlockSyntaxes
 		'Kind',
@@ -74,9 +80,6 @@ def FullExpression(
 		'TypedName',
 		'StandardInvokation',
 		'InvokationWithParametersAndExecution',
-		'InvokationWithExecution',
-		'ContainerAccess',
-		'ContainerInvokation',
 		'ContainerInvokationWithParameters',
 	],
 	before = "Kind",
