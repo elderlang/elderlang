@@ -71,7 +71,6 @@ def FullExpression(
 		'LimitedExpressionSet',
 		'Namespace',
 		# 'Parameter',
-		# 'Namespace',
 		# 'Type',
 		
 		# BlockSyntaxes

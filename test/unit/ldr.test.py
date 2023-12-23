@@ -9,7 +9,7 @@ ldrpsr = ElderParser()
 tests = [
 	'op',
 	'if',
-	# 'hellowolf',
+	'hellowolf',
 	# 'arrays',
 ]
 

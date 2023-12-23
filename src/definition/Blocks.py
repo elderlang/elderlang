@@ -38,11 +38,13 @@ def FormattedString(
 	for i,char in enumerate(rawString):
 		if (char == '{'):
 			openCount += 1
-			openPos = i
+			openPos = i+1
 		elif (char == '}'):
 			openCount -= 1
-		if (not openCount and openPos):
+		if (openCount == 0 and openPos > 0):
+			# logging.critical(f"Execution block: {rawString[openPos:i]}")
 			executionBlocks.append(rawString[openPos:i])
+			openPos = 0
 	
 	if (openCount > 0):
 		raise SyntaxError(f"Unbalanced curly braces in formatted string: {rawString}")
@@ -51,12 +53,12 @@ def FormattedString(
 
 	stringComponents = [rawString]
 	for i, block in enumerate(executionBlocks):
-		stringComponents[0].replace(block, f"{{i}}", 1)
+		stringComponents[0] = stringComponents[0].replace(f"{{{block}}}", f"{{{i}}}", 1)
 		stringComponents.append(parser.parse(lexer.tokenize(block)))
 
 	# logging.critical(f"String components: {stringComponents}")
 
-	return stringComponents
+	return f"String({', '.join([str(c) for c in stringComponents])})"
 
 @eons.kind(MetaBlock)
 def String(
@@ -80,6 +82,9 @@ def BlockComment(
 		'tokens',
 		'parser',
 	],
+	inclusions = [
+		'newline',
+	],
 ):
 	return ''
 
@@ -101,9 +106,11 @@ def Namespace(
 	openings = [r':'],
 	closings = [],
 	representation = r':NAMESPACE',
-	content = "LimitedExpressionSet",
+	content = "LimitedExpression",
 ):
-	return this.parent.Function(this)
+	# Getting strange recursion loop here.
+	# Should always be :what_we_want
+	return f"SetNamespace({this.p[1]})"
 
 @eons.kind(OpenEndedBlock)
 def Type(
@@ -111,9 +118,11 @@ def Type(
 	closings = [],
 	representation = r'~TYPE',
 	doesSpaceClose = True,
-	content = "LimitedExpressionSet",
+	content = "LimitedExpression",
 ):
-	return this.parent.Function(this)
+	# Same as Namespace, above.
+	# (Type is always wrapped by other syntaxes, so no need for f"..."))
+	return this.p[1]
 
 @eons.kind(Block)
 def Parameter(
@@ -121,6 +130,9 @@ def Parameter(
 	closings = [r'\)'],
 	representation = r'\(PARAMETER\)',
 	content = "FullExpressionSet",
+	inclusions = [
+		'space.padding',
+	],
 ):
 	return this.parent.Function(this)
 
@@ -130,6 +142,9 @@ def Execution(
 	closings = [r'}'],
 	representation = r'{{EXECUTION}}',
 	content = "FullExpressionSet",
+	inclusions = [
+		'space.padding',
+	],
 ):
 	return this.parent.Function(this)
 
@@ -139,5 +154,8 @@ def Container(
 	closings = [r'\]'],
 	representation = r'\[CONTAINER\]',
 	content = "FullExpressionSet",
+	inclusions = [
+		'space.padding',
+	],
 ):
 	return this.parent.Function(this)

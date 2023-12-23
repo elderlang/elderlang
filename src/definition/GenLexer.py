@@ -113,7 +113,10 @@ class GenLexer(eons.Functor):
 					closings = block.openings
 				
 				if (regex is None):
-					regex = fr"({'|'.join(block.openings)}).*?({'|'.join(closings)})"
+					captureChars = r'.*?'
+					if ('newline' in block.inclusions):
+						captureChars = r'[\s\S]*?'
+					regex = fr"({'|'.join(block.openings)}){captureChars}({'|'.join(closings)})"
 				
 				if ('tokens' in block.exclusions):
 					this.tokens.ignore[block.name] = regex
@@ -128,15 +131,17 @@ class GenLexer(eons.Functor):
 				matches = eval(f"block.{source}")
 				if (len(matches)):
 					blockName =f"{name}_{block.name}".upper()
-					this.tokens.partial += matches
+					
 					matchRegex = fr"({'|'.join(matches)})"
-					if (name == 'open'):
-						matchRegex = r'\s*' + matchRegex + r'\s*'
-					elif (name == 'close'):
-						matchRegex = r'\s*' + matchRegex
+					if ('space.padding' in block.inclusions):
+						if (name == 'open'):
+							matchRegex = r'\s*' + matchRegex + r'\s*'
+						elif (name == 'close'):
+							matchRegex = r'\s*' + matchRegex
 					this.tokens[name][blockName] = matchRegex
-					if ("all.catch.block" in block.exclusions):
-						this.tokens.excludeFromCatchAll.append(blockName)
+					
+					if (not "all.catch.block" in block.exclusions):
+						this.tokens.partial += matches
 		
 		# NOTE: "Openings" function as "closings" for the Expression only.
 		# For example, start(expression); open(next_expression) // ; closes the first, even though it opens the second.
@@ -157,14 +162,17 @@ class GenLexer(eons.Functor):
 			possibleToken = this.SubstituteRepresentations(possibleToken, "")
 			for builtin in summary.builtins:
 				possibleToken = possibleToken.replace(builtin, '')
+			
+			if (not "all.catch.block" in syntax.exclusions):
+				this.tokens.partial.append(possibleToken)
+			
 			possibleToken = fr"({possibleToken})"
 			if (
 				len(possibleToken) > 2
 				and possibleToken not in this.tokens.syntactic.values()
 			):
 				this.tokens.syntactic[syntax.name.upper()] = possibleToken
-				if ("all.catch.block" in syntax.exclusions):
-					this.tokens.excludeFromCatchAll.append(syntax.name.upper())
+				
 			else:
 				logging.info(f"Syntax {syntax.name} has no matchable tokens.")
 
