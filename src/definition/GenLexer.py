@@ -205,11 +205,6 @@ class ElderLexer(Lexer):
 		print("Illegal character '%s'" % t.value[0])
 		self.index += 1
 
-	def t_NUMBER(t):
-		r'\d+'
-		t.value = int(t.value)
-		return t
-
 	tokens = {{ {', '.join(summary.builtins)}, {', '.join([t for t in this.tokens.use.keys()])} }}
 
 	ignore = ' \\t'
@@ -218,6 +213,7 @@ class ElderLexer(Lexer):
 			this.outFile.write(f"\n\tignore_{token.lower()} = r'{regex}'")
 
 		this.outFile.write("\n\n")
+		this.outFile.write("\tNUMBER = r'\d+'\n")
 
 		for token,regex in this.tokens.use.items():
 			this.outFile.write(f"\t{token} = r'{regex}'\n")

@@ -1,5 +1,7 @@
 from .Syntax import *
 import eons
+import re
+
 
 @eons.kind(BlockSyntax)
 def SimpleType(
@@ -8,7 +10,7 @@ def SimpleType(
 		'Kind',
 	],
 ):
-	return f"Type(name = {this.p[0]}, kind = {this.p[1]})"
+	return f"Type(name={this.p[0]}, kind={this.Engulf(this.p[1])})"
 
 @eons.kind(BlockSyntax)
 def ContainerAccess(
@@ -17,7 +19,7 @@ def ContainerAccess(
 		'Container',
 	]
 ):
-	return f"Within(name = {this.p[0]}, container = {this.p[1]})"
+	return f"Within(name={this.p[0]}, container={this.Engulf(this.p[1])})"
 
 @eons.kind(Invokation)
 def StandardInvokation(
@@ -26,7 +28,7 @@ def StandardInvokation(
 		'Parameter',
 	]
 ):
-	return f"Invokation(name = {this.p[0]}, parameter = {this.p[1]})"
+	return f"Invokation(name={this.p[0]}, parameter={this.Engulf(this.p[1])})"
 
 @eons.kind(Invokation)
 def InvokationWithExecution(
@@ -35,7 +37,7 @@ def InvokationWithExecution(
 		'Execution',
 	]
 ):
-	return f"Invokation(name = {this.p[0]}, execution = {this.p[1]})"
+	return f"Invokation(name={this.p[0]}, execution={this.Engulf(this.p[1])})"
 
 @eons.kind(BlockSyntax)
 def StructType(
@@ -46,8 +48,8 @@ def StructType(
 	],
 ):
 	if (this.p[0].startswith('Type')):
-		return f"{this.p[0][:-1]}, parameter = {this.p[1]})"
-	return f"Type(name = {this.p[0]}, kind = {this.p[1]}, parameter = {this.p[2]})"
+		return f"{this.p[0][:-1]}, parameter={this.Engulf(this.p[1])})"
+	return f"Type(name={this.p[0]}, kind={this.Engulf(this.p[1])}, parameter={this.Engulf(this.p[2])})"
 
 @eons.kind(Invokation)
 def InvokationWithParametersAndExecution(
@@ -58,8 +60,8 @@ def InvokationWithParametersAndExecution(
 	]
 ):
 	if (this.p[0].startswith('Invokation')):
-		return f"{this.p[0][:-1]}, execution = {this.p[1]})"
-	return f"Invokation(name = {this.p[0]}, parameter = {this.p[1]}, execution = {this.p[2]})"
+		return f"{this.p[0][:-1]}, execution = {this.Engulf(this.p[1])})"
+	return f"Invokation(name={this.p[0]}, parameter={this.Engulf(this.p[1])}, execution={this.Engulf(this.p[2])})"
 
 @eons.kind(Invokation)
 def ContainerInvokation(
@@ -70,8 +72,8 @@ def ContainerInvokation(
 	],
 ):
 	if (this.p[0].startswith('Within')):
-		return f"{this.p[0][:-1]}, execution = {this.p[1]})"
-	return f"Within(name = {this.p[0]}, container = {this.p[1]}, execution = {this.p[2]})"
+		return f"{this.p[0][:-1]}, execution = {this.Engulf(this.p[1])})"
+	return f"Within(name={this.p[0]}, container={this.Engulf(this.p[1])}, execution={this.Engulf(this.p[2])})"
 
 @eons.kind(Invokation)
 def ContainerInvokationWithParameters(
@@ -83,8 +85,8 @@ def ContainerInvokationWithParameters(
 	],
 ):
 	if (this.p[0].startswith('Invokation')):
-		return f"{this.p[0][:-1]}, container = {this.p[1]}, execution = {this.p[2]})"
-	return f"InvokationWithin(name = {this.p[0]}, parameter = {this.p[1]}, container = {this.p[2]}, execution = {this.p[3]})"
+		return f"{this.p[0][:-1]}, container = {this.Engulf(this.p[1])}, execution = {this.Engulf(this.p[2])})"
+	return f"InvokationWithin(name={this.p[0]}, parameter={this.Engulf(this.p[1])}, container={this.Engulf(this.p[2])}, execution={this.Engulf(this.p[3])})"
 
 @eons.kind(BlockSyntax)
 def FunctorType(
@@ -96,8 +98,8 @@ def FunctorType(
 	],
 ):
 	if (this.p[0].startswith('Type')):
-		return f"{this.p[0][:-1]}, execution = {this.p[1]})"
-	return f"Type(name = {this.p[0]}, kind = {this.p[1]}, parameter = {this.p[2]}, execution = {this.p[3]})"
+		return f"{this.p[0][:-1]}, execution = {this.Engulf(this.p[1])})"
+	return f"Type(name='{this.p[0]}, kind={this.Engulf(this.p[1])}, parameter={this.Engulf(this.p[2])}, execution={this.Engulf(this.p[3])})"
 
 @eons.kind(ExactSyntax)
 def EOL(
@@ -114,25 +116,38 @@ def AutofillAccessOrInvokation(
 		r'name name',
 		r'name sequence',
 		r'name autofillinvokation',
+		r'name containeraccess',
+		r'name standardinvokation',
 		r'sequence name',
 		r'simpletype name',
 		r'simpletype sequence',
 		r'simpletype autofillinvokation',
+		r'simpletype containeraccess',
+		r'simpletype standardinvokation',
+		r'containeraccess name',
+		r'containeraccess sequence',
+		r'containeraccess autofillinvokation',
+		r'containeraccess standardinvokation',
+		r'standardinvokation name',
+		r'standardinvokation sequence',
+		r'standardinvokation autofillinvokation',
+		r'standardinvokation containeraccess',
 	],
 	recurseOn = "name",
 	readDirection = ">"
 ):
-	return f"Autofill({this.p[0]}, {this.p[1]})"
+	return f"Autofill({this.Engulf(this.p[0])}, {this.Engulf(this.p[1])})"
 
 @eons.kind(FlexibleTokenSyntax)
 def AutofillInvokation(
 	match = [
 		r'name string',
 		r'name number',
+		r'name container',
 	],
 	readDirection = ">"
 ):
-	return f"{this.p[0]}({this.p[1]})"
+	return f"Call({this.p[0]}, {this.Engulf(this.p[1])})"
 
 @eons.kind(ExactSyntax)
 def Sequence(

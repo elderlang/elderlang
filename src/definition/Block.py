@@ -55,7 +55,7 @@ def Block(
 
 			raise SyntaxError(f"Could not find content for {this.name} block in {failedMatches}.")
 
-	return possibleContent
+	return this.Engulf(possibleContent)
 
 # SymmetricBlocks use the same symbols for both openings and closings.
 @eons.kind(Block)
@@ -110,7 +110,7 @@ def Expression(
 		'EOL',
 	]
 ):
-	return this.p[0]
+	return this.Engulf(this.p[0])
 
 # ExpressionSet is constructed from a series of Expressions.
 # Each nest in a Expression is realized through a ExpressionSet.
@@ -120,10 +120,12 @@ def ExpressionSet():
 	if (isinstance(this.p[0], str)):
 		if (not len(this.p[0])):
 			return []
+		return [this.Engulf(this.p[0])]
+	elif (isinstance(this.p[0], int) or isinstance(this.p[0], float)):
 		return [this.p[0]]
-	
+
 	ret = this.p[0]
-	
+
 	if (isinstance(this.p[0], list)):
 		try:
 			if (isinstance(this.p[1], list)):
@@ -132,9 +134,9 @@ def ExpressionSet():
 				if (not len(this.p[1])):
 					ret = this.p[0]
 				else:
-					ret = this.p[0] + [this.p[1]]
+					ret = this.p[0] + [this.Engulf(this.p[1])]
 			else:
-				ret.append(this.p[1])
+				ret.append(this.Engulf(this.p[1]))
 		except Exception as e:
 			pass
 	

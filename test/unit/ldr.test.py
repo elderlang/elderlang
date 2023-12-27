@@ -10,7 +10,7 @@ tests = [
 	'op',
 	'if',
 	'hellowolf',
-	# 'arrays',
+	'arrays',
 ]
 
 ex = eons.Executor(name="Elder Language Tester")
@@ -24,7 +24,7 @@ for test in tests:
 	ldr = testFile.read()
 
 	tokens = ldrlxr.tokenize(ldr)
-	[logging.info(t) for t in tokens]
+	[logging.critical(t) for t in tokens]
 	logging.info(f"================================================")
 	logging.critical(ldrpsr.parse(ldrlxr.tokenize(ldr)))
 	logging.info(f"================================================")

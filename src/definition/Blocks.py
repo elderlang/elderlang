@@ -112,7 +112,10 @@ def Kind(
 		return "Kind()"
 	if (this.p[0].startswith('Kind')):
 		return this.p[0]
-	return f"Kind({this.p[1]})"
+	kind = this.Engulf(this.p[1])
+	if (len(kind)):
+		kind = f"'{kind}'"
+	return f"Kind({kind})"
 
 @eons.kind(Block)
 def Parameter(

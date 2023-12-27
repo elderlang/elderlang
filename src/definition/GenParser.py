@@ -68,7 +68,7 @@ class GenParser(eons.Functor):
 		# Has to be declared outside of f-string to use backslashes.
 		precedenceJoiner = ",\n\t\t"
 		# precedenceString = f"('left', 'EXCLUDED'){precedenceJoiner}"
-		precedenceString = precedenceJoiner[2:]
+		precedenceString = f"{precedenceJoiner[2:]}('left', 'EXACT_SYNTAX'){ precedenceJoiner}"
 		precedenceString += precedenceJoiner.join(this.precedence.token.block)
 		precedenceString += precedenceJoiner
 		precedenceString += precedenceJoiner.join(this.precedence.unparsedBlock)
@@ -105,15 +105,27 @@ class ElderParser(Parser):
 			this.WriteGrammar(implementation, rules)
 
 		this.outFile.write(f"""
-	@_('{summary.catchAllBlock.upper()}')
+	@_('{summary.catchAllBlock.upper()} %prec {summary.catchAllBlock.upper()}')
 	def {summary.catchAllBlock.lower()}(this, p):
 		ret = this.executor.Execute("{summary.catchAllBlock}", p=p).returned
 		logging.info(f"{summary.catchAllBlock} produced {{ret}}")
 		return ret
 	
-	@_('NUMBER')
+	@_(
+		'NUMBER %prec NUMBER',
+		'NUMBER EXPLICITACCESS NUMBER %prec NUMBER',
+		'number EXPLICITACCESS NUMBER %prec NUMBER',
+	)
 	def number(this, p):
-		return p[0]
+		isFloat = False
+		try:
+			if (p[1] == '.'):
+				isFloat = True
+		except:
+			pass
+		if (isFloat):
+			return float(f"{{p[0]}}.{{p[2]}}")
+		return int(p[0])
 """)
 
 		this.outFile.close()
@@ -148,9 +160,6 @@ class ElderParser(Parser):
 
 		for syntax in summary.syntax.block:
 			this.precedence.rule.append(f"('left', '{syntax.upper()}')")
-
-		# Exact Syntax always has precedence over Block Syntax.
-		this.precedence.rule.append(f"('left', 'EXACT_SYNTAX')")
 
 
 	# Recursive to implement the "before" keyword.
@@ -281,6 +290,7 @@ class ElderParser(Parser):
 					f"{openName.lower()} {block.content.lower()} close_{summary.expression.lower()}",
 					f"{openName.lower()} {block.content.lower()} {openName.lower()}",
 					f"{openName.lower()} {openName.lower()}",
+					# f"{openName.lower()} close_{summary.expression.lower()}",
 				]
 				
 				for closing in block.closings:

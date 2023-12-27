@@ -8,7 +8,7 @@ def Name(
 		'/',
 	],
 ):
-	return this.p[0]
+	return f"'{this.p[0]}'"
 
 @eons.kind(Expression)
 def ProtoExpression(
