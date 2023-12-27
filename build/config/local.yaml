@@ -8,6 +8,8 @@ next:
 			build_in: pkg
 			copy:
 			- "/src/definition/": "src/"
+			- "/src/generator/GenLexer.py": "src/GenLexer.py"
+			- "/src/generator/GenParser.py": "src/GenParser.py"
 			config:
 				name: elderlangdefinitions
 				clear_build_path: false
@@ -40,13 +42,19 @@ next:
 		- build: py_package
 			build_in: pkg
 			copy:
-			- "/src/sly": "src/"
+			- "/src/definition/": "src/"
+			- "/src/sly/ast.py": "src/ast.py"
+			- "/src/sly/lex.py": "src/lex.py"
+			- "/src/sly/yacc.py": "src/yacc.py"
 			- "../generator/lexer.py": "src/lexer.py"
 			- "../generator/parser.py": "src/parser.py"
+			- "/src/exe/ELDERLANG.py": "src/ELDERLANG.py"
 			- "/README.md": "README.md"
 			- "/LICENSE": "LICENSE"
 			config:	
 				name: elderlang
+				type: exe
+				exeAlias: elder
 				clear_build_path: false
 				author_name: eons
 				author_email: support@eons.llc
@@ -58,44 +66,19 @@ next:
 				- build: py_install
 					build_in: ../
 					config:
-							type: lib
-- build: arbitrary
-	path: ../
-	build_in: test
-	copy:
-	- "/test/": "test/test/"
-	config:
-		clear_build_path: false
-		commands:
-		- "python3 ./test/unit/ldr.test.py"
-# - build: py_package
-# 	build_in: packaage
+							type: exe
+# - build: arbitrary
+# 	path: ../
+# 	build_in: test
 # 	copy:
-# 	- "/src/": "src/"
-# 	- "/inc/": "inc/"
-# 	- "/test/": "test/"
+# 	- "/test/": "test/test/"
 # 	config:
-# 		name: elderlang
-# 		type: lib
 # 		clear_build_path: false
-# 		author_name: eons
-# 		author_email: support@eons.llc
-# 		description: Elder data composition
-# 		package_url: https://github.com/constellatus/constellatus
-# 		license: MIT License
-# 		python_min: '3.7'
-# 		skip_module_detection:
-# 		- yaml
-# 		classifiers:
-# 		- 'Development Status :: 4 - Beta'
-# 		next:
-# 		- build: py_install
-# 			build_in: ../
-# 			config:
-# 					next:
-# 					- build: py_publish
-# 						run_when_any:
-# 						- release
-# 						build_in: ./
-# 						config:
-# 							clear_build_path: false
+# 		commands:
+# 		- "python3 ./test/unit/ldr.test.py"
+# - build: py_publish
+# 		run_when_any:
+# 		- release
+# 		build_in: ./
+# 		config:
+# 			clear_build_path: false
