@@ -1,5 +1,6 @@
 import eons
 import logging
+import re
 from .Blocks import *
 from .Syntax import *
 from .Expressions import *
@@ -20,7 +21,9 @@ class GenParser(eons.Functor):
 	def Function(this):
 		this.grammar = {}
 		this.precedence = eons.util.DotDict()
-		this.precedence.token = []
+		this.precedence.token = eons.util.DotDict()
+		this.precedence.token.block = []
+		this.precedence.token.syntax = []
 		this.precedence.rule = []
 		this.precedence.unparsedBlock = []
 		this.possibleNestings = []
@@ -66,11 +69,13 @@ class GenParser(eons.Functor):
 		precedenceJoiner = ",\n\t\t"
 		# precedenceString = f"('left', 'EXCLUDED'){precedenceJoiner}"
 		precedenceString = precedenceJoiner[2:]
-		precedenceString += precedenceJoiner.join(this.precedence.rule)
-		precedenceString += precedenceJoiner
-		precedenceString += precedenceJoiner.join(this.precedence.token)
+		precedenceString += precedenceJoiner.join(this.precedence.token.block)
 		precedenceString += precedenceJoiner
 		precedenceString += precedenceJoiner.join(this.precedence.unparsedBlock)
+		precedenceString += precedenceJoiner
+		precedenceString += precedenceJoiner.join(this.precedence.rule)
+		precedenceString += precedenceJoiner
+		precedenceString += precedenceJoiner.join(this.precedence.token.syntax)
 		
 		this.outFile.write(f"""\
 class ElderParser(Parser):
@@ -121,7 +126,7 @@ class ElderParser(Parser):
 
 		builtins = [builtin.upper() for builtin in summary.builtins]
 		if (len(builtins)):
-			this.precedence.token.append(f"('left', {', '.join(builtins)})")
+			this.precedence.token.syntax.append(f"('left', {', '.join(builtins)})")
 
 		# CLOSE_EXPRESSION should be the lowest priority possible, since it directly translates EOLs.
 		this.precedence.rule.append(f"('left', 'CLOSE_{summary.expression.upper()}')")
@@ -273,7 +278,9 @@ class ElderParser(Parser):
 			elif (isinstance(block, OpenEndedBlock)):
 				this.grammar[block] = [
 					f"{openName.lower()} {block.content.lower()}",
+					f"{openName.lower()} {block.content.lower()} close_{summary.expression.lower()}",
 					f"{openName.lower()} {block.content.lower()} {openName.lower()}",
+					f"{openName.lower()} {openName.lower()}",
 				]
 				
 				for closing in block.closings:
@@ -314,7 +321,7 @@ class ElderParser(Parser):
 					]
 
 		if (len(blockPrecedenceOpen) and len(blockPrecedenceClose)):
-			this.precedence.token.append(f"('left', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
+			this.precedence.token.block.append(f"('left', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
 
 
 	# These will not have tokens associated with them and thus no precedence.
@@ -391,18 +398,20 @@ class ElderParser(Parser):
 				)]
 			this.grammar[syntax] = match
 			
-			if (len(syntax.recurseOn)):
+			if (syntax.recurseOn is not None and len(syntax.recurseOn)):
 				for i in range(len(match)):
 					recursiveMatch = match[i]
 					if (syntax.readDirection == ">"):
-						recursiveMatch = recursiveMatch.replace(syntax.recurseOn, syntax.name.lower(), 1)
+						recursiveMatch = re.sub(rf"\b{syntax.recurseOn}\b", syntax.name.lower(), recursiveMatch, 1)
 					elif (syntax.readDirection == "<"):
-						recursiveMatch = recursiveMatch[::-1].replace(syntax.recurseOn[::-1], syntax.name.lower()[::-1], 1)[::-1]
-					this.grammar[syntax].append(recursiveMatch)
+						recursiveMatch = re.sub(rf"\b{syntax.recurseOn[::-1]}\b", syntax.name.lower()[::-1], recursiveMatch[::-1], 1)[::-1]
+
+					if (recursiveMatch != match[i]):
+						this.grammar[syntax].append(recursiveMatch)
 		
 		tokens += [syntax.name.upper() for syntax in this.gen_lexer.syntax.exact
 			if not 'parser' in syntax.exclusions 
 			and syntax.name.upper() in this.gen_lexer.tokens.syntactic.keys()
 		]
 		tokens.append(summary.catchAllBlock.upper())
-		this.precedence.token.append(f"('left', {', '.join(tokens)})")
+		this.precedence.token.syntax.append(f"('left', {', '.join(tokens)})")

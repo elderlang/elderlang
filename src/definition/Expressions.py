@@ -69,19 +69,18 @@ def FullExpression(
 	nest = [
 		'LimitedExpression',
 		'LimitedExpressionSet',
-		'Namespace',
+		'Kind',
 		# 'Parameter',
-		# 'Type',
 		
 		# BlockSyntaxes
-		'Kind',
-		'StructKind',
-		'TypedName',
+		'FunctorType',
+		'StructType',
+		'SimpleType',
 		'StandardInvokation',
 		'InvokationWithParametersAndExecution',
 		'ContainerInvokationWithParameters',
 	],
-	before = "Kind",
+	before = "FunctorType",
 ):
 	return this.parent.Function(this)
 

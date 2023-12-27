@@ -2,13 +2,13 @@ from .Syntax import *
 import eons
 
 @eons.kind(BlockSyntax)
-def TypedName(
+def SimpleType(
 	blocks = [
-		'Type',
 		'Name',
+		'Kind',
 	],
 ):
-	return f"TypedName(type = {this.p[0]}, name = {this.p[1]})"
+	return f"Type(name = {this.p[0]}, kind = {this.p[1]})"
 
 @eons.kind(BlockSyntax)
 def ContainerAccess(
@@ -17,7 +17,7 @@ def ContainerAccess(
 		'Container',
 	]
 ):
-	return f"ContainerAccess(name = {this.p[0]}, container = {this.p[1]})"
+	return f"Within(name = {this.p[0]}, container = {this.p[1]})"
 
 @eons.kind(Invokation)
 def StandardInvokation(
@@ -26,7 +26,7 @@ def StandardInvokation(
 		'Parameter',
 	]
 ):
-	return f"StandardInvokation(name = {this.p[0]}, parameter = {this.p[1]})"
+	return f"Invokation(name = {this.p[0]}, parameter = {this.p[1]})"
 
 @eons.kind(Invokation)
 def InvokationWithExecution(
@@ -35,17 +35,19 @@ def InvokationWithExecution(
 		'Execution',
 	]
 ):
-	return f"InvokationWithExecution(name = {this.p[0]}, execution = {this.p[1]})"
+	return f"Invokation(name = {this.p[0]}, execution = {this.p[1]})"
 
 @eons.kind(BlockSyntax)
-def StructKind(
+def StructType(
 	blocks = [
-		'Type',
 		'Name',
+		'Kind',
 		'Parameter',
 	],
 ):
-	return f"StructKind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]})"
+	if (this.p[0].startswith('Type')):
+		return f"{this.p[0][:-1]}, parameter = {this.p[1]})"
+	return f"Type(name = {this.p[0]}, kind = {this.p[1]}, parameter = {this.p[2]})"
 
 @eons.kind(Invokation)
 def InvokationWithParametersAndExecution(
@@ -55,7 +57,9 @@ def InvokationWithParametersAndExecution(
 		'Execution',
 	]
 ):
-	return f"InvokationWithParametersAndExecution(name = {this.p[0]}, parameter = {this.p[1]}, execution = {this.p[2]})"
+	if (this.p[0].startswith('Invokation')):
+		return f"{this.p[0][:-1]}, execution = {this.p[1]})"
+	return f"Invokation(name = {this.p[0]}, parameter = {this.p[1]}, execution = {this.p[2]})"
 
 @eons.kind(Invokation)
 def ContainerInvokation(
@@ -65,7 +69,9 @@ def ContainerInvokation(
 		'Execution',
 	],
 ):
-	return f"ContainerInvokation(name = {this.p[0]}, container = {this.p[1]}, execution = {this.p[2]})"
+	if (this.p[0].startswith('Within')):
+		return f"{this.p[0][:-1]}, execution = {this.p[1]})"
+	return f"Within(name = {this.p[0]}, container = {this.p[1]}, execution = {this.p[2]})"
 
 @eons.kind(Invokation)
 def ContainerInvokationWithParameters(
@@ -76,18 +82,22 @@ def ContainerInvokationWithParameters(
 		'Execution',
 	],
 ):
-	return f"ContainerInvokationWithParameters(name = {this.p[0]}, parameter = {this.p[1]}, container = {this.p[2]}, execution = {this.p[3]})"
+	if (this.p[0].startswith('Invokation')):
+		return f"{this.p[0][:-1]}, container = {this.p[1]}, execution = {this.p[2]})"
+	return f"InvokationWithin(name = {this.p[0]}, parameter = {this.p[1]}, container = {this.p[2]}, execution = {this.p[3]})"
 
 @eons.kind(BlockSyntax)
-def Kind(
+def FunctorType(
 	blocks = [
-		'Type',
 		'Name',
+		'Kind',
 		'Parameter',
 		'Execution',
 	],
 ):
-	return f"Kind(type = {this.p[0]}, name = {this.p[1]}, parameter = {this.p[2]}, execution = {this.p[3]})"
+	if (this.p[0].startswith('Type')):
+		return f"{this.p[0][:-1]}, execution = {this.p[1]})"
+	return f"Type(name = {this.p[0]}, kind = {this.p[1]}, parameter = {this.p[2]}, execution = {this.p[3]})"
 
 @eons.kind(ExactSyntax)
 def EOL(
@@ -102,7 +112,12 @@ def EOL(
 def AutofillAccessOrInvokation(
 	match = [
 		r'name name',
+		r'name sequence',
 		r'name autofillinvokation',
+		r'sequence name',
+		r'simpletype name',
+		r'simpletype sequence',
+		r'simpletype autofillinvokation',
 	],
 	recurseOn = "name",
 	readDirection = ">"

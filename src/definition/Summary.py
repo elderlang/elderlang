@@ -27,8 +27,7 @@ summary.blocks = [
 	"Execution",
 	"Parameter",
 	"Container",
-	"Type",
-	"Namespace",
+	"Kind",
 	"LimitedExpressionSet",
 	"LimitedExpression",
 	"ProtoExpressionSet",
@@ -49,15 +48,15 @@ summary.eol = "EOL"
 summary.syntax = eons.util.DotDict()
 
 summary.syntax.block = [
-	"TypedName",
+	"SimpleType",
 	"ContainerAccess",
 	"StandardInvokation",
 	"InvokationWithExecution",
-	"StructKind",
+	"StructType",
 	"InvokationWithParametersAndExecution",
 	"ContainerInvokation",
 	"ContainerInvokationWithParameters",
-	"Kind",
+	"FunctorType",
 ]
 
 summary.syntax.exact = [

@@ -102,27 +102,17 @@ def LineComment(
 	return ''
 
 @eons.kind(OpenEndedBlock)
-def Namespace(
+def Kind(
 	openings = [r':'],
 	closings = [],
-	representation = r':NAMESPACE',
+	representation = r':KIND',
 	content = "LimitedExpression",
 ):
-	# Getting strange recursion loop here.
-	# Should always be :what_we_want
-	return f"SetNamespace({this.p[1]})"
-
-@eons.kind(OpenEndedBlock)
-def Type(
-	openings = [r'~'],
-	closings = [],
-	representation = r'~TYPE',
-	doesSpaceClose = True,
-	content = "LimitedExpression",
-):
-	# Same as Namespace, above.
-	# (Type is always wrapped by other syntaxes, so no need for f"..."))
-	return this.p[1]
+	if (this.p[0] in openings and this.p[1] in openings):
+		return "Kind()"
+	if (this.p[0].startswith('Kind')):
+		return this.p[0]
+	return f"Kind({this.p[1]})"
 
 @eons.kind(Block)
 def Parameter(

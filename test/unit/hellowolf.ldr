@@ -1,7 +1,6 @@
-:test/hello
-~functor
-hello_wolf(
-	~string hello = 'hello'
+hello_wolf: functor
+(
+	hello:string := 'hello'
 ) {
 	return "{hello} wolf"
 }

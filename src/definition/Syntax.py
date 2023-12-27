@@ -9,7 +9,7 @@ def Syntax():
 def ExactSyntax(
 	match = r'',
 	literalMatch = False,
-	recurseOn = "",
+	recurseOn = None,
 	readDirection = ">"
 ):
 	pass
