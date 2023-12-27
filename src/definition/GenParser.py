@@ -15,7 +15,7 @@ class GenParser(eons.Functor):
 
 		this.optionalKWArgs['outFileName'] = "parser.py"
 
-		this.optionalKWArgs['debug'] = True
+		this.optionalKWArgs['debug'] = False
 		this.optionalKWArgs['custom_precedence'] = True
 
 	def Function(this):
