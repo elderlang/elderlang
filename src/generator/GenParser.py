@@ -198,7 +198,7 @@ class ElderParser(Parser):
 		this.outFile.write(f"""
 	def {implName.lower()}(this, p):
 		pstr = ''.join([str(p[i]) for i in range(len(p))])
-		logging.critical(f"Given {{pstr}}...")
+		logging.info(f"Given {{pstr}}...")
 """)
 		if ('NULL' in rules):
 			this.outFile.write("\t\tret = ''")
@@ -208,7 +208,7 @@ class ElderParser(Parser):
 			this.outFile.write(f'\t\tret = this.executor.Execute("{implName}", p=p).returned')
 		
 		this.outFile.write(f"""
-		logging.critical(f"...{implName} produced {{ret}}")
+		logging.info(f"...{implName} produced {{ret}}")
 		return ret
 """)
 
