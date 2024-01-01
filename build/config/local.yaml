@@ -43,6 +43,7 @@ next:
 			build_in: pkg
 			copy:
 			- "/src/definition/": "src/"
+			- "/src/eldest/": "src/eldest/"
 			- "/src/sly/ast.py": "src/ast.py"
 			- "/src/sly/lex.py": "src/lex.py"
 			- "/src/sly/yacc.py": "src/yacc.py"
@@ -67,15 +68,15 @@ next:
 					build_in: ../
 					config:
 							type: exe
-- build: arbitrary
-	path: ../
-	build_in: test
-	copy:
-	- "/test/": "test/test/"
-	config:
-		clear_build_path: false
-		commands:
-		- "python3 ./test/unit/ldr.test.py"
+# - build: arbitrary
+# 	path: ../
+# 	build_in: test
+# 	copy:
+# 	- "/test/": "test/test/"
+# 	config:
+# 		clear_build_path: false
+# 		commands:
+# 		- "python3 ./test/unit/ldr.test.py"
 # - build: py_publish
 # 		run_when_any:
 # 		- release

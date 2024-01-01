@@ -30,8 +30,8 @@ class Structure (eons.Functor):
 		if (not len(ret)):
 			return ret
 		
-		while ('\\' in ret):
-			ret = ret.replace('\\', '')
+		# while ('\\' in ret):
+		# 	ret = ret.replace('\\', '')
 
 		if (ret[0] == ret[-1] 
 			and (

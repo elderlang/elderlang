@@ -4,6 +4,8 @@ import eons
 from pathlib import Path
 from .lexer import *
 from .parser import *
+from .eldest.EXEC import EXEC
+from .eldest.Sanitize import Sanitize
 
 class ELDERLANG(eons.Executor):
 
@@ -12,6 +14,10 @@ class ELDERLANG(eons.Executor):
 
 		this.lexer = ElderLexer()
 		this.parser = ElderParser()
+
+		this.stack = []
+		this.exceptions = []
+		this.context = None
 
 	# Register included files early so that they can be used by the rest of the system.
 	# NOTE: this method needs to be overridden in all children which ship included Functors, Data, etc. This is because __file__ is unique to the eons.py file, not the child's location.
@@ -36,4 +42,7 @@ class ELDERLANG(eons.Executor):
 		ldr = ldrFile.read()
 		ldrFile.close()
 		
-		return this.parser.parse(this.lexer.tokenize(ldr))
+		toExec = this.parser.parse(this.lexer.tokenize(ldr))
+		toExec = Sanitize()(toExec).returned
+		logging.critical(f"Sanitized: {toExec}")
+		return EXEC(toExec, executor=this).returned

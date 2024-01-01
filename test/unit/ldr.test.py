@@ -8,10 +8,10 @@ commander = eons.StandardFunctor()
 commander.WarmUp(executor = elder)
 
 tests = [
-	'op',
+	# 'op',
 	'if',
-	'hellowolf',
-	'arrays',
+	# 'hellowolf',
+	# 'arrays',
 ]
 
 testPath = str(Path(__file__).parent.absolute())

@@ -28,7 +28,7 @@ def StandardInvokation(
 		'Parameter',
 	]
 ):
-	return f"Invokation(name={this.p[0]}, parameter={this.Engulf(this.p[1])})"
+	return f"Invoke(name={this.p[0]}, parameter={this.Engulf(this.p[1])})"
 
 @eons.kind(Invokation)
 def InvokationWithExecution(
@@ -37,7 +37,7 @@ def InvokationWithExecution(
 		'Execution',
 	]
 ):
-	return f"Invokation(name={this.p[0]}, execution={this.Engulf(this.p[1])})"
+	return f"Invoke(name={this.p[0]}, execution={this.Engulf(this.p[1])})"
 
 @eons.kind(BlockSyntax)
 def StructType(
@@ -59,9 +59,9 @@ def InvokationWithParametersAndExecution(
 		'Execution',
 	]
 ):
-	if (this.p[0].startswith('Invokation')):
+	if (this.p[0].startswith('Invoke')):
 		return f"{this.p[0][:-1]}, execution = {this.Engulf(this.p[1])})"
-	return f"Invokation(name={this.p[0]}, parameter={this.Engulf(this.p[1])}, execution={this.Engulf(this.p[2])})"
+	return f"Invoke(name={this.p[0]}, parameter={this.Engulf(this.p[1])}, execution={this.Engulf(this.p[2])})"
 
 @eons.kind(Invokation)
 def ContainerInvokation(
@@ -84,9 +84,9 @@ def ContainerInvokationWithParameters(
 		'Execution',
 	],
 ):
-	if (this.p[0].startswith('Invokation')):
+	if (this.p[0].startswith('Invoke')):
 		return f"{this.p[0][:-1]}, container = {this.Engulf(this.p[1])}, execution = {this.Engulf(this.p[2])})"
-	return f"InvokationWithin(name={this.p[0]}, parameter={this.Engulf(this.p[1])}, container={this.Engulf(this.p[2])}, execution={this.Engulf(this.p[3])})"
+	return f"Invoke(name={this.p[0]}, parameter={this.Engulf(this.p[1])}, container={this.Engulf(this.p[2])}, execution={this.Engulf(this.p[3])})"
 
 @eons.kind(BlockSyntax)
 def FunctorType(
@@ -113,37 +113,44 @@ def EOL(
 @eons.kind(FlexibleTokenSyntax)
 def AutofillAccessOrInvokation(
 	match = [
-		r'name name',
+		r'simpletype autofillinvokation',
+		r'simpletype containeraccess',
+		r'simpletype standardinvokation',
+		r'simpletype sequence',
+		r'containeraccess autofillinvokation',
+		r'containeraccess standardinvokation',
+		r'containeraccess sequence',
+		r'standardinvokation autofillinvokation',
+		r'standardinvokation sequence',
+		r'standardinvokation containeraccess',
 		r'name sequence',
 		r'name autofillinvokation',
 		r'name containeraccess',
 		r'name standardinvokation',
-		r'sequence name',
 		r'simpletype name',
-		r'simpletype sequence',
-		r'simpletype autofillinvokation',
-		r'simpletype containeraccess',
-		r'simpletype standardinvokation',
 		r'containeraccess name',
-		r'containeraccess sequence',
-		r'containeraccess autofillinvokation',
-		r'containeraccess standardinvokation',
 		r'standardinvokation name',
-		r'standardinvokation sequence',
-		r'standardinvokation autofillinvokation',
-		r'standardinvokation containeraccess',
+		r'sequence name',
+		r'name name',
 	],
 	recurseOn = "name",
 	readDirection = ">"
 ):
-	return f"Autofill({this.Engulf(this.p[0])}, {this.Engulf(this.p[1])})"
+	source = str(this.Engulf(this.p[0]))
+	source = source.replace(r'"', r'\"')
+	# if ('(' not in source and '[' not in source):
+	# 	source = f"'{source}'"
+	target = str(this.Engulf(this.p[1]))
+	target = target.replace(r'"', r'\"')
+	# if ('(' not in target and '[' not in target):
+	# 	target = f"'{target}'"
+	return f'Autofill("{source}", "{target}")'
 
 @eons.kind(FlexibleTokenSyntax)
 def AutofillInvokation(
 	match = [
 		r'name string',
 		r'name number',
-		r'name container',
 	],
 	readDirection = ">"
 ):
