@@ -8,4 +8,5 @@ class Get (SourceTargetFunctor):
 		super().__init__(name)
 
 	def Function(this):
-		return getattr(this.source, this.target)
+		retrieved = [getattr(this.source, t) for t in this.target]
+		return retrieved[0] if len(retrieved) == 1 else retrieved

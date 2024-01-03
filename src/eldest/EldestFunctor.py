@@ -1,5 +1,6 @@
 import eons
 import logging
+from copy import deepcopy
 from .Sanitize import Sanitize
 
 class EldestFunctor (eons.Functor):
@@ -23,6 +24,10 @@ class EldestFunctor (eons.Functor):
 		]
 
 		this.context = None
+
+	def __call__(this, *args, **kwargs):
+		clone = deepcopy(this)
+		return super(EldestFunctor, clone).__call__(*args, **kwargs)
 
 	def BeforeFunction(this):
 		this.Set('context', this.FetchWithout(['this', 'context', 'stack', 'history'], 'context', None))

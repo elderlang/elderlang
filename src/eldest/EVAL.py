@@ -12,6 +12,7 @@ class EVAL (E___):
 
 		this.arg.kw.optional['unwrapReturn'] = None
 		this.arg.kw.optional['shouldAutoType'] = False
+		this.arg.kw.optional['shouldAttemptInvokation'] = False
 
 		this.arg.mapping.append('parameter')
 
@@ -66,14 +67,17 @@ class EVAL (E___):
 						logging.debug(f"Autotyping {statement}.")
 						this.result.data.evaluation.append(eval(f"Type(name = '{statement}', kind = Kind())", globals(), {'this': this}))
 					possibleFunctor = this.Fetch(statement)
+					if (possibleFunctor is None):
+						try:
+							possibleFunctor = this.executor.GetRegistered(statement)
+						except:
+							pass
 					if (possibleFunctor is not None):
-						this.result.data.evaluation.append(possibleFunctor)
+						if (this.shouldAttemptInvokation):
+							this.result.data.evaluation.append(possibleFunctor())
+						else:
+							this.result.data.evaluation.append(possibleFunctor)
 						continue
-					try:
-						this.result.data.evaluation.append(this.executor.GetRegistered(statement))
-						continue
-					except:
-						pass
 				this.result.data.evaluation.append(eval(statement, globals(), {'this': this}))
 
 		except HaltExecution:

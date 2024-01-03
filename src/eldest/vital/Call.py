@@ -8,4 +8,4 @@ class Call (SourceTargetFunctor):
 		super().__init__(name)
 
 	def Function(this):
-		return this.source(EVAL(this.target))
+		return this.source(*this.target)

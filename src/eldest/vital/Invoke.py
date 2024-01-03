@@ -8,6 +8,8 @@ class Invoke (SourceTargetFunctor):
 	def __init__(this, name="Invoke"):
 		super().__init__(name)
 
+		this.needs.target = False
+
 		this.arg.kw.optional['parameter'] = None
 		this.arg.kw.optional['container'] = None
 		this.arg.kw.optional['execution'] = None
@@ -17,7 +19,7 @@ class Invoke (SourceTargetFunctor):
 	def Function(this):
 		evaluatedParameter = []
 		if (this.parameter is not None):
-			evaluatedParameter = EVAL(this.parameter)
+			evaluatedParameter = EVAL(this.parameter, shouldAttemptInvokation = True)
 		
 			if (not isinstance(evaluatedParameter, list)):
 				evaluatedParameter = [evaluatedParameter]
