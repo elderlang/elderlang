@@ -4,7 +4,7 @@ from ..EXEC import EXEC
 
 class CASE (KEYWORD):
 	def __init__(this):
-		super().__init__(name = "case")
+		super().__init__(name = "CASE")
 
 		this.arg.kw.required.append('condition')
 		this.arg.kw.required.append('execution')

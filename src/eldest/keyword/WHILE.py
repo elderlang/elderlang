@@ -4,7 +4,7 @@ from ..EXEC import EXEC
 
 class WHILE (LOOP):
 	def __init__(this):
-		super().__init__(name = "while")
+		super().__init__(name = "WHILE")
 
 		this.arg.kw.required.append('parameter')
 		this.arg.kw.required.append('execution')

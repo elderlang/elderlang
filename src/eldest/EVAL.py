@@ -3,6 +3,7 @@ import logging
 import re
 from .E___ import E___
 from .Exceptions import *
+from .Sanitize import Sanitize
 
 class EVAL (E___):
 	def __init__(this):
@@ -10,6 +11,7 @@ class EVAL (E___):
 		this.arg.kw.required.append('parameter')
 
 		this.arg.kw.optional['unwrapReturn'] = None
+		this.arg.kw.optional['shouldAutoType'] = False
 
 		this.arg.mapping.append('parameter')
 
@@ -56,28 +58,22 @@ class EVAL (E___):
 					continue
 				
 				# Check if the statement is a Functor name.
-				if (re.match(r'^[a-zA-Z0-9_]+$', statement) 
-					and statement not in [
-						'BREAK',
-						'CASE',
-						'CATCH',
-						'CONTINUE',
-						'DEFAULT',
-						'ELSE',
-						'FOR',
-						'IF',
-						'RETURN',
-						'SWITCH',
-						'TRY',
-						'WHILE',
-					]
+				if (re.match(rf"^{ElderLexer.NAME}$", statement)
+					and statement not in Sanitize.allBuiltins
 				):
+					logging.debug(f"It looks like {statement} is a Functor name.")
+					if (this.shouldAutoType):
+						logging.debug(f"Autotyping {statement}.")
+						this.result.data.evaluation.append(eval(f"Type(name = '{statement}', kind = Kind())", globals(), {'this': this}))
+					possibleFunctor = this.Fetch(statement)
+					if (possibleFunctor is not None):
+						this.result.data.evaluation.append(possibleFunctor)
+						continue
 					try:
 						this.result.data.evaluation.append(this.executor.GetRegistered(statement))
 						continue
 					except:
 						pass
-					
 				this.result.data.evaluation.append(eval(statement, globals(), {'this': this}))
 
 		except HaltExecution:

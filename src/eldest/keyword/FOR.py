@@ -4,7 +4,7 @@ from ..EXEC import EXEC
 
 class FOR (LOOP):
 	def __init__(this):
-		super().__init__(name = "for")
+		super().__init__(name = "FOR")
 
 		this.arg.kw.required.append('source')
 		this.arg.kw.required.append('container')

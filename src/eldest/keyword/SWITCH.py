@@ -4,7 +4,7 @@ from ..EXEC import EXEC
 
 class SWITCH (KEYWORD):
 	def __init__(this):
-		super().__init__(name = "switch")
+		super().__init__(name = "SWITCH")
 
 		this.arg.kw.required.append('condition')
 		this.arg.kw.required.append('execution')

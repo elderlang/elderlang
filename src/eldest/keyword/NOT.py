@@ -4,7 +4,7 @@ from ..EXEC import EXEC
 
 class NOT (KEYWORD):
 	def __init__(this):
-		super().__init__(name = "not")
+		super().__init__(name = "NOT")
 
 		this.arg.kw.required.append('parameter')
 

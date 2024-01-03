@@ -5,7 +5,7 @@ from .LOOP import LOOP
 
 class BREAK (KEYWORD):
 	def __init__(this):
-		super().__init__(name = "break")
+		super().__init__(name = "BREAK")
 
 	def Function(this):
 		loop = None

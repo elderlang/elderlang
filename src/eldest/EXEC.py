@@ -9,14 +9,15 @@ class EXEC (E___):
 		super().__init__(name="exec")
 		this.arg.kw.required.append('execution')
 		this.arg.mapping.append('execution')
+		this.episcope = None
 
 	def Function(this):
 		if (type(this.execution) != list):
 			this.execution = [this.execution]
 
-		currentContext = None
+		this.episcope = None
 		try:
-			currentContext = context # From globals
+			this.episcope = context # From globals
 		except:
 			pass
 
@@ -34,10 +35,17 @@ class EXEC (E___):
 			logging.error(failMessage)
 			eons.util.LogStack()
 
-		this.executor.SetGlobal('context', currentContext)
+		this.executor.SetGlobal('context', this.episcope)
 
 		if (failMessage is not None):
 			raise RuntimeError(failMessage)
 
 		# NOTE: my return value should be set by RETURN.
 		return this.result.data.returned
+	
+	
+	def fetch_location_context(this, varName, default, fetchFrom, attempted):
+		if (this.episcope is None):
+			return default, False
+		
+		return this.episcope.Fetch(varName, default, start=False, attempted=attempted)

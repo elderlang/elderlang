@@ -1,4 +1,5 @@
 import eons
+import logging
 from .EldestFunctor import EldestFunctor
 
 class TYPE(EldestFunctor):
@@ -9,14 +10,21 @@ class TYPE(EldestFunctor):
 		this.needsTypeAssignment = True
 
 	def EQ(this, other):
-		# TODO: change the actual class?
 		if (this.needsTypeAssignment):
-			if (
-				isinstance(other, bool)
-				or isinstance(other, int)
-				or isinstance(other, float)
-				or isinstance(other, str)
-			):
+			surrogate = None
+			if (isinstance(other, bool)):
+				surrogate = BOOL()
+			elif (isinstance(other, int)):
+				surrogate = INT()
+			elif (isinstance(other, float)):
+				surrogate = FLOAT()
+			elif (isinstance(other, str)):
+				surrogate = STRING()
+
+			if (surrogate is not None):
+				this.__class__ = surrogate.__class__
+				this.__dict__.update(surrogate.__dict__)
+				logging.info(f"Making {this.name} a {surrogate.name} with value {other}")
 				this.value = other
 				this.needsTypeAssignment = False
 			else:
@@ -38,11 +46,13 @@ class TYPE(EldestFunctor):
 					isDefault = True
 					break
 				break
-		
+
 			if (isDefault):
+				logging.info(f"Setting default value of {this.name} to {other}")
 				this.default = other
 				return this
-		
+
+		logging.info(f"Setting {this.name} to {other}")
 		this = other
 		return this
 
@@ -122,8 +132,8 @@ class TYPE(EldestFunctor):
 	
 
 def CreateArithmeticFunction(functionName):
-	return lambda this, *args: getattr(this.value if this.value is not None else this, functionName)(*args)
-	
+	return lambda this, *args: getattr(this.value, functionName)(*args)
+
 for name in [
 	"__add__",
 	"__sub__",

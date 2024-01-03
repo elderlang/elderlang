@@ -4,7 +4,7 @@ from ..EXEC import EXEC
 
 class RETURN (KEYWORD):
 	def __init__(this):
-		super().__init__(name = "return")
+		super().__init__(name = "RETURN")
 
 		this.arg.kw.required.append('parameter')
 

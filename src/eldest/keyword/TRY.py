@@ -4,7 +4,7 @@ from ..EXEC import EXEC
 
 class TRY (KEYWORD):
 	def __init__(this):
-		super().__init__(name = "try")
+		super().__init__(name = "TRY")
 
 		this.arg.kw.required.append('execution')
 

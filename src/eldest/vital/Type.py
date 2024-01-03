@@ -21,7 +21,7 @@ class Type (EldestFunctor):
 			parameters = {
 				a.name: eons.util.DotDict({
 					'name': a.name,
-					'kind': inspect.Parameter.POSITIONALOR_KEYWORD,
+					'kind': inspect.Parameter.POSITIONAL_OR_KEYWORD,
 					'default': a.default,
 				})
 				for a in EVAL(this.parameter, unwrapReturn=False)
@@ -41,5 +41,6 @@ class Type (EldestFunctor):
 		)
 
 		ret.executor = this.executor
+		this.context.Set(this.name, ret)
 
 		return ret

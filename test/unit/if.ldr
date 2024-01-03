@@ -1,4 +1,4 @@
-condition ::= true
+condition = false
 
 if (condition)
 {

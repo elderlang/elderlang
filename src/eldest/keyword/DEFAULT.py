@@ -4,12 +4,12 @@ from ..EXEC import EXEC
 
 class DEFAULT (KEYWORD):
 	def __init__(this):
-		super().__init__(name = "default")
+		super().__init__(name = "DEFAULT")
 
-		this.arg.kw.required.append('SWITCH')
+		this.arg.kw.required.append('switch')
 		this.arg.kw.required.append('execution')
 
 	def Function(this):
-		if (this.SWITCH.matched is None):
-			this.SWITCH.matched = this
+		if (this.switch.matched is None):
+			this.switch.matched = this
 			EXEC(this.execution)

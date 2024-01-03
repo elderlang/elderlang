@@ -17,6 +17,7 @@ class ELDERLANG(eons.Executor):
 
 		this.stack = []
 		this.exceptions = []
+		this.history = []
 		this.context = None
 
 	# Register included files early so that they can be used by the rest of the system.
@@ -44,5 +45,5 @@ class ELDERLANG(eons.Executor):
 		
 		toExec = this.parser.parse(this.lexer.tokenize(ldr))
 		toExec = Sanitize()(toExec).returned
-		logging.critical(f"Sanitized: {toExec}")
-		return EXEC(toExec, executor=this).returned
+		logging.info(f"Sanitized: {toExec}")
+		return EXEC(toExec, executor=this)

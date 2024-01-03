@@ -20,7 +20,21 @@ class Autofill (EldestFunctor):
 	def Function(this):
 		source = this.source
 		if (type(this.source) == str):
-			source = EVAL(this.source)
+			# Check if we should treat source as a Type & perform assignment.
+			shouldAutoType = False
+			if (type(this.target) == str and this.target == 'EQ' and this.executor is not None):
+				stack = this.executor.stack.copy()
+				stack.reverse()
+				for name, object in stack:
+					if (name == 'Autofill'):
+						continue
+					if (name == 'eval'):
+						continue
+					elif (name == 'exec'):
+						logging.debug(f"Will attempt to autotype {this.source}.")
+						shouldAutoType = True
+					break
+			source = EVAL(this.source, shouldAutoType = shouldAutoType)
 
 		target = eons.util.DotDict()
 		target.name = None

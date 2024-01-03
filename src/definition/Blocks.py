@@ -8,7 +8,7 @@ def UnformattedString(
 	content = None
 ):
 	# UnformattedStrings are lexed wholesale.
-	return this.p[0]
+	return f"String({this.p[0]})"
 
 @eons.kind(SymmetricBlock)
 def FormattedString(

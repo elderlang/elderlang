@@ -1,18 +1,19 @@
 import eons
 import logging
+from .Sanitize import Sanitize
 
 class EldestFunctor (eons.Functor):
 	def __init__(this, name=eons.INVALID_NAME()):
 		super().__init__(name)
 
-		this.arg.kw.optional['context'] = None
-
 		this.feature.autoReturn = False
 
 		this.fetch.use = [
-			'this',
 			'args',
+			'this',
 			'stack',
+			'context',
+			'history',
 			'globals',
 			# 'config', #local (if applicable) or per Executor; should be before 'executor' if using a local config.
 			# 'precursor',
@@ -21,7 +22,11 @@ class EldestFunctor (eons.Functor):
 			# 'environment',
 		]
 
+		this.context = None
+
 	def BeforeFunction(this):
+		this.Set('context', this.FetchWithout(['this', 'context', 'stack', 'history'], 'context', None))
+
 		this.executor.stack.append(
 			(this.name, this)
 		)
@@ -34,13 +39,44 @@ class EldestFunctor (eons.Functor):
 		this.executor.stack.remove(
 			(this.name, this)
 		)
-		logging.debug(f"Stack is now: {this.executor.stack}")
+		this.executor.history.insert(
+			0,
+			(this.name, this)
+		)
+		logging.debug(f"History is now: {this.executor.history}")
 
 
 	def fetch_location_stack(this, varName, default, fetchFrom, attempted):
+		if (this.executor is None):
+			return default, False
+		
+		if (varName.upper() not in Sanitize.allBuiltins):
+			return default, False
+		
 		stack = this.executor.stack.copy()
 		stack.reverse()
 		for name, object in stack:
 			if (name == varName):
 				return object, True
+
 		return default, False
+	
+	def fetch_location_history(this, varName, default, fetchFrom, attempted):
+		if (this.executor is None):
+			return default, False
+		
+		if (varName.upper() not in Sanitize.allBuiltins):
+			return default, False
+		
+		for name, object in this.executor.history:
+			if (name == varName):
+				return object, True
+
+		return default, False
+	
+
+	def fetch_location_context(this, varName, default, fetchFrom, attempted):
+		if (this.context is None):
+			return default, False
+		
+		return this.context.Fetch(varName, default, start=False, attempted=attempted)

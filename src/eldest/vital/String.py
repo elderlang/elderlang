@@ -7,7 +7,7 @@ class String (EldestFunctor):
 	def __init__(this, name="String"):
 		super().__init__(name)
 
-		this.feature.argMap = False
+		this.feature.mapArgs = False
 
 	def Function(this):
 		template = this.args[0]

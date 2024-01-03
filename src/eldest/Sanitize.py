@@ -40,6 +40,48 @@ class Sanitize (eons.Functor):
 		'%': 'mod',
 	}
 
+	allBuiltins = [
+		'BREAK',
+		'CONTINUE',
+		'CASE',
+		'DEFAULT',
+		'ELSE',
+		'FOR',
+		'IF',
+		'NOT',
+		'RETURN',
+		'SWITCH',
+		'WHILE',
+		'BOOL',
+		'FLOAT',
+		'INT',
+		'STRING',
+		'FUNCTOR',
+		'NOT',
+		'EQ',
+		'EQEQ',
+		'AND',
+		'ANDAND',
+		'OR',
+		'OROR',
+		'GT',
+		'GTEQ',
+		'LT',
+		'LTEQ',
+		'PLUS',
+		'PLUSEQ',
+		'MINUS',
+		'MINUSEQ',
+		'TIMES',
+		'TIMESEQ',
+		'DIVIDE',
+		'DIVIDEEQ',
+		'POW',
+		'POWEQ'
+		'MOD',
+		'MODEQ',
+	]
+
 	def __init__(this, name="Sanitize"):
 		super().__init__(name)
 

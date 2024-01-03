@@ -6,3 +6,9 @@ class FLOAT(TYPE):
 
 		this.value = value
 		this.needsTypeAssignment = False
+
+	def __float__(this):
+		return this.value
+	
+	def Function(this):
+		return this.value

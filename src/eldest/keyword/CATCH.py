@@ -4,7 +4,7 @@ from ..EXEC import EXEC
 
 class CATCH (KEYWORD):
 	def __init__(this):
-		super().__init__(name = "catch")
+		super().__init__(name = "CATCH")
 
 		this.arg.kw.required.append('parameter')
 		this.arg.kw.required.append('execution')
