@@ -39,7 +39,7 @@ class Type (EldestFunctor):
 			parameters,
 			source
 		)
-
+		ret = ret()
 		ret.executor = this.executor
 		this.context.Set(this.name, ret)
 

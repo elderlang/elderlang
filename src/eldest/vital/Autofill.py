@@ -42,9 +42,9 @@ class Autofill (EldestFunctor):
 		if (isinstance(source.object, types.FunctionType)):
 			source.type = 1
 
-		elif (inspect.isclass(source.object)):
-			source.object = source.object()
-			source.type = 2
+		# elif (inspect.isclass(source.object)):
+		# 	source.object = source.object()
+		# 	source.type = 2
 
 		target = eons.util.DotDict()
 		target.name = None
@@ -99,13 +99,12 @@ class Autofill (EldestFunctor):
 			if (target.type == 1):
 				return usableSource
 			elif (target.type == 2):
-				EVAL._NEXTSOURCE = usableSource
-				newTarget = re.sub(rf"name = (\\*['\"]?){target.name}(\\*['\"]?)", rf"source.object = this._NEXTSOURCE", this.target)
-				return EVAL(newTarget)
+				newTarget = re.sub(rf"name = (\\*['\"]?){target.name}(\\*['\"]?)", rf"source.object = this.NEXTSOURCE", this.target)
+				return EVAL(newTarget, NEXTSOURCE = usableSource)
 			elif (target.type == 3):
-				EVAL._NEXTSOURCE = usableSource
-				newTarget = re.sub(rf"(\\*['\"]?){target.name}(\\*['\"]?),", rf"this._NEXTSOURCE,", this.target)
-				return EVAL(newTarget)
+				EVAL.NEXTSOURCE = usableSource
+				newTarget = re.sub(rf"(\\*['\"]?){target.name}(\\*['\"]?),", rf"this.NEXTSOURCE,", this.target)
+				return EVAL(newTarget, NEXTSOURCE = usableSource)
 		except Exception as e:
 			if (not attemptedAccess):
 				logging.debug(f"Could not find {target.name} on {source.object.name}; using it as an arg for: {source.object.name}({this.target})")

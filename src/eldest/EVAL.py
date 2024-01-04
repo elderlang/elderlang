@@ -13,6 +13,7 @@ class EVAL (E___):
 		this.arg.kw.optional['unwrapReturn'] = None
 		this.arg.kw.optional['shouldAutoType'] = False
 		this.arg.kw.optional['shouldAttemptInvokation'] = False
+		this.arg.kw.optional['NEXTSOURCE'] = None # used by Autofill
 
 		this.arg.mapping.append('parameter')
 

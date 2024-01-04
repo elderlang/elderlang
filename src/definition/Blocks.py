@@ -25,9 +25,9 @@ def FormattedString(
 		lexer = this.FetchWithout(['this'], 'lexer')
 	if (parser is None):
 		parser = this.Fetch(['this'], 'parser')
-	
+
 	rawString = this.p[0]
-	
+
 	# This is what we want to do, but python does not support the P<-...> module (only P<...>)
 	# executionBlocks = re.findall(r'{(?:[^{}]|(?P<open>{)|(?P<-open>}))*(?(open)(?!))}', rawString)
 
@@ -53,7 +53,7 @@ def FormattedString(
 
 	stringComponents = [rawString]
 	for i, block in enumerate(executionBlocks):
-		stringComponents[0] = stringComponents[0].replace(f"{{{block}}}", f"{{{i}}}", 1)
+		stringComponents[0] = stringComponents[0].replace(f"{{{block}}}", r"%s", 1)
 		stringComponents.append(parser.parse(lexer.tokenize(block)))
 
 	# logging.critical(f"String components: {stringComponents}")

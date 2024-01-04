@@ -97,9 +97,9 @@ class Sanitize (eons.Functor):
 			return [this.Clean(item) for item in input]
 
 		for keyword in this.keywords:
-			input = re.sub(rf"(\\*)(['\"]){re.escape(keyword)}(\\*)(['\"])", rf"\1\2{keyword.upper()}\3\4", input)
+			input = re.sub(rf"(\\*)(['\"])\b{re.escape(keyword)}\b(\\*)(['\"])", rf"\1\2{keyword.upper()}\3\4", input)
 		for type in this.types:
-			input = re.sub(rf'Kind({re.escape(type)})', rf'Kind({type.upper()})', input)
+			input = re.sub(rf"(\\*)(['\"]*)(\(*)\b{re.escape(type)}\b(\\*)(['\"]*)(\)*)", rf"\3{type.upper()}\6", input)
 		for symbol,replacement in this.symbols.items():
 			input = re.sub(rf"(\\*)(['\"]){re.escape(symbol)}(\\*)(['\"])", rf"\1\2{replacement.upper()}\3\4", input)
 		return input

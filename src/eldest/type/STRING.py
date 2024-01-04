@@ -9,6 +9,6 @@ class STRING(TYPE):
 
 	def __str__(this):
 		return this.value
-	
+
 	def Function(this):
 		return this.value

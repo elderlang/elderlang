@@ -12,4 +12,4 @@ class String (EldestFunctor):
 	def Function(this):
 		template = this.args[0]
 		arguments = this.args[1:]
-		return template.format(*[EVAL(arg) for arg in arguments])
+		return template % tuple(arguments)
