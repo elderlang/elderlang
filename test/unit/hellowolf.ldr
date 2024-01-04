@@ -1,8 +1,8 @@
 hello_wolf: functor
 (
-	hello:string := 'hello'
+	greeting:string := 'hello'
 ) {
-	return "{hello} wolf"
+	return "{greeting} wolf"
 }
 
 /**
@@ -11,5 +11,5 @@ hello_wolf: functor
  * good wolf
  */
 print(hello_wolf())
-print(hello_wolf(hello = `good`))
+print(hello_wolf(greeting = `good`))
 

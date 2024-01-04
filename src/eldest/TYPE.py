@@ -34,25 +34,7 @@ class TYPE(EldestFunctor):
 				pass
 			this.needsTypeAssignment = False
 
-		# Determine if this is assignment or setting a default value.
-		isDefault = False
-		stack = this.executor.stack.copy()
-		stack.reverse()
-		for name, object in stack:
-			if (name == 'Autofill'):
-				continue
-			elif (name == 'eval'):
-				continue
-			elif (name == 'Within'):
-				continue
-			elif (isinstance(object, Call.__class__)):
-				continue
-			elif (isinstance(object, Type.__class__)):
-				isDefault = True
-				break
-			break
-
-		if (isDefault):
+		if (this.IsCurrentlyInTypeParameterBlock()):
 			logging.info(f"Setting default value of {this.name} to {other}")
 			this.default = other
 			return this

@@ -103,3 +103,15 @@ class Sanitize (eons.Functor):
 		for symbol,replacement in this.symbols.items():
 			input = re.sub(rf"(\\*)(['\"]){re.escape(symbol)}(\\*)(['\"])", rf"\1\2{replacement.upper()}\3\4", input)
 		return input
+
+	def Soil(this, input):
+		if (isinstance(input, list)):
+			return [this.Soil(item) for item in input]
+
+		for keyword in this.keywords:
+			input = re.sub(rf"\b{keyword.upper()}\b", rf"{re.escape(keyword.lower())}", input)
+		for type in this.types:
+			input = re.sub(rf"(\(*)\b{type.upper()}\b(\)*)", rf"\1{type.lower()}\2", input)
+		for symbol,replacement in this.symbols.items():
+			input = re.sub(rf"{(replacement.upper())}", rf"{re.escape(symbol)}", input)
+		return input

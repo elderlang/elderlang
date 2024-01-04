@@ -12,7 +12,8 @@ class EldestFunctor (eons.Functor):
 		this.fetch.use = [
 			'args',
 			'this',
-			'stack',
+			'stack_name',
+			# 'stack_type',
 			'context',
 			'history',
 			'globals',
@@ -50,8 +51,32 @@ class EldestFunctor (eons.Functor):
 		)
 		logging.debug(f"History is now: {this.executor.history}")
 
+	
+	def IsCurrentlyInTypeParameterBlock(this, offset=0):
+		
+		# FIXME: Not having an executor should be an impossibility.
+		# This appears to be happening in if.ldr, where the foremost Type() is attempting assignment to bool.
+		if (not this.executor):
+			return False
+		
+		stack = this.executor.stack.copy()
+		stack.reverse()
+		for name, object in stack[offset:]:
+			if (name == 'Autofill'):
+				continue
+			elif (name == 'eval'):
+				continue
+			elif (name == 'Within'):
+				continue
+			# Objects will be provided later, don't worry about where they come from.
+			elif (isinstance(object, Call.__class__)):
+				continue
+			elif (isinstance(object, Type.__class__)):
+				return True
+		return False
 
-	def fetch_location_stack(this, varName, default, fetchFrom, attempted):
+
+	def fetch_location_stack_name(this, varName, default, fetchFrom, attempted):
 		if (this.executor is None):
 			return default, False
 		
@@ -62,6 +87,23 @@ class EldestFunctor (eons.Functor):
 		stack.reverse()
 		for name, object in stack:
 			if (name == varName):
+				return object, True
+
+		return default, False
+	
+	def fetch_location_stack_type(this, varName, default, fetchFrom, attempted):
+		if (this.executor is None):
+			return default, False
+		
+		if (varName.upper() not in Sanitize.allBuiltins):
+			return default, False
+		
+		typeToFind = eval(f"{varName}.__class__")
+		
+		stack = this.executor.stack.copy()
+		stack.reverse()
+		for name, object in stack:
+			if (isinstance(object, typeToFind)):
 				return object, True
 
 		return default, False

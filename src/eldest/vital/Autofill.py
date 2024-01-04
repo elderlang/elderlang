@@ -7,6 +7,7 @@ from ..EldestFunctor import EldestFunctor
 from ..EVAL import EVAL
 from ..EXEC import EXEC
 from ..TYPE import TYPE
+from ..Util import *
 
 class Autofill (EldestFunctor):
 	def __init__(this, name="Autofill"):
@@ -41,6 +42,8 @@ class Autofill (EldestFunctor):
 
 		if (isinstance(source.object, types.FunctionType)):
 			source.type = 1
+		elif (type(source.object) in [int, float, str, bool]):
+			source.type = 2
 
 		# elif (inspect.isclass(source.object)):
 		# 	source.object = source.object()
@@ -88,13 +91,13 @@ class Autofill (EldestFunctor):
 		if (target.type == 4 or source.type == 1):
 			return source.object(this.target)
 
-		logging.debug(f"Target name: {target.name}; target type: {target.type}; source.object: {source.object.name}")
+		logging.debug(f"Target name: {target.name}; target type: {target.type}; source: {source.object} source type: {source.type}")
 
 		attemptedAccess = False
 		try:
 			# If member access works, use that.
 			usableSource = source.object.__getattribute__(target.name)
-			logging.debug(f"Found {target.name} on {source.object.name}")
+			logging.debug(f"Found {target.name} on {source.object}")
 			attemptedAccess = True
 			if (target.type == 1):
 				return usableSource
@@ -107,8 +110,24 @@ class Autofill (EldestFunctor):
 				return EVAL(newTarget, NEXTSOURCE = usableSource)
 		except Exception as e:
 			if (not attemptedAccess):
-				logging.debug(f"Could not find {target.name} on {source.object.name}; using it as an arg for: {source.object.name}({this.target})")
+				logging.debug(f"Could not find {target.name} on {source.object}")
+
+				# Ensure non-functor types can be used with builtin symbols
+				# e.g. greeting = 'hello'
+				if (source.type == 2):
+					if (target.type == 3 and this.target.startswith("Call")):
+						argRetrieval = this.target.replace('Call', 'GetArgs')
+						args = eval(argRetrieval)
+						arg0 = this.executor.Sanitize.Soil(args[0])
+						arg1 = f"'{args[1]}'"
+						# TODO: support more than just strings
+						toExec = f"source.object {arg0} {arg1}"
+						logging.debug(f"Attempting to exec: {toExec}")
+						exec(toExec)
+						return source.object
+
 				# Otherwise, treat the source.object as a function.
+				logging.debug(f"Using it as an arg for: {source.object}({this.target})")
 				return source.object(EVAL(this.target))
 			else:
-				logging.error(f"Error while attempting to autofill {source.object.name} with {target.name}: {e}")
+				logging.error(f"Error while attempting to autofill {source.object} with {target.name}: {e}")

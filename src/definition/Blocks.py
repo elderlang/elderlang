@@ -26,7 +26,7 @@ def FormattedString(
 	if (parser is None):
 		parser = this.Fetch(['this'], 'parser')
 
-	rawString = this.p[0]
+	rawString = f"'{this.p[0][1:-1]}'" # Standardize quotations
 
 	# This is what we want to do, but python does not support the P<-...> module (only P<...>)
 	# executionBlocks = re.findall(r'{(?:[^{}]|(?P<open>{)|(?P<-open>}))*(?(open)(?!))}', rawString)

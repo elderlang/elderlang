@@ -58,23 +58,34 @@ class EVAL (E___):
 				if ((statement.startswith("'") and statement.endswith("'"))):
 					this.result.data.evaluation.append(statement[1:-1])
 					continue
-				
+
 				# Check if the statement is a Functor name.
 				if (re.match(rf"^{ElderLexer.NAME}$", statement)
 					and statement not in Sanitize.allBuiltins
 				):
-					logging.debug(f"It looks like {statement} is a Functor name.")
-					if (this.shouldAutoType):
-						logging.debug(f"Autotyping {statement}.")
-						this.result.data.evaluation.append(eval(f"Type(name = '{statement}', kind = Kind())", globals(), {'this': this}))
-					possibleFunctor = this.Fetch(statement)
-					if (possibleFunctor is None):
+					logging.debug(f"It looks like {statement} is a Functor or variable name.")
+					possibleFunctor = None
+					if (this.context.currentlyTryingToInvoke is not None):
 						try:
-							possibleFunctor = this.executor.GetRegistered(statement)
-						except:
-							pass
+							possibleFunctor = this.context.currentlyTryingToInvoke.__getattribute__(statement)
+							logging.debug(f"Found {statement} in {this.context.currentlyTryingToInvoke.name}.")
+						except Exception as e:
+							logging.debug(f"Failed to find {statement} in {this.context.currentlyTryingToInvoke.name}: {e}")
+
+					if (possibleFunctor is None):
+						if (this.shouldAutoType):
+							logging.debug(f"Autotyping {statement}.")
+							this.result.data.evaluation.append(eval(f"Type(name = '{statement}', kind = Kind())", globals(), {'this': this}))
+						possibleFunctor = this.Fetch(statement)
+						if (possibleFunctor is None):
+							try:
+								possibleFunctor = this.executor.GetRegistered(statement)
+							except:
+								pass
+
 					if (possibleFunctor is not None):
 						if (this.shouldAttemptInvokation):
+							logging.debug(f"Attempting to invoke {statement}.")
 							this.result.data.evaluation.append(possibleFunctor())
 						else:
 							this.result.data.evaluation.append(possibleFunctor)
@@ -92,7 +103,7 @@ class EVAL (E___):
 
 		if (failMessage is not None):
 			raise RuntimeError(failMessage)
-		
+
 		this.PrepareReturn()
 
 		return this.result.data.returned

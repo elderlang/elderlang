@@ -26,13 +26,13 @@ class Type (EldestFunctor):
 				})
 				for a in EVAL(this.parameter, unwrapReturn=False)
 			}
-		
+
 		source = "pass"
 		if (this.execution is not None):
 			if (type(this.execution) != list):
 				this.execution = [this.execution]
-			source = f"for instruction in {this.execution}: EXEC(instruction)"
-		
+			source = f"return this.executor.EXEC({this.execution}, currentlyTryingToInvoke=this)"
+
 		ret = eons.kind(this.kind) (
 			None,
 			this.name,
@@ -40,7 +40,10 @@ class Type (EldestFunctor):
 			source
 		)
 		ret = ret()
-		ret.executor = this.executor
-		this.context.Set(this.name, ret)
+		ret.WarmUp(executor=this.executor)
+
+		# Export this symbol to the current context iff we're not adding a parameter to another type.
+		if (not this.IsCurrentlyInTypeParameterBlock(1)):
+			this.context.Set(this.name, ret)
 
 		return ret

@@ -10,4 +10,4 @@ class FUNCTOR(TYPE):
 		this.needsTypeAssignment = False
 		
 	def Function(this):
-		return EXEC(this.execution)
+		return EXEC(this.execution, currentlyTryingToInvoke=this)

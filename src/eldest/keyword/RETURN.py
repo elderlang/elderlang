@@ -7,7 +7,8 @@ class RETURN (KEYWORD):
 		super().__init__(name = "RETURN")
 
 		this.arg.kw.required.append('parameter')
+		this.arg.mapping.append('parameter')
 
 	def Function(this):
-		this.context.result.data.returned = EVAL(this.parameter)
+		this.context.result.data.returned = this.parameter
 		this.context.Halt()

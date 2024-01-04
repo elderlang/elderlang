@@ -9,7 +9,15 @@ class EXEC (E___):
 		super().__init__(name="exec")
 		this.arg.kw.required.append('execution')
 		this.arg.mapping.append('execution')
+
+		this.arg.kw.optional['currentlyTryingToInvoke'] = None
+
 		this.episcope = None
+
+		this.cloning.exclusions += [
+			'episcope',
+			'currentlyTryingToInvoke',
+		]
 
 	def Function(this):
 		if (type(this.execution) != list):
@@ -17,7 +25,7 @@ class EXEC (E___):
 
 		this.episcope = None
 		try:
-			this.episcope = context # From globals
+			this.Set('episcope', context) # From globals
 		except:
 			pass
 
@@ -29,7 +37,7 @@ class EXEC (E___):
 				logging.debug(instruction)
 				exec(instruction, globals())
 		except HaltExecution:
-			return
+			return this.result.data.returned
 		except Exception as e:
 			failMessage = f"Error in execution of {this.execution}: {e}"
 			logging.error(failMessage)

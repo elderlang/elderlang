@@ -17,16 +17,20 @@ class Invoke (SourceTargetFunctor):
 		this.feature.mapArgs = False
 
 	def Function(this):
+		isFunctor = isinstance(this.source, eons.Functor)
+		if (isFunctor):
+			this.context.currentlyTryingToInvoke = this.source
+
 		evaluatedParameter = []
 		if (this.parameter is not None):
 			evaluatedParameter = EVAL(this.parameter, shouldAttemptInvokation = True)
-		
+
 			if (not isinstance(evaluatedParameter, list)):
 				evaluatedParameter = [evaluatedParameter]
 
 		logging.debug(f"Invoking {this.source} with {evaluatedParameter}")
 
-		if (isinstance(this.source, eons.Functor)):
+		if (isFunctor):
 			return this.source(*evaluatedParameter, container=this.container, execution=this.execution)
 		else:
 			return this.source(*evaluatedParameter)
