@@ -132,6 +132,8 @@ def AutofillAccessOrInvokation(
 		r'standardinvokation name',
 		r'sequence name',
 		r'name name',
+		r'number name',
+		r'autofillaccessorinvokation number',
 	],
 	recurseOn = "name",
 	readDirection = ">"

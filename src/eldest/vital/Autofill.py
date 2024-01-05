@@ -115,7 +115,35 @@ class Autofill (EldestFunctor):
 				# Ensure non-functor types can be used with builtin symbols
 				# e.g. greeting = 'hello'
 				if (source.type == 2):
-					if (target.type == 3 and this.target.startswith("Call")):
+					if (target.type == 1):
+						toEval = f"source.object.{this.target}"
+						for match, replace in {
+							'PLUS': '__add__',
+							'MINUS': '__sub__',
+							'TIMES': '__mul__',
+							'DIVIDE': '__truediv__',
+							'MOD': '__mod__',
+							'PLUSEQ': '__iadd__',
+							'MINUSEQ': '__isub__',
+							'TIMESEQ': '__imul__',
+							'DIVIDEEQ': '__idiv__',
+							'MODEQ': '__imod__',
+							'POW': '__pow__',
+							'AND': '__and__',
+							'OR': '__or__',
+							'ANDAND': '__and__',
+							'OROR': '__or__',
+							'GT': '__gt__',
+							'GTEQ': '__ge__',
+							'LT': '__lt__',
+							'LTEQ': '__le__',
+							'EQEQ': '__eq__',
+						}.items():
+							toEval = toEval.replace(match, replace)
+						logging.debug(f"Attempting to eval: {toEval}")
+						return eval(toEval)
+					
+					elif (target.type == 3 and this.target.startswith("Call")):
 						argRetrieval = this.target.replace('Call', 'GetArgs')
 						args = eval(argRetrieval)
 						arg0 = this.executor.Sanitize.Soil(args[0])

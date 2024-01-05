@@ -31,12 +31,15 @@ class EXEC (E___):
 
 		this.executor.SetGlobal('context', this)
 
+		this.result.data.execution = []
+
 		failMessage = None
 		try:
 			for instruction in this.execution:
 				logging.debug(instruction)
-				exec(instruction, globals())
+				this.result.data.execution.append(exec(instruction, globals()))
 		except HaltExecution:
+			this.PrepareReturn()
 			return this.result.data.returned
 		except Exception as e:
 			failMessage = f"Error in execution of {this.execution}: {e}"
@@ -48,9 +51,16 @@ class EXEC (E___):
 		if (failMessage is not None):
 			raise RuntimeError(failMessage)
 
-		# NOTE: my return value should be set by RETURN.
+		this.PrepareReturn
 		return this.result.data.returned
 	
+	# NOTE: my return value should be set by RETURN as this.result.data.returned
+	def PrepareReturn(this):
+		if (this.result.data.returned is not None):
+			return
+		if (not len(this.result.data.execution)):
+			return
+		this.result.data.returned = this.result.data.execution[-1]
 	
 	def fetch_location_context(this, varName, default, fetchFrom, attempted):
 		if (this.episcope is None):
