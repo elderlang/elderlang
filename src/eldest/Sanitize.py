@@ -23,6 +23,7 @@ class Sanitize (eons.Functor):
 		'int',
 		'string',
 		'functor',
+		'surface',
 	]
 
 	symbols = {
@@ -101,7 +102,7 @@ class Sanitize (eons.Functor):
 		for type in this.types:
 			input = re.sub(rf"(\\*)(['\"]*)(\(*)\b{re.escape(type)}\b(\\*)(['\"]*)(\)*)", rf"\3{type.upper()}\6", input)
 		for symbol,replacement in this.symbols.items():
-			input = re.sub(rf"(\\*)(['\"]){re.escape(symbol)}(\\*)(['\"])", rf"\1\2{replacement.upper()}\3\4", input)
+			input = re.sub(rf"(\\*)(['\"])(\w*){re.escape(symbol)}(\w*)(\\*)(['\"])", rf"\1\2\3{replacement.upper()}\4\5\6", input)
 		return input
 
 	def Soil(this, input):

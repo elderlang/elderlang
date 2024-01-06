@@ -32,7 +32,7 @@ Print+SortArray:functor( // <- this should be a valid functor name.
 	}, // <- \n, ,, ;, etc. should all be valid line endings here.
 
 	// default type should be functor.
-	sort::(array::,){
+	sort::(array:surface:,){
 			for(enumerate(array))[index, value]{
 	if
 			(sorter(value, array[index + 1]))
@@ -40,7 +40,7 @@ Print+SortArray:functor( // <- this should be a valid functor name.
 				array[index] = array[index + 1]; array[index + 1] = value
 			}
 		}
-};)
+};){
 
 
 
@@ -58,3 +58,9 @@ i:int: = 0;while(i < (array length)){ //aka i.<(array.length) i= is a symbol
 	sort(array);for (array)[
 										i /*I should be different now. Not the same as the i in the while loop above.*/
 	]{print(i);}
+
+
+}
+
+Print+SortArray(
+)

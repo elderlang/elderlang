@@ -44,6 +44,10 @@ class Autofill (EldestFunctor):
 			source.type = 1
 		elif (type(source.object) in [int, float, str, bool]):
 			source.type = 2
+		elif (isinstance(source.object, TYPE)):
+			source.type = 3
+		elif (isinstance(source.object, eons.Functor)):
+			source.type = 4
 
 		# elif (inspect.isclass(source.object)):
 		# 	source.object = source.object()
@@ -60,7 +64,7 @@ class Autofill (EldestFunctor):
 				this.target.startswith('Within')
 				or this.target.startswith('Invoke')
 			):
-				search = re.search(r'\(name = (.*?),', this.target)
+				search = re.search(r'\(name=(.*?),', this.target)
 				target.name = search.group(1)
 				target.type = 2
 			elif (
@@ -102,10 +106,9 @@ class Autofill (EldestFunctor):
 			if (target.type == 1):
 				return usableSource
 			elif (target.type == 2):
-				newTarget = re.sub(rf"name = (\\*['\"]?){target.name}(\\*['\"]?)", rf"source.object = this.NEXTSOURCE", this.target)
+				newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=this.NEXTSOURCE", this.target)
 				return EVAL(newTarget, NEXTSOURCE = usableSource)
 			elif (target.type == 3):
-				EVAL.NEXTSOURCE = usableSource
 				newTarget = re.sub(rf"(\\*['\"]?){target.name}(\\*['\"]?),", rf"this.NEXTSOURCE,", this.target)
 				return EVAL(newTarget, NEXTSOURCE = usableSource)
 		except Exception as e:

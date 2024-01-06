@@ -13,7 +13,9 @@ class EVAL (E___):
 		this.arg.kw.optional['unwrapReturn'] = None
 		this.arg.kw.optional['shouldAutoType'] = False
 		this.arg.kw.optional['shouldAttemptInvokation'] = False
-		this.arg.kw.optional['NEXTSOURCE'] = None # used by Autofill
+		
+		# used by Autofill
+		this.arg.kw.optional['NEXTSOURCE'] = None
 
 		this.arg.mapping.append('parameter')
 
@@ -27,6 +29,10 @@ class EVAL (E___):
 		failMessage = None
 		try:
 			for statement in this.parameter:
+
+				if (type(statement) in [int, float, bool]):
+					this.result.data.evaluation.append(statement)
+					continue
 
 				if (statement == 'true' or statement == 'True'):
 					this.result.data.evaluation.append(True)
@@ -64,13 +70,7 @@ class EVAL (E___):
 					and statement not in Sanitize.allBuiltins
 				):
 					logging.debug(f"It looks like {statement} is a Functor or variable name.")
-					possibleFunctor = None
-					if (this.context.currentlyTryingToInvoke is not None):
-						try:
-							possibleFunctor = this.context.currentlyTryingToInvoke.__getattribute__(statement)
-							logging.debug(f"Found {statement} in {this.context.currentlyTryingToInvoke.name}.")
-						except Exception as e:
-							logging.debug(f"Failed to find {statement} in {this.context.currentlyTryingToInvoke.name}: {e}")
+					possibleFunctor = this.context.Fetch(statement, None, fetchFrom = ['current_invokation'])
 
 					if (possibleFunctor is None):
 						if (this.shouldAutoType):
@@ -79,9 +79,12 @@ class EVAL (E___):
 						possibleFunctor = this.Fetch(statement)
 						if (possibleFunctor is None):
 							try:
-								possibleFunctor = this.executor.GetRegistered(statement)
+								possibleFunctor = eons.SelfRegistering(statement)
 							except:
-								pass
+								try:
+									this.executor.GetRegistered(statement)
+								except:
+									pass
 
 					if (possibleFunctor is not None):
 						if (this.shouldAttemptInvokation):

@@ -1,14 +1,17 @@
 import eons
+import types
 import logging
 from .vital.Call import Call
 from .vital.Type import Type
 from .EldestFunctor import EldestFunctor
 
 class TYPE(EldestFunctor):
-	def __init__(this, name=eons.INVALID_NAME()):
+	def __init__(this, name=eons.INVALID_NAME(), value=None):
 		super().__init__(name)
 
-		this.value = None
+		this.value = value
+		this.isBasicType = False
+		this.default = None
 		this.needsTypeAssignment = True
 
 	def EQ(this, other):
@@ -22,10 +25,29 @@ class TYPE(EldestFunctor):
 				surrogate = FLOAT()
 			elif (isinstance(other, str)):
 				surrogate = STRING()
+			elif (isinstance(other, list)
+		 		or isinstance(other, tuple)
+				or isinstance(other, set)
+				or isinstance(other, dict)
+			):
+				surrogate = SURFACE()
 
 			if (surrogate is not None):
 				this.__class__ = surrogate.__class__
-				this.__dict__.update(surrogate.__dict__)
+				# TODO: WTF??
+				try:
+					for key, val in surrogate.__dict__.items():
+						try:
+							this.__dict__[key] = surrogate.__dict__[key]
+						except:
+							logging.warning(f"Unable to set {this.name} ({type(this)}).{key} to {val}")
+				except:
+					for key, val in surrogate.__dict__().items():
+						try:
+							this.__dict__.update(surrogate.__dict__())
+						except:
+							logging.warning(f"Unable to set {this.name} ({type(this)}).{key} to {val}")
+
 				logging.info(f"Making {this.name} a {surrogate.name} with value {other}")
 				this.value = other
 				this.needsTypeAssignment = False
@@ -44,70 +66,91 @@ class TYPE(EldestFunctor):
 		return this
 
 	def GT(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this > other
 
 	def LT(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this < other
 
 	def EQEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this == other
 	
 	def NOTEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this != other
 
 	def GTEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this >= other
 
 	def LTEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this <= other
 
 	def POW(this, other):
+		other = this.PossiblyReduceOther(other)
 		return pow(this, other)
 
 	def AND(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this and other
 
 	def ANDAND(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this.AND(other)
 
 	def OR(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this or other
 
 	def OROR(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this.OR(other)
 
 	def PLUS(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this + other
 
 	def MINUS(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this - other
 
 	def TIMES(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this * other
 
 	def DIVIDE(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this / other
 
 	def PLUSEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		this = this + other
 		return this
 
 	def MINUSEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		this = this - other
 		return this
 
 	def TIMESEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		this = this * other
 		return this
 
 	def DIVIDEEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		this = this / other
 		return this
 
 	def MOD(this, other):
+		other = this.PossiblyReduceOther(other)
 		return this % other
 	
 	def MODEQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		this = this % other
 		return this
 	
@@ -116,6 +159,13 @@ class TYPE(EldestFunctor):
 
 	def length(this):
 		return this.size()
+	
+	def PossiblyReduceOther(this, other):
+		if (isinstance(other, types.FunctionType) or isinstance(other, types.MethodType)):
+			other = other()
+		elif (this.isBasicType and isinstance(other, eons.Functor)):
+			other = other()
+		return other
 	
 
 def CreateArithmeticFunction(functionName):

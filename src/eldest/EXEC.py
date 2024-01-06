@@ -10,6 +10,8 @@ class EXEC (E___):
 		this.arg.kw.required.append('execution')
 		this.arg.mapping.append('execution')
 
+		this.fetchFrom.insert(2, 'current_invokation')
+
 		this.arg.kw.optional['currentlyTryingToInvoke'] = None
 
 		this.episcope = None
@@ -66,4 +68,18 @@ class EXEC (E___):
 		if (this.episcope is None):
 			return default, False
 		
-		return this.episcope.Fetch(varName, default, start=False, attempted=attempted)
+		return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)
+	
+	def fetch_location_current_invokation(this, varName, default, fetchFrom, attempted):
+		try:
+			if (this.currentlyTryingToInvoke is None):
+				return default, False
+
+			try:
+				return this.currentlyTryingToInvoke.__getattribute__(varName), True
+			except:
+				if (this.episcope is None):
+					return default, False
+				return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)
+		except:
+			return default, False

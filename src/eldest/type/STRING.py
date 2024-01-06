@@ -5,6 +5,7 @@ class STRING(TYPE):
 		super().__init__(name)
 
 		this.value = value
+		this.isBasicType = True
 		this.needsTypeAssignment = False
 
 	def __str__(this):

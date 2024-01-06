@@ -126,4 +126,4 @@ class EldestFunctor (eons.Functor):
 		if (this.context is None):
 			return default, False
 		
-		return this.context.Fetch(varName, default, start=False, attempted=attempted)
+		return this.context.Fetch(varName, default, start=False, fetchFrom=fetchFrom,attempted=attempted)

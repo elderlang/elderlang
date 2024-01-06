@@ -5,6 +5,7 @@ class INT(TYPE):
 		super().__init__(name)
 
 		this.value = value
+		this.isBasicType = True
 		this.needsTypeAssignment = False
 
 	def __int__(this):
