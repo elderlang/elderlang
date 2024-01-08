@@ -60,7 +60,7 @@ def InvokationWithParametersAndExecution(
 	]
 ):
 	if (this.p[0].startswith('Invoke')):
-		return f"{this.p[0][:-1]}, execution = {this.Engulf(this.p[1])})"
+		return f"{this.p[0][:-1]}, execution={this.Engulf(this.p[1])})"
 	return f"Invoke(name={this.p[0]}, parameter={this.Engulf(this.p[1])}, execution={this.Engulf(this.p[2])})"
 
 @eons.kind(Invokation)
@@ -72,7 +72,7 @@ def ContainerInvokation(
 	],
 ):
 	if (this.p[0].startswith('Within')):
-		return f"{this.p[0][:-1]}, execution = {this.Engulf(this.p[1])})"
+		return f"{this.p[0][:-1]}, execution={this.Engulf(this.p[1])})"
 	return f"Within(name={this.p[0]}, container={this.Engulf(this.p[1])}, execution={this.Engulf(this.p[2])})"
 
 @eons.kind(Invokation)
@@ -85,7 +85,7 @@ def ContainerInvokationWithParameters(
 	],
 ):
 	if (this.p[0].startswith('Invoke')):
-		return f"{this.p[0][:-1]}, container = {this.Engulf(this.p[1])}, execution = {this.Engulf(this.p[2])})"
+		return f"{this.p[0][:-1]}, container={this.Engulf(this.p[1])}, execution={this.Engulf(this.p[2])})"
 	return f"Invoke(name={this.p[0]}, parameter={this.Engulf(this.p[1])}, container={this.Engulf(this.p[2])}, execution={this.Engulf(this.p[3])})"
 
 @eons.kind(BlockSyntax)
@@ -98,7 +98,7 @@ def FunctorType(
 	],
 ):
 	if (this.p[0].startswith('Type')):
-		return f"{this.p[0][:-1]}, execution = {this.Engulf(this.p[1])})"
+		return f"{this.p[0][:-1]}, execution={this.Engulf(this.p[1])})"
 	return f"Type(name='{this.p[0]}, kind={this.Engulf(this.p[1])}, parameter={this.Engulf(this.p[2])}, execution={this.Engulf(this.p[3])})"
 
 @eons.kind(ExactSyntax)

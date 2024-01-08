@@ -23,7 +23,7 @@ class Sanitize (eons.Functor):
 		'int',
 		'string',
 		'functor',
-		'surface',
+		'container',
 	]
 
 	symbols = {
@@ -83,6 +83,29 @@ class Sanitize (eons.Functor):
 		'MODEQ',
 	]
 
+	operatorMap = {
+		'PLUS': '__add__',
+		'MINUS': '__sub__',
+		'TIMES': '__mul__',
+		'DIVIDE': '__truediv__',
+		'MOD': '__mod__',
+		'PLUSEQ': '__iadd__',
+		'MINUSEQ': '__isub__',
+		'TIMESEQ': '__imul__',
+		'DIVIDEEQ': '__idiv__',
+		'MODEQ': '__imod__',
+		'POW': '__pow__',
+		'AND': '__and__',
+		'OR': '__or__',
+		'ANDAND': '__and__',
+		'OROR': '__or__',
+		'GT': '__gt__',
+		'GTEQ': '__ge__',
+		'LT': '__lt__',
+		'LTEQ': '__le__',
+		'EQEQ': '__eq__',
+	}
+
 	def __init__(this, name="Sanitize"):
 		super().__init__(name)
 
@@ -99,10 +122,22 @@ class Sanitize (eons.Functor):
 
 		for keyword in this.keywords:
 			input = re.sub(rf"(\\*)(['\"])\b{re.escape(keyword)}\b(\\*)(['\"])", rf"\1\2{keyword.upper()}\3\4", input)
+
 		for type in this.types:
-			input = re.sub(rf"(\\*)(['\"]*)(\(*)\b{re.escape(type)}\b(\\*)(['\"]*)(\)*)", rf"\3{type.upper()}\6", input)
+			input = re.sub(rf"(\\*)(['\"]*)(\(*)\b{re.escape(type)}\b(\\*)(['\"]*)(\)*)([^=])", rf"\3{type.upper()}\6\7", input)
+
+		symbolBorder = rf"[a-zA-Z0-9{''.join([re.escape(sym) for sym in this.symbols.keys()])}]"
 		for symbol,replacement in this.symbols.items():
-			input = re.sub(rf"(\\*)(['\"])(\w*){re.escape(symbol)}(\w*)(\\*)(['\"])", rf"\1\2\3{replacement.upper()}\4\5\6", input)
+			preBorder = symbolBorder.replace(re.escape(symbol), '')
+			def ReplaceSymbol(match):
+				prefix, expr, suffix = match.groups()
+				ret = f"{prefix}{expr.replace(symbol, replacement.upper())}{suffix}"
+				# logging.debug(ret)
+				return ret
+			toMatch = rf"(\\*['\"])({preBorder}*?{re.escape(symbol)}{symbolBorder}*)(\\*['\"])"
+			# logging.debug(toMatch)
+			input = re.sub(toMatch, ReplaceSymbol, input)
+
 		return input
 
 	def Soil(this, input):
@@ -110,9 +145,9 @@ class Sanitize (eons.Functor):
 			return [this.Soil(item) for item in input]
 
 		for keyword in this.keywords:
-			input = re.sub(rf"\b{keyword.upper()}\b", rf"{re.escape(keyword.lower())}", input)
+			input = re.sub(rf"\b{keyword.upper()}\b", rf"{keyword.lower()}", input)
 		for type in this.types:
 			input = re.sub(rf"(\(*)\b{type.upper()}\b(\)*)", rf"\1{type.lower()}\2", input)
 		for symbol,replacement in this.symbols.items():
-			input = re.sub(rf"{(replacement.upper())}", rf"{re.escape(symbol)}", input)
+			input = re.sub(rf"(\\*['\"]?){(replacement.upper())}(\\*['\"]?)", rf"{symbol}", input)
 		return input

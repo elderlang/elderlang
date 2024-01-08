@@ -7,12 +7,15 @@ from .Exceptions import *
 class EXEC (E___):
 	def __init__(this):
 		super().__init__(name="exec")
-		this.arg.kw.required.append('execution')
-		this.arg.mapping.append('execution')
-
 		this.fetchFrom.insert(2, 'current_invokation')
 
+		this.arg.kw.required.append('execution')
+
 		this.arg.kw.optional['currentlyTryingToInvoke'] = None
+
+		this.arg.mapping.append('execution')
+
+		this.history = []
 
 		this.episcope = None
 
@@ -72,9 +75,10 @@ class EXEC (E___):
 	
 	def fetch_location_current_invokation(this, varName, default, fetchFrom, attempted):
 		try:
-			if (this.currentlyTryingToInvoke is None):
-				return default, False
-
+			if (this.currentlyTryingToInvoke is None):	
+				if (this.episcope is None):
+						return default, False
+				return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)
 			try:
 				return this.currentlyTryingToInvoke.__getattribute__(varName), True
 			except:

@@ -16,7 +16,7 @@ class String (EldestFunctor):
 		if (len(this.args) > 1):
 			arguments = []
 			[arguments.append(arg) for lst in this.args[1:] for arg in lst]
-			arguments = [EVAL(arg) for arg in arguments]
+			arguments = [EVAL(arg)[0] for arg in arguments]
 			toEval = f"""'{template}' % '{"', '".join([str(arg) for arg in arguments])}'"""
 			logging.debug(f"Constructing string from: {toEval}")
 			ret = eval (toEval)

@@ -18,7 +18,6 @@ class ELDERLANG(eons.Executor):
 
 		this.stack = []
 		this.exceptions = []
-		this.history = []
 		this.context = None
 
 		# For external access (these are pulled from globals, not import)

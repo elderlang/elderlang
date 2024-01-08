@@ -6,7 +6,7 @@ class STRING(TYPE):
 
 		this.value = value
 		this.isBasicType = True
-		this.needsTypeAssignment = False
+		this.needs.typeAssignment = False
 
 	def __str__(this):
 		return this.value

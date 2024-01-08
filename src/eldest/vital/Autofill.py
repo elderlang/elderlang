@@ -4,6 +4,7 @@ import inspect
 import logging
 import types
 from ..EldestFunctor import EldestFunctor
+from ..Sanitize import Sanitize
 from ..EVAL import EVAL
 from ..EXEC import EXEC
 from ..TYPE import TYPE
@@ -27,9 +28,7 @@ class Autofill (EldestFunctor):
 			# Check if we should treat source.object as a Type & perform assignment.
 			shouldAutoType = False
 			if (type(this.target) == str and this.target == 'EQ' and this.executor is not None):
-				stack = this.executor.stack.copy()
-				stack.reverse()
-				for name, object in stack:
+				for name, object in this.executor.stack:
 					if (name == 'Autofill'):
 						continue
 					if (name == 'eval'):
@@ -38,7 +37,7 @@ class Autofill (EldestFunctor):
 						logging.debug(f"Will attempt to autotype {this.source}.")
 						shouldAutoType = True
 					break
-			source.object = EVAL(this.source, shouldAutoType = shouldAutoType)
+			source.object, unwrapped = EVAL(this.source, shouldAutoType = shouldAutoType)
 
 		if (isinstance(source.object, types.FunctionType)):
 			source.type = 1
@@ -89,7 +88,7 @@ class Autofill (EldestFunctor):
 				target.name = target.name[1:-1]
 
 		else:
-			target.object = this.target
+			target.name = this.target
 			target.type = 4
 
 		if (target.type == 4 or source.type == 1):
@@ -98,19 +97,22 @@ class Autofill (EldestFunctor):
 		logging.debug(f"Target name: {target.name}; target type: {target.type}; source: {source.object} source type: {source.type}")
 
 		attemptedAccess = False
+		ret = None
+		unwrapped = False
 		try:
 			# If member access works, use that.
 			usableSource = source.object.__getattribute__(target.name)
 			logging.debug(f"Found {target.name} on {source.object}")
 			attemptedAccess = True
 			if (target.type == 1):
-				return usableSource
+				ret =  usableSource
 			elif (target.type == 2):
 				newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=this.NEXTSOURCE", this.target)
-				return EVAL(newTarget, NEXTSOURCE = usableSource)
+				ret, unwrapped =  EVAL(newTarget, NEXTSOURCE = usableSource)
 			elif (target.type == 3):
 				newTarget = re.sub(rf"(\\*['\"]?){target.name}(\\*['\"]?),", rf"this.NEXTSOURCE,", this.target)
-				return EVAL(newTarget, NEXTSOURCE = usableSource)
+				ret, unwrapped = EVAL(newTarget, NEXTSOURCE = usableSource)
+
 		except Exception as e:
 			if (not attemptedAccess):
 				logging.debug(f"Could not find {target.name} on {source.object}")
@@ -120,37 +122,18 @@ class Autofill (EldestFunctor):
 				if (source.type == 2):
 					if (target.type == 1):
 						toEval = f"source.object.{this.target}"
-						for match, replace in {
-							'PLUS': '__add__',
-							'MINUS': '__sub__',
-							'TIMES': '__mul__',
-							'DIVIDE': '__truediv__',
-							'MOD': '__mod__',
-							'PLUSEQ': '__iadd__',
-							'MINUSEQ': '__isub__',
-							'TIMESEQ': '__imul__',
-							'DIVIDEEQ': '__idiv__',
-							'MODEQ': '__imod__',
-							'POW': '__pow__',
-							'AND': '__and__',
-							'OR': '__or__',
-							'ANDAND': '__and__',
-							'OROR': '__or__',
-							'GT': '__gt__',
-							'GTEQ': '__ge__',
-							'LT': '__lt__',
-							'LTEQ': '__le__',
-							'EQEQ': '__eq__',
-						}.items():
+						for match, replace in Sanitize.operatorMap.items():
 							toEval = toEval.replace(match, replace)
 						logging.debug(f"Attempting to eval: {toEval}")
 						return eval(toEval)
-					
+
 					elif (target.type == 3 and this.target.startswith("Call")):
 						argRetrieval = this.target.replace('Call', 'GetArgs')
 						args = eval(argRetrieval)
 						arg0 = this.executor.Sanitize.Soil(args[0])
-						arg1 = f"'{args[1]}'"
+						arg1 = args[1]
+						if (type(source.object) in [str, list]):
+							arg1 = f"'{args[1]}'"
 						# TODO: support more than just strings
 						toExec = f"source.object {arg0} {arg1}"
 						logging.debug(f"Attempting to exec: {toExec}")
@@ -159,6 +142,27 @@ class Autofill (EldestFunctor):
 
 				# Otherwise, treat the source.object as a function.
 				logging.debug(f"Using it as an arg for: {source.object}({this.target})")
-				return source.object(EVAL(this.target))
+
+				target.object = EVAL(this.target)[0]
+
+				if (target.type == 1):
+					if (isinstance(target.object, eons.Functor)
+		 				or isinstance(target.object, types.FunctionType)
+		 				or isinstance(target.object, types.MethodType)
+					):
+						target.object = target.object()
+
+				ret = source.object(target.object)
+
 			else:
 				logging.error(f"Error while attempting to autofill {source.object} with {target.name}: {e}")
+
+		name, object = this.executor.stack[1]
+		if (isinstance(object, EXEC.__class__) and (
+			isinstance(ret, types.MethodType)
+			or isinstance(ret, types.FunctionType)
+		)):
+			logging.debug(f"It looks like I'm the last statement in this expression. I'll execute {ret}...")
+			ret = ret()
+
+		return ret

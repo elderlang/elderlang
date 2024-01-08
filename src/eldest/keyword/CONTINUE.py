@@ -1,6 +1,6 @@
 from ..KEYWORD import KEYWORD
 from ..EVAL import EVAL
-from ..EXEC import 
+from ..EXEC import EXEC
 from .LOOP import LOOP
 
 class CONTINUE (KEYWORD):
@@ -8,11 +8,7 @@ class CONTINUE (KEYWORD):
 		super().__init__(name = "CONTINUE")
 
 	def Function(this):
-		loop = None
-		for name, object in this.executor.stack.reverse():
-			if (isinstance(object, LOOP)):
-				loop = object
-				break
+		loop = this.Fetch(LOOP, None, ['stack_type'])
 
 		if (loop is None):
 			raise RuntimeError("Cannot continue outside of loop")

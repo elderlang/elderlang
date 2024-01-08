@@ -8,6 +8,8 @@ class TRY (KEYWORD):
 
 		this.arg.kw.required.append('execution')
 
+		this.arg.mapping.append('execution')
+
 	def Function(this):
 		try:
 			EXEC(this.execution)

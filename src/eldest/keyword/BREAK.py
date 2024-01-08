@@ -8,13 +8,7 @@ class BREAK (KEYWORD):
 		super().__init__(name = "BREAK")
 
 	def Function(this):
-		loop = None
-		stack = this.executor.stack.copy()
-		stack.reverse()
-		for name, object in stack:
-			if (isinstance(object, LOOP)):
-				loop = object
-				break
+		loop = this.Fetch(LOOP, None, ['stack_type'])
 
 		if (loop is None):
 			raise RuntimeError("Cannot break outside of loop")

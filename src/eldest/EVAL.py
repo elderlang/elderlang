@@ -1,6 +1,7 @@
 import eons
 import logging
 import re
+import types
 from .E___ import E___
 from .Exceptions import *
 from .Sanitize import Sanitize
@@ -20,9 +21,12 @@ class EVAL (E___):
 		this.arg.mapping.append('parameter')
 
 	def Function(this):
-		if (this.unwrapReturn is None and type(this.parameter) != list):
-			this.unwrapReturn = True
-			this.parameter = [this.parameter]
+		if (this.unwrapReturn is None):
+			if (type(this.parameter) != list):
+				this.unwrapReturn = True
+				this.parameter = [this.parameter]
+			if (type(this.parameter) == list and len(this.parameter) == 1):
+				this.unwrapReturn = True
 
 		this.result.data.evaluation = []
 		
@@ -87,17 +91,26 @@ class EVAL (E___):
 									pass
 
 					if (possibleFunctor is not None):
-						if (this.shouldAttemptInvokation):
+						if (this.shouldAttemptInvokation 
+		  					and (
+								isinstance(possibleFunctor, eons.Functor)
+								or isinstance(possibleFunctor, types.MethodType)
+								or isinstance(possibleFunctor, types.FunctionType)
+							)
+						):
 							logging.debug(f"Attempting to invoke {statement}.")
 							this.result.data.evaluation.append(possibleFunctor())
 						else:
 							this.result.data.evaluation.append(possibleFunctor)
 						continue
-				this.result.data.evaluation.append(eval(statement, globals(), {'this': this}))
+				evaluation = eval(statement, globals(), {'this': this})
+				if (isinstance(evaluation, types.MethodType) and this.shouldAttemptInvokation):
+					evaluation = evaluation()
+				this.result.data.evaluation.append(evaluation)
 
 		except HaltExecution:
 			this.PrepareReturn()
-			return this.result.data.returned
+			return this.result.data.returned, this.unwrapReturn
 
 		except Exception as e:
 			failMessage = f"Error in evaluation of {this.parameter}: {e}"
@@ -109,7 +122,7 @@ class EVAL (E___):
 
 		this.PrepareReturn()
 
-		return this.result.data.returned
+		return this.result.data.returned, this.unwrapReturn
 
 	def PrepareReturn(this):
 		if (this.unwrapReturn):

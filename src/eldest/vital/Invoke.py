@@ -14,6 +14,10 @@ class Invoke (SourceTargetFunctor):
 		this.arg.kw.optional['container'] = None
 		this.arg.kw.optional['execution'] = None
 
+		this.arg.kw.optional['skipParameterEvaluationFor'] = [
+			'WHILE'
+		]
+
 		this.feature.mapArgs = False
 
 	def Function(this):
@@ -21,11 +25,20 @@ class Invoke (SourceTargetFunctor):
 		if (isFunctor):
 			this.context.currentlyTryingToInvoke = this.source
 
-		evaluatedParameter = []
-		if (this.parameter is not None):
-			evaluatedParameter = EVAL(this.parameter, shouldAttemptInvokation = True)
+		shouldEvaluateParameter = True
+		if (isFunctor and this.source.name in this.skipParameterEvaluationFor):
+			shouldEvaluateParameter = False
 
-			if (not isinstance(evaluatedParameter, list)):
+		evaluatedParameter = [this.parameter] # should be double nested list
+
+		if (this.parameter is None or not len(this.parameter) or this.parameter == [[]]):
+			shouldEvaluateParameter = False
+			evaluatedParameter = []
+
+		if (shouldEvaluateParameter and this.parameter is not None):
+			evaluatedParameter, unwrapped = EVAL(this.parameter, shouldAttemptInvokation = True)
+
+			if (unwrapped):
 				evaluatedParameter = [evaluatedParameter]
 
 		logging.debug(f"Invoking {this.source} with {evaluatedParameter}")

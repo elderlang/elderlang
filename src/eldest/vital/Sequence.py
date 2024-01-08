@@ -8,4 +8,4 @@ class Sequence (SourceTargetFunctor):
 		super().__init__(name)
 
 	def Function(this):
-		return this.source.__truediv__(EVAL(this.target))
+		return this.source.__truediv__(EVAL(this.target, unwrapReturn=True)[0])

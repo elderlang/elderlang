@@ -9,6 +9,9 @@ class WHILE (LOOP):
 		this.arg.kw.required.append('parameter')
 		this.arg.kw.required.append('execution')
 
+		this.arg.mapping.append('parameter')
+		this.arg.mapping.append('execution')
+
 	def Function(this):
-		while (EVAL(this.parameter) and not this.BREAK):
+		while (EVAL(this.parameter, unwrapReturn=True)[0] and not this.BREAK):
 			EXEC(this.execution)

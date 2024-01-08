@@ -1,5 +1,6 @@
 import eons
 import logging
+import inspect
 from copy import deepcopy
 from .Sanitize import Sanitize
 
@@ -9,13 +10,17 @@ class EldestFunctor (eons.Functor):
 
 		this.feature.autoReturn = False
 
+		# New features
+		this.feature.cloneOnCall = True
+		this.needs = eons.util.DotDict()
+
 		this.fetch.use = [
 			'args',
 			'this',
 			'stack_name',
 			# 'stack_type',
 			'context',
-			'history',
+			# 'history',
 			'globals',
 			# 'config', #local (if applicable) or per Executor; should be before 'executor' if using a local config.
 			# 'precursor',
@@ -26,30 +31,48 @@ class EldestFunctor (eons.Functor):
 
 		this.context = None
 
+
 	def __call__(this, *args, **kwargs):
-		clone = deepcopy(this)
+		clone = this
+		if (this.feature.cloneOnCall):
+			clone = deepcopy(this)
 		return super(EldestFunctor, clone).__call__(*args, **kwargs)
 
-	def BeforeFunction(this):
-		this.Set('context', this.FetchWithout(['this', 'context', 'stack', 'history'], 'context', None))
 
-		this.executor.stack.append(
-			(this.name, this)
-		)
-		logging.debug(f"Stack is now: {this.executor.stack}")
-
-		if (this.context is None):
+	def ValidateArgs(this):
+		this.Set('context', this.Fetch('context', None, ['args', 'globals']))
+		if (this.context is None and this.executor is not None):
 			this.context = this.executor.context
+		return super().ValidateArgs()
+
+
+	def BeforeFunction(this):
+		try:
+			this.executor.stack.insert(
+				0,
+				(this.name, this)
+			)
+			logging.debug(f"Stack is now: {this.executor.stack}")
+		except:
+			logging.error(f"Could not add {this.name} ({type(this)}) to the stack.")
+
 
 	def AfterFunction(this):
-		this.executor.stack.remove(
-			(this.name, this)
-		)
-		this.executor.history.insert(
-			0,
-			(this.name, this)
-		)
-		logging.debug(f"History is now: {this.executor.history}")
+		try:
+			this.executor.stack.remove(
+				(this.name, this)
+			)
+		except:
+			logging.error(f"Could not remove {this.name} ({type(this)}) from the stack.")
+
+		try:
+			this.context.history.insert(
+				0,
+				(this.name, this)
+			)
+			logging.debug(f"History is now: {this.context.history}")
+		except:
+			logging.error(f"Could not add {this.name} ({type(this)}) to the history.")
 
 	
 	def IsCurrentlyInTypeParameterBlock(this, offset=0):
@@ -58,10 +81,8 @@ class EldestFunctor (eons.Functor):
 		# This appears to be happening in if.ldr, where the foremost Type() is attempting assignment to bool.
 		if (not this.executor):
 			return False
-		
-		stack = this.executor.stack.copy()
-		stack.reverse()
-		for name, object in stack[offset:]:
+
+		for name, object in this.executor.stack[offset:]:
 			if (name == 'Autofill'):
 				continue
 			elif (name == 'eval'):
@@ -74,6 +95,19 @@ class EldestFunctor (eons.Functor):
 			elif (isinstance(object, Type.__class__)):
 				return True
 		return False
+	
+	def IsCurrentlyInTypeExecutionBlock(this):
+		
+		# FIXME: Not having an executor should be an impossibility.
+		# This appears to be happening in if.ldr, where the foremost Type() is attempting assignment to bool.
+		if (not this.executor):
+			return False
+
+		name, obj = this.executor.stack[0]
+		if (obj == this.context):
+			return True
+
+		return False
 
 
 	def fetch_location_stack_name(this, varName, default, fetchFrom, attempted):
@@ -82,10 +116,8 @@ class EldestFunctor (eons.Functor):
 		
 		if (varName.upper() not in Sanitize.allBuiltins):
 			return default, False
-		
-		stack = this.executor.stack.copy()
-		stack.reverse()
-		for name, object in stack:
+
+		for name, object in this.executor.stack:
 			if (name == varName):
 				return object, True
 
@@ -94,28 +126,37 @@ class EldestFunctor (eons.Functor):
 	def fetch_location_stack_type(this, varName, default, fetchFrom, attempted):
 		if (this.executor is None):
 			return default, False
-		
+
 		if (varName.upper() not in Sanitize.allBuiltins):
 			return default, False
-		
-		typeToFind = eval(f"{varName}.__class__")
-		
-		stack = this.executor.stack.copy()
-		stack.reverse()
-		for name, object in stack:
+
+		if (isinstance(varName, str)):
+			typeToFind, unwrapped = eval(varName)
+
+		if (inspect.isclass(varName)):
+			typeToFind = varName
+		elif (isinstance(varName, object)):
+			typeToFind = varName.__class__
+
+		if (typeToFind is None or not inspect.isclass(typeToFind)):
+			logging.debug(f"Could not find type {varName} in stack.")
+			return default, False
+
+		for name, object in this.executor.stack:
 			if (isinstance(object, typeToFind)):
 				return object, True
 
 		return default, False
-	
+
+	# History should only be used for keywords like ELSE.
 	def fetch_location_history(this, varName, default, fetchFrom, attempted):
-		if (this.executor is None):
+		if (this.context is None):
 			return default, False
 		
 		if (varName.upper() not in Sanitize.allBuiltins):
 			return default, False
 		
-		for name, object in this.executor.history:
+		for name, object in this.context.history:
 			if (name == varName):
 				return object, True
 

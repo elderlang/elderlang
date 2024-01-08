@@ -7,7 +7,8 @@ class FUNCTOR(TYPE):
 	def __init__(this, name=eons.INVALID_NAME(), value=None):
 		super().__init__(name)
 
-		this.needsTypeAssignment = False
+		this.needs.typeAssignment = False
+		this.isBasicType = False
 		this.value = value # Should be pointless, but who knows.
 		
 	def Function(this):

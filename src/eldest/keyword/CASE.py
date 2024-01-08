@@ -10,6 +10,9 @@ class CASE (KEYWORD):
 		this.arg.kw.required.append('execution')
 		this.arg.kw.required.append('SWITCH')
 
+		this.arg.mapping.append('condition')
+		this.arg.mapping.append('execution')
+
 	def Function(this):
 		if (this.condition == this.SWITCH.condition):
 			this.SWITCH.matched = this

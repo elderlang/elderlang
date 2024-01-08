@@ -9,5 +9,8 @@ class SWITCH (KEYWORD):
 		this.arg.kw.required.append('condition')
 		this.arg.kw.required.append('execution')
 
+		this.arg.mapping.append('condition')
+		this.arg.mapping.append('execution')
+
 	def Function(this):
 		this.matched = None

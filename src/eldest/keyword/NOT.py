@@ -9,4 +9,9 @@ class NOT (KEYWORD):
 		this.arg.kw.required.append('parameter')
 
 	def Function(this):
-		return not EVAL(this.parameter)
+		evaluated, unwrapped = EVAL(this.parameter)
+		if (unwrapped):
+			return not evaluated
+		else:
+			# TODO: this isn't quite right, but it shouldn't be a common case. Let's improve it once we know if we should default to True or False.
+			return [not i for i in evaluated]

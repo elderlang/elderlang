@@ -9,7 +9,10 @@ hello_wolf: functor
  * Should print:
  * hello wolf
  * good wolf
+ * happy wolf
+ * hello wolf
  */
 print(hello_wolf())
 print(hello_wolf(greeting = `good`))
-
+print hello_wolf('happy')
+print hello_wolf

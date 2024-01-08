@@ -9,7 +9,6 @@ class SourceTargetFunctor (EldestFunctor):
 
 		this.nameStack = [name]
 
-		this.needs = eons.util.DotDict()
 		this.needs.source = True
 		this.needs.target = True
 
@@ -21,8 +20,8 @@ class SourceTargetFunctor (EldestFunctor):
 			this.Set('source', this.Fetch('source', None, ['args']))
 			if (this.source is not None):
 				pass
-			elif (this.source is None and this.name != 'source_name_None'):
-				this.Set('source', EVAL(this.name[len('source_name_'):]))
+			elif (this.name != 'source_name_None'):
+				this.Set('source', EVAL(this.name[len('source_name_'):])[0])
 			else:
 				possibleSource = None
 				if (len(this.args)):
@@ -30,9 +29,16 @@ class SourceTargetFunctor (EldestFunctor):
 				if (possibleSource is None):
 					raise RuntimeError(f"Neither source nor name was provided to {this.nameStack[-1]}")
 				elif (isinstance(possibleSource, str)):
-					this.Set('source', EVAL(possibleSource))
+					this.Set('source', EVAL(possibleSource)[0])
 				else:
 					this.Set('source', possibleSource)
+		
+		# # FIXME: There's a conflict in the Sanitizer whereby 'container'=... is replaced with 'CONTAINER'=...
+		# try:
+		# 	if (this.container is None):
+		# 		this.Set('container', this.Fetch('CONTAINER', None, ['args']))
+		# except:
+		# 	pass
 
 		# Not strictly necessary, but useful for keeping the nameStack indices static/
 		this.nameStack.append(this.name)

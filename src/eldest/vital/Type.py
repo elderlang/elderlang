@@ -35,12 +35,12 @@ if ('value' in kwargs):
 					'default': a.default,
 					'type': a.__class__
 				})
-				for a in EVAL(this.parameter, unwrapReturn=False)
+				for a in EVAL(this.parameter, unwrapReturn=False)[0]
 				if a is not None # TODO: why???
 			}
 
-		source = "pass"
-		if (this.execution is not None):
+		source = "return this.parent.Function(this)"
+		if (this.execution is not None and len(this.execution) > 0):
 			if (type(this.execution) != list):
 				this.execution = [this.execution]
 			source = f"return this.executor.EXEC({this.execution}, currentlyTryingToInvoke=this)"

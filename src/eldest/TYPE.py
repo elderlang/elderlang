@@ -10,12 +10,19 @@ class TYPE(EldestFunctor):
 		super().__init__(name)
 
 		this.value = value
-		this.isBasicType = False
+		this.isBasicType = True
 		this.default = None
-		this.needsTypeAssignment = True
+		this.needs.typeAssignment = True
+		this.feature.cloneOnCall = False
+
+	# This is generally what other types will use. Those that don't can override it.
+	def Function(this):
+		return this.value
 
 	def EQ(this, other):
-		if (this.needsTypeAssignment):
+		valueSet = False
+
+		if (this.needs.typeAssignment):
 			surrogate = None
 			if (isinstance(other, bool)):
 				surrogate = BOOL()
@@ -30,39 +37,55 @@ class TYPE(EldestFunctor):
 				or isinstance(other, set)
 				or isinstance(other, dict)
 			):
-				surrogate = SURFACE()
+				surrogate = CONTAINER()
 
 			if (surrogate is not None):
 				this.__class__ = surrogate.__class__
+
+				excludeDictKeys = [
+					'initialized',
+					'name',
+					'executor',
+					'precursor',
+					'next',
+				]
+
 				# TODO: WTF??
 				try:
 					for key, val in surrogate.__dict__.items():
+						if (key in excludeDictKeys):
+							continue
 						try:
 							this.__dict__[key] = surrogate.__dict__[key]
 						except:
 							logging.warning(f"Unable to set {this.name} ({type(this)}).{key} to {val}")
 				except:
-					for key, val in surrogate.__dict__().items():
-						try:
-							this.__dict__.update(surrogate.__dict__())
-						except:
-							logging.warning(f"Unable to set {this.name} ({type(this)}).{key} to {val}")
+					exclusions = {}
+					for key in excludeDictKeys:
+						exclusions[key] = this.__dict__[key]
+					try:
+						this.__dict__.update(surrogate.__dict__())
+					except:
+						logging.warning(f"Unable to update the dict of {this.name} ({type(this)}).")
+					this.__dict__.update(exclusions)
 
 				logging.info(f"Making {this.name} a {surrogate.name} with value {other}")
 				this.value = other
-				this.needsTypeAssignment = False
+				valueSet = True
+				this.needs.typeAssignment = False
 			else:
 				# It's complex, so we'll leave it as a functor.
-				pass
-			this.needsTypeAssignment = False
+				this.needs.typeAssignment = False
 
 		if (this.IsCurrentlyInTypeParameterBlock()):
 			logging.info(f"Setting default value of {this.name} to {other}")
 			this.default = other
-			return this
+			valueSet = True
 
-		logging.info(f"Setting {this.name} to {other}")
-		this = other
+		if (not valueSet):
+			logging.info(f"Setting {this.name} to {other}")
+			this = other
+
 		return this
 
 	def GT(this, other):
@@ -165,6 +188,8 @@ class TYPE(EldestFunctor):
 			other = other()
 		elif (this.isBasicType and isinstance(other, eons.Functor)):
 			other = other()
+		elif (isinstance(other, TYPE) and other.isBasicType):
+			other = other.value
 		return other
 	
 

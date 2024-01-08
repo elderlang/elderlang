@@ -6,7 +6,7 @@ class BOOL(TYPE):
 
 		this.value = value
 		this.isBasicType = True
-		this.needsTypeAssignment = False
+		this.needs.typeAssignment = False
 
 	def __bool__(this):
 		return this.value
