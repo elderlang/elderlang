@@ -99,7 +99,7 @@ def FunctorType(
 ):
 	if (this.p[0].startswith('Type')):
 		return f"{this.p[0][:-1]}, execution={this.Engulf(this.p[1])})"
-	return f"Type(name='{this.p[0]}, kind={this.Engulf(this.p[1])}, parameter={this.Engulf(this.p[2])}, execution={this.Engulf(this.p[3])})"
+	return f"Type(name={this.p[0]}, kind={this.Engulf(this.p[1])}, parameter={this.Engulf(this.p[2])}, execution={this.Engulf(this.p[3])})"
 
 @eons.kind(ExactSyntax)
 def EOL(
@@ -138,15 +138,7 @@ def AutofillAccessOrInvokation(
 	recurseOn = "name",
 	readDirection = ">"
 ):
-	source = str(this.Engulf(this.p[0]))
-	source = source.replace(r'"', r'\"')
-	# if ('(' not in source and '[' not in source):
-	# 	source = f"'{source}'"
-	target = str(this.Engulf(this.p[1]))
-	target = target.replace(r'"', r'\"')
-	# if ('(' not in target and '[' not in target):
-	# 	target = f"'{target}'"
-	return f'Autofill("{source}", "{target}")'
+	return f"Autofill('{this.Engulf(this.p[0], escape=True)}', '{this.Engulf(this.p[1], escape=True)}')"
 
 @eons.kind(FlexibleTokenSyntax)
 def AutofillInvokation(
@@ -156,7 +148,7 @@ def AutofillInvokation(
 	],
 	readDirection = ">"
 ):
-	return f"Call({this.p[0]}, {this.Engulf(this.p[1])})"
+	return f"Call({str(this.p[0])}, {this.Engulf(str(this.p[1]))})"
 
 @eons.kind(ExactSyntax)
 def Sequence(

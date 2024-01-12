@@ -18,6 +18,14 @@ class TYPE(EldestFunctor):
 	# This is generally what other types will use. Those that don't can override it.
 	def Function(this):
 		return this.value
+	
+	# IMPORTANT: Children should override this.
+	# Return whether or not the value in *this should be set.
+	def SomehowSet(this, value):
+		if (this.isBasicType):
+			this.value = value
+			return True
+		return False
 
 	def EQ(this, other):
 		valueSet = False
@@ -60,14 +68,13 @@ class TYPE(EldestFunctor):
 						except:
 							logging.warning(f"Unable to set {this.name} ({type(this)}).{key} to {val}")
 				except:
-					exclusions = {}
-					for key in excludeDictKeys:
-						exclusions[key] = this.__dict__[key]
-					try:
-						this.__dict__.update(surrogate.__dict__())
-					except:
-						logging.warning(f"Unable to update the dict of {this.name} ({type(this)}).")
-					this.__dict__.update(exclusions)
+					for key, val in surrogate.__dict__().items():
+						if (key in excludeDictKeys):
+							continue
+						try:
+							this.__dict__.update({key: val})
+						except:
+							logging.warning(f"Unable to update the dict of {this.name} ({type(this)}).")
 
 				logging.info(f"Making {this.name} a {surrogate.name} with value {other}")
 				this.value = other
@@ -89,92 +96,71 @@ class TYPE(EldestFunctor):
 		return this
 
 	def GT(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this > other
+		return this.PossiblyReduceThis() > this.PossiblyReduceOther(other)
 
 	def LT(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this < other
+		return this.PossiblyReduceThis() < this.PossiblyReduceOther(other)
 
 	def EQEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this == other
+		return this.PossiblyReduceThis() == this.PossiblyReduceOther(other)
 	
 	def NOTEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this != other
+		return this.PossiblyReduceThis() != this.PossiblyReduceOther(other)
 
 	def GTEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this >= other
+		return this.PossiblyReduceThis() >= this.PossiblyReduceOther(other)
 
 	def LTEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this <= other
+		return this.PossiblyReduceThis() <= this.PossiblyReduceOther(other)
 
 	def POW(this, other):
-		other = this.PossiblyReduceOther(other)
-		return pow(this, other)
+		return pow(this.PossiblyReduceThis(), this.PossiblyReduceOther(other))
 
 	def AND(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this and other
+		return this.PossiblyReduceThis() and this.PossiblyReduceOther(other)
 
 	def ANDAND(this, other):
-		other = this.PossiblyReduceOther(other)
 		return this.AND(other)
 
 	def OR(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this or other
+		return this.PossiblyReduceThis() or this.PossiblyReduceOther(other)
 
 	def OROR(this, other):
-		other = this.PossiblyReduceOther(other)
 		return this.OR(other)
 
 	def PLUS(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this + other
+		return this.PossiblyReduceThis() + this.PossiblyReduceOther(other)
 
 	def MINUS(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this - other
+		return this.PossiblyReduceThis() - this.PossiblyReduceOther(other)
 
 	def TIMES(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this * other
+		return this.PossiblyReduceThis() * this.PossiblyReduceOther(other)
 
 	def DIVIDE(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this / other
+		return this.PossiblyReduceThis() / this.PossiblyReduceOther(other)
 
 	def PLUSEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		this = this + other
+		this.SomehowSet(this.PossiblyReduceThis() + this.PossiblyReduceOther(other))
 		return this
 
 	def MINUSEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		this = this - other
+		this.SomehowSet(this.PossiblyReduceThis() - this.PossiblyReduceOther(other))
 		return this
 
 	def TIMESEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		this = this * other
+		this.SomehowSet(this.PossiblyReduceThis() * this.PossiblyReduceOther(other))
 		return this
 
 	def DIVIDEEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		this = this / other
+		this.SomehowSet(this.PossiblyReduceThis() / this.PossiblyReduceOther(other))
 		return this
 
 	def MOD(this, other):
-		other = this.PossiblyReduceOther(other)
-		return this % other
+		return this.PossiblyReduceThis() % this.PossiblyReduceOther(other)
 	
 	def MODEQ(this, other):
-		other = this.PossiblyReduceOther(other)
-		this = this % other
+		this.SomehowSet(this.PossiblyReduceThis() % this.PossiblyReduceOther(other))
 		return this
 	
 	def size(this):
@@ -192,6 +178,10 @@ class TYPE(EldestFunctor):
 			other = other.value
 		return other
 	
+	def PossiblyReduceThis(this):
+		if (this.isBasicType):
+			return this.value
+		return this
 
 def CreateArithmeticFunction(functionName):
 	return lambda this, *args: getattr(this.value, functionName)(*args)

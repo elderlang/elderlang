@@ -26,7 +26,9 @@ Print+SortArray:functor( // <- this should be a valid functor name.
 	sorter:functor
 	(
 		value1::,value2::
-	){if(value2 > value1){return true}
+	){print `{value1} > {value2}?`
+		
+	if(value2 > value1){return true}
 		else{
 			return false}
 	}, // <- \n, ,, ;, etc. should all be valid line endings here.
@@ -34,7 +36,23 @@ Print+SortArray:functor( // <- this should be a valid functor name.
 	// default type should be functor.
 	sort::(array:container:,){
 			for(enumerate(array))[index, value]{
-	if
+
+				//FIXME: this does not parse.
+				//if(index.==((array.length - 1))){break}
+
+				if (
+					index == (array length - 2)
+				) {
+					print "BREAKING"
+					break
+				}
+
+				v1 = value;
+				v2 = array[index + 1];
+				print `{v1} > {v2}?`
+
+				//print `{array[index]} > {array[index + 1]}`
+if
 			(sorter(value, array[index + 1]))
 			{
 				array[index] = array[index + 1]; array[index + 1] = value

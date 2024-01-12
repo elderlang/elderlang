@@ -39,7 +39,7 @@ class Autofill (EldestFunctor):
 					break
 			source.object, unwrapped = EVAL(this.source, shouldAutoType = shouldAutoType)
 
-		if (isinstance(source.object, types.FunctionType)):
+		if (isinstance(source.object, types.FunctionType) or isinstance(source.object, types.MethodType)):
 			source.type = 1
 		elif (type(source.object) in [int, float, str, bool]):
 			source.type = 2
@@ -91,9 +91,6 @@ class Autofill (EldestFunctor):
 			target.name = this.target
 			target.type = 4
 
-		if (target.type == 4 or source.type == 1):
-			return source.object(this.target)
-
 		logging.debug(f"Target name: {target.name}; target type: {target.type}; source: {source.object} source type: {source.type}")
 
 		attemptedAccess = False
@@ -119,26 +116,32 @@ class Autofill (EldestFunctor):
 
 				# Ensure non-functor types can be used with builtin symbols
 				# e.g. greeting = 'hello'
-				if (source.type == 2):
+				if (source.type == 1):
+					if (target.type == 3 and this.target.startswith("Call")):
+						source.object = source.object()
+						return this.EvaluateCallAfterBasicType(source, target)
+					elif (target.type == 4):
+						return source.object(this.target)
+
+				elif (source.type == 2):
 					if (target.type == 1):
 						toEval = f"source.object.{this.target}"
 						for match, replace in Sanitize.operatorMap.items():
 							toEval = toEval.replace(match, replace)
 						logging.debug(f"Attempting to eval: {toEval}")
 						return eval(toEval)
+					
+					elif (target.type == 2):
+						if (this.target.startswith("Invoke") and target.name in Sanitize.operatorMap.keys()):
+							try:
+								usableSource = source.object.__getattribute__(Sanitize.operatorMap[target.name])
+								newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=this.NEXTSOURCE", this.target)
+								return EVAL(newTarget, NEXTSOURCE = usableSource)[0]
+							except:
+								pass
 
 					elif (target.type == 3 and this.target.startswith("Call")):
-						argRetrieval = this.target.replace('Call', 'GetArgs')
-						args = eval(argRetrieval)
-						arg0 = this.executor.Sanitize.Soil(args[0])
-						arg1 = args[1]
-						if (type(source.object) in [str, list]):
-							arg1 = f"'{args[1]}'"
-						# TODO: support more than just strings
-						toExec = f"source.object {arg0} {arg1}"
-						logging.debug(f"Attempting to exec: {toExec}")
-						exec(toExec)
-						return source.object
+						return this.EvaluateCallAfterBasicType(source, target)
 
 				# Otherwise, treat the source.object as a function.
 				logging.debug(f"Using it as an arg for: {source.object}({this.target})")
@@ -166,3 +169,14 @@ class Autofill (EldestFunctor):
 			ret = ret()
 
 		return ret
+	
+	def EvaluateCallAfterBasicType(this, source, target):
+		argRetrieval = this.target.replace('Call', 'GetArgs')
+		args = eval(argRetrieval)
+		arg0 = this.executor.Sanitize.Soil(args[0])
+		arg1 = args[1]
+		if (type(source.object) in [str, list]):
+			arg1 = f"'{args[1]}'"
+		toEval = f"source.object {arg0} {arg1}"
+		logging.debug(f"Attempting to eval: {toEval}")
+		return eval(toEval)

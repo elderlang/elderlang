@@ -1,4 +1,5 @@
 import eons
+import re
 
 class Structure (eons.Functor):
 	def __init__(this, name="Structure"):
@@ -13,8 +14,7 @@ class Structure (eons.Functor):
 	def Function(this):
 		pass
 
-	# Engulfing a string prevents runaway escape characters (e.g. \\\\\\\\\\...)
-	def Engulf(this, substrate):
+	def Engulf(this, substrate, escape=False):
 		if (
 			substrate is None
 			or isinstance(substrate, bool)
@@ -29,9 +29,6 @@ class Structure (eons.Functor):
 		
 		if (not len(ret)):
 			return ret
-		
-		# while ('\\' in ret):
-		# 	ret = ret.replace('\\', '')
 
 		if (ret[0] == ret[-1] 
 			and (
@@ -40,5 +37,12 @@ class Structure (eons.Functor):
 			)
 		):
 			ret = ret[1:-1]
+
+		if (escape):
+			# ret = ret.replace(r"'", r"\'")
+			# # First, replace all occurrences of \' with \\\'
+			ret = re.sub(r"'", r"\'", ret)
+			# # Then, replace any remaining unescaped single quotes with \\'
+			# ret = re.sub(r"\\'", r"\\\'", ret)
 		
 		return ret

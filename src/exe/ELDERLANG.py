@@ -48,6 +48,9 @@ class ELDERLANG(eons.Executor):
 		ldr = ldrFile.read()
 		ldrFile.close()
 		
+		# for tok in this.lexer.tokenize(ldr):
+		# 	logging.info(tok)
+		
 		toExec = this.parser.parse(this.lexer.tokenize(ldr))
 		toExec = this.Sanitize(toExec).returned
 		logging.info(f"Sanitized: {toExec}")

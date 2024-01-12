@@ -54,12 +54,12 @@ class EVAL (E___):
 					continue
 
 				# Check if the statement is an integer.
-				if (re.match(r'^[0-9]+$', statement)):
+				if (re.search(r'^[0-9]+$', statement)):
 					this.result.data.evaluation.append(int(statement))
 					continue
 
 				# Check if the statement is a float.
-				if (re.match(r'^[0-9]+\.[0-9]+$', statement)):
+				if (re.search(r'^[0-9]+\.[0-9]+$', statement)):
 					this.result.data.evaluation.append(float(statement))
 					continue
 
@@ -70,7 +70,7 @@ class EVAL (E___):
 					continue
 
 				# Check if the statement is a Functor name.
-				if (re.match(rf"^{ElderLexer.NAME}$", statement)
+				if (re.search(rf"^{ElderLexer.NAME}$", statement)
 					and statement not in Sanitize.allBuiltins
 				):
 					logging.debug(f"It looks like {statement} is a Functor or variable name.")
@@ -103,6 +103,14 @@ class EVAL (E___):
 						else:
 							this.result.data.evaluation.append(possibleFunctor)
 						continue
+
+				# Detect & correct escape drift:
+				# if (re.search(r"[^\\]\',", repr(statement))):
+				# 	statement = re.sub(r"\',", "'", repr(statement))
+				
+				statement = this.CorrectForImproperQuotes(statement)
+
+				logging.debug(f"Evaluating: {statement}")
 				evaluation = eval(statement, globals(), {'this': this})
 				if (isinstance(evaluation, types.MethodType) and this.shouldAttemptInvokation):
 					evaluation = evaluation()

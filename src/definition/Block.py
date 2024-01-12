@@ -28,7 +28,7 @@ def Block(
 
 				shouldReject = False
 				for r in reject:
-					if (re.match(r, possibleContent)):
+					if (re.search(r, possibleContent)):
 						failedMatches.append(possibleContent)
 						shouldReject = True
 						break

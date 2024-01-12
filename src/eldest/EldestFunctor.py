@@ -1,6 +1,7 @@
 import eons
 import logging
 import inspect
+import re
 from copy import deepcopy
 from .Sanitize import Sanitize
 
@@ -56,14 +57,20 @@ class EldestFunctor (eons.Functor):
 		except:
 			logging.error(f"Could not add {this.name} ({type(this)}) to the stack.")
 
+		super().BeforeFunction()
+
 
 	def AfterFunction(this):
+		super().AfterFunction()
+
+		# Failure to remove items from the stack, history, etc. is fine.
+
 		try:
 			this.executor.stack.remove(
 				(this.name, this)
 			)
 		except:
-			logging.error(f"Could not remove {this.name} ({type(this)}) from the stack.")
+			logging.debug(f"Could not remove {this.name} ({type(this)}) from the stack.")
 
 		try:
 			this.context.history.insert(
@@ -72,7 +79,7 @@ class EldestFunctor (eons.Functor):
 			)
 			logging.debug(f"History is now: {this.context.history}")
 		except:
-			logging.error(f"Could not add {this.name} ({type(this)}) to the history.")
+			logging.debug(f"Could not add {this.name} ({type(this)}) to the history.")
 
 	
 	def IsCurrentlyInTypeParameterBlock(this, offset=0):
@@ -108,6 +115,17 @@ class EldestFunctor (eons.Functor):
 			return True
 
 		return False
+	
+
+	def CorrectForImproperQuotes(this, string):
+		if (re.search(r"\('[a-zA-Z0-9]*\('", string)):
+			string = string.replace("('", '("', 1)
+			string = string.replace(")', '", ')", "', 1)
+			string = re.sub(r"\)'(.*)$", r')"\1', string)
+		elif (re.search(r"'[a-zA-Z0-9]*\('", string)):
+			string = re.sub(r"'([a-zA-Z0-9]*)\('", r'"\1(\'', string)
+			string = re.sub(r"\)'(.*)$", r')"\1', string)
+		return string
 
 
 	def fetch_location_stack_name(this, varName, default, fetchFrom, attempted):

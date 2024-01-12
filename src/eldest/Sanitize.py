@@ -17,6 +17,11 @@ class Sanitize (eons.Functor):
 		'while',
 	]
 
+	keywordInvokations = [
+		'break',
+		'continue',
+	]
+
 	types = [
 		'bool',
 		'float',
@@ -121,10 +126,11 @@ class Sanitize (eons.Functor):
 			return [this.Clean(item) for item in input]
 
 		for keyword in this.keywords:
-			input = re.sub(rf"(\\*)(['\"])\b{re.escape(keyword)}\b(\\*)(['\"])", rf"\1\2{keyword.upper()}\3\4", input)
+			input = re.sub(rf"(\\*['\"])\b{re.escape(keyword)}\b(\\*['\"])", rf"\1{keyword.upper()}\2", input)
 
 		for type in this.types:
 			input = re.sub(rf"(\\*)(['\"]*)(\(*)\b{re.escape(type)}\b(\\*)(['\"]*)(\)*)([^=])", rf"\3{type.upper()}\6\7", input)
+			# input = re.sub(rf"(\\*)(['\"]*)(\(*)\b{re.escape(type)}\b(\\*)(['\"]*)(\)*)([^=])", rf"\1\2\3{type.upper()}\4\5\6\7", input)
 
 		symbolBorder = rf"[a-zA-Z0-9{''.join([re.escape(sym) for sym in this.symbols.keys()])}]"
 		for symbol,replacement in this.symbols.items():
@@ -137,6 +143,9 @@ class Sanitize (eons.Functor):
 			toMatch = rf"(\\*['\"])({preBorder}*?{re.escape(symbol)}{symbolBorder}*)(\\*['\"])"
 			# logging.debug(toMatch)
 			input = re.sub(toMatch, ReplaceSymbol, input)
+
+		for keyword in this.keywordInvokations:
+			input = re.sub(rf"(\\*['\"]){keyword.upper()}(\\*['\"])", rf"\1{keyword.upper()}()\2", input)
 
 		return input
 
