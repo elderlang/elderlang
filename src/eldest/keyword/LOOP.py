@@ -8,4 +8,5 @@ class LOOP (KEYWORD):
 		super().__init__(name)
 	
 	def BeforeFunction(this):
+		super().BeforeFunction()
 		this.BREAK = False

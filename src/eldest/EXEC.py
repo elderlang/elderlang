@@ -43,8 +43,11 @@ class EXEC (E___):
 			for instruction in this.execution:
 				logging.debug(instruction)
 				this.result.data.execution.append(exec(instruction, globals()))
-		except HaltExecution:
+		except HaltExecution as halt:
 			this.PrepareReturn()
+			if (str(id(this)) != str(halt)):
+				logging.debug(f"Passing on halt: {halt} ({id(this)})")
+				raise halt
 			return this.result.data.returned
 		except Exception as e:
 			failMessage = f"Error in execution of {this.execution}: {e}"
@@ -66,13 +69,13 @@ class EXEC (E___):
 		if (not len(this.result.data.execution)):
 			return
 		this.result.data.returned = this.result.data.execution[-1]
-	
+
 	def fetch_location_context(this, varName, default, fetchFrom, attempted):
 		if (this.episcope is None):
 			return default, False
 		
 		return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)
-	
+
 	def fetch_location_current_invokation(this, varName, default, fetchFrom, attempted):
 		try:
 			if (this.currentlyTryingToInvoke is None):	

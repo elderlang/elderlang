@@ -9,3 +9,4 @@ class KEYWORD (EldestFunctor):
 			4,
 			'history',
 		)
+		this.fetch.use.append('stack_type')

@@ -145,16 +145,17 @@ class EldestFunctor (eons.Functor):
 		if (this.executor is None):
 			return default, False
 
-		if (varName.upper() not in Sanitize.allBuiltins):
-			return default, False
-
 		if (isinstance(varName, str)):
-			typeToFind, unwrapped = eval(varName)
+			if(varName.upper() not in Sanitize.allBuiltins):
+				return default, False
+			typeToFind = eval(varName)
 
 		if (inspect.isclass(varName)):
 			typeToFind = varName
-		elif (isinstance(varName, object)):
-			typeToFind = varName.__class__
+
+		# TODO: UnboundLocalError: cannot access local variable 'object' where it is not associated with a value
+		# elif (isinstance(varName, object)):
+		# 	typeToFind = varName.__class__
 
 		if (typeToFind is None or not inspect.isclass(typeToFind)):
 			logging.debug(f"Could not find type {varName} in stack.")

@@ -116,8 +116,11 @@ class EVAL (E___):
 					evaluation = evaluation()
 				this.result.data.evaluation.append(evaluation)
 
-		except HaltExecution:
+		except HaltExecution as halt:
 			this.PrepareReturn()
+			if (str(id(this)) == str(halt)):
+				logging.debug(f"Passing on halt: {halt} ({id(this)})")
+				raise halt
 			return this.result.data.returned, this.unwrapReturn
 
 		except Exception as e:
