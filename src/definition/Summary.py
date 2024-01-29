@@ -21,6 +21,28 @@ summary.builtins = [
 	"NUMBER",
 ]
 
+summary.token = eons.util.DotDict()
+summary.token.priority = [
+	"UNFORMATTEDSTRING",
+	"FORMATTEDSTRING",
+	"NUMBER",
+	"SHORTTYPE",
+	"UPPERSCOPEOPTION1",
+	"UPPERSCOPEOPTION2",
+	"OPEN_EXECUTION",
+	"OPEN_PARAMETER",
+	"OPEN_CONTAINER",
+	"OPEN_KIND",
+	"CLOSE_EXECUTION",
+	"CLOSE_PARAMETER",
+	"CLOSE_CONTAINER",
+	"CLOSE_EXPRESSION",
+	"EXPLICITACCESS",
+	"SEQUENCE",
+	"EOL",
+	"NAME",
+]
+
 summary.blocks = [
 	"FullExpressionSet",
 	"FullExpression",
@@ -66,7 +88,7 @@ summary.syntax.exact = [
 	"AutofillAccessOrInvokation",
 	"AutofillInvokation",
 	"EOL",
-	"ShortTypeDeclaration",
+	"ShortType",
 	"UpperScopeOption1",
 	"UpperScopeOption2",
 	"GlobalScope",

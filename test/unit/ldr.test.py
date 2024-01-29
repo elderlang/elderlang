@@ -9,9 +9,9 @@ commander.WarmUp(executor = elder)
 
 tests = [
 	# 'op',
-	'if',
+	# 'if',
 	# 'hellowolf',
-	# 'arrays',
+	'arrays',
 ]
 
 testPath = str(Path(__file__).parent.absolute())
@@ -24,9 +24,9 @@ for test in tests:
 	testFile.close()
 
 	tokens = elder.lexer.tokenize(ldr)
-	[logging.info(t) for t in tokens]
+	[logging.critical(t) for t in tokens]
 	logging.critical(f"======================== {test} Parsed ========================")
 	logging.info(elder.parser.parse(elder.lexer.tokenize(ldr)))
-	logging.critical(f"======================== {test} Executed ========================")
-	logging.info(commander.RunCommand(f"elder {testFileName}", saveout=True, raiseExceptions=False))
-	logging.critical(f"================================================")
+	# logging.critical(f"======================== {test} Executed ========================")
+	# logging.info(commander.RunCommand(f"elder {testFileName}", saveout=True, raiseExceptions=False))
+	# logging.critical(f"================================================")

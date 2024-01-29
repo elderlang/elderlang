@@ -187,6 +187,7 @@ class GenLexer(eons.Functor):
 
 		this.tokens.use = this.tokens.unparsed
 		this.tokens.use.update(this.tokens.all)
+		this.tokens.use['NUMBER'] = r'\d+'
 
 		logging.debug(f"Tokens: {this.tokens.all}")
 
@@ -207,7 +208,7 @@ class ElderLexer(Lexer):
 		print("Illegal character '%s'" % t.value[0])
 		self.index += 1
 
-	tokens = {{ {', '.join(summary.builtins)}, {', '.join([t for t in this.tokens.use.keys()])} }}
+	tokens = {{ {', '.join([t for t in this.tokens.use.keys()])} }}
 
 	ignore = ' \\t'
 """)
@@ -215,10 +216,9 @@ class ElderLexer(Lexer):
 			this.outFile.write(f"\n\tignore_{token.lower()} = r'{regex}'")
 
 		this.outFile.write("\n\n")
-		this.outFile.write("\tNUMBER = r'\d+'\n")
 
-		for token,regex in this.tokens.use.items():
-			this.outFile.write(f"\t{token} = r'{regex}'\n")
+		for prioritized in summary.token.priority:
+			this.outFile.write(f"\t{prioritized} = r'{this.tokens.use[prioritized]}'\n")			
 
 		for block in this.blocks:
 			if ('lexer' in block.exclusions

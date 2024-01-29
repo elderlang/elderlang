@@ -112,7 +112,7 @@ def Kind(
 		return "Kind()"
 	if (this.p[0].startswith('Kind')):
 		return this.p[0]
-	kind = this.Engulf(this.p[1])
+	kind = this.Engulf(this.p[1]) # escape=False; if it's true there's likely a larger problem.
 	if (len(kind)):
 		kind = f"'{kind}'"
 	return f"Kind({kind})"

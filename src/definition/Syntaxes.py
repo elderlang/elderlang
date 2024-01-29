@@ -157,6 +157,12 @@ def AutofillInvokation(
 	match = [
 		r'name string',
 		r'name number',
+		r'shorttype string',
+		r'shorttype number',
+		r'shorttype sequence',
+		r'shorttype container',
+		r'shorttype containeraccess',
+		r'shorttype standardinvokation',
 	]
 ):
 	return f"Call({str(this.p[0])}, {this.Engulf(str(this.p[1]))})"
@@ -176,10 +182,10 @@ def ExplicitAccess(
 	return f"Get({this.p[0]}, {this.p[2]})"
 
 @eons.kind(ExactSyntax)
-def ShortTypeDeclaration(
+def ShortType(
 	match = r'NAME\s+:=\s+'
 ):
-	return f"Type(name={this.p[0]}) ="
+	return f"Get(Type(name={this.p[0]}), '=')"
 
 @eons.kind(ExactSyntax)
 def UpperScopeOption1(

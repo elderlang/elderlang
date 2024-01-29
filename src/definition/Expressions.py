@@ -84,9 +84,6 @@ def FullExpression(
 		'StandardInvokation',
 		'InvokationWithParametersAndExecution',
 		'ContainerInvokationWithParameters',
-
-		# ExactSyntaxes
-		'ShortTypeDeclaration',
 	],
 	before = "FunctorType",
 ):
