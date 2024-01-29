@@ -4,8 +4,9 @@ import eons
 @eons.kind(CatchAllBlock)
 def Name(
 	representation = r'NAME',
-	specialStarts = [
+	explicitMatches = [
 		'/',
+		'/=',
 	],
 ):
 	return f"'{this.p[0]}'"
@@ -23,6 +24,9 @@ def ProtoExpression(
 		'AutofillInvokation',
 		'Sequence',
 		'ExplicitAccess',
+		'UpperScopeOption1',
+		'UpperScopeOption2',
+		'GlobalScope',
 	],
 	before = "Sequence",
 ):
@@ -75,10 +79,14 @@ def FullExpression(
 		# BlockSyntaxes
 		'FunctorType',
 		'StructType',
+		'ExecutiveType',
 		'SimpleType',
 		'StandardInvokation',
 		'InvokationWithParametersAndExecution',
 		'ContainerInvokationWithParameters',
+
+		# ExactSyntaxes
+		'ShortTypeDeclaration',
 	],
 	before = "FunctorType",
 ):

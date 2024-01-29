@@ -53,6 +53,7 @@ summary.syntax.block = [
 	"StandardInvokation",
 	"InvokationWithExecution",
 	"StructType",
+	"ExecutiveType",
 	"InvokationWithParametersAndExecution",
 	"ContainerInvokation",
 	"ContainerInvokationWithParameters",
@@ -65,4 +66,8 @@ summary.syntax.exact = [
 	"AutofillAccessOrInvokation",
 	"AutofillInvokation",
 	"EOL",
+	"ShortTypeDeclaration",
+	"UpperScopeOption1",
+	"UpperScopeOption2",
+	"GlobalScope",
 ]

@@ -51,6 +51,19 @@ def StructType(
 		return f"{this.p[0][:-1]}, parameter={this.Engulf(this.p[1])})"
 	return f"Type(name={this.p[0]}, kind={this.Engulf(this.p[1])}, parameter={this.Engulf(this.p[2])})"
 
+# Executive type is terminal. No other types build on it.
+@eons.kind(BlockSyntax)
+def ExecutiveType(
+	blocks = [
+		'Name',
+		'Kind',
+		'Execution',
+	],
+):
+	if (this.p[0].startswith('Type')):
+		return f"{this.p[0][:-1]}, execution={this.Engulf(this.p[1])})"
+	return f"Type(name={this.p[0]}, kind={this.Engulf(this.p[1])}, execution={this.Engulf(this.p[2])})"
+
 @eons.kind(Invokation)
 def InvokationWithParametersAndExecution(
 	blocks = [
@@ -135,8 +148,7 @@ def AutofillAccessOrInvokation(
 		r'number name',
 		r'autofillaccessorinvokation number',
 	],
-	recurseOn = "name",
-	readDirection = ">"
+	recurseOn = "name"
 ):
 	return f"Autofill('{this.Engulf(this.p[0], escape=True)}', '{this.Engulf(this.p[1], escape=True)}')"
 
@@ -145,23 +157,46 @@ def AutofillInvokation(
 	match = [
 		r'name string',
 		r'name number',
-	],
-	readDirection = ">"
+	]
 ):
 	return f"Call({str(this.p[0])}, {this.Engulf(str(this.p[1]))})"
 
 @eons.kind(ExactSyntax)
 def Sequence(
 	match = r'NAME/NAME',
-	recurseOn = "name",
-	readDirection = ">"
+	recurseOn = "name"
 ):
 	return f"Sequence({this.p[0]}, {this.p[2]})"
 
 @eons.kind(ExactSyntax)
 def ExplicitAccess(
 	match = r'NAME\.NAME',
-	recurseOn = "name",
-	readDirection = ">"
+	recurseOn = "name"
 ):
 	return f"Get({this.p[0]}, {this.p[2]})"
+
+@eons.kind(ExactSyntax)
+def ShortTypeDeclaration(
+	match = r'NAME\s+:=\s+'
+):
+	return f"Type(name={this.p[0]}) ="
+
+@eons.kind(ExactSyntax)
+def UpperScopeOption1(
+	match = r'\.\.NAME'
+):
+	return f"Upper.{this.p[0][2:]}"
+
+@eons.kind(ExactSyntax)
+def UpperScopeOption2(
+	match = r'\.\./NAME'
+):
+	return f"Upper.{this.p[0][3:]}"
+
+@eons.kind(FlexibleTokenSyntax)
+def GlobalScope(
+	match = [
+		r'SEQUENCE NAME' # The / character has already been taken, so we have to reference it
+	],
+):
+	return f"Global.{this.p[0][1:]}"

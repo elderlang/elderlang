@@ -1,4 +1,5 @@
 import eons
+import logging
 from .KEYWORD import KEYWORD
 from .Exceptions import *
 
@@ -13,5 +14,6 @@ class E___ (KEYWORD):
 		this.HALT = False
 
 	def Halt(this):
+		logging.debug(f"Halting {this.name} ({id(this)})")
 		this.HALT = True
 		raise HaltExecution(str(id(this)))

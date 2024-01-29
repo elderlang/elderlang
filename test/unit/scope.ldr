@@ -1,0 +1,20 @@
+upperclass:
+(
+	sharedValue: int := 1
+
+	lowerclass::(sharedValue:int)
+	{
+		print `setting sharedValue ({..sharedValue}) to {sharedValue}`
+		..sharedValue = sharedValue
+		print ../sharedValue
+	}
+
+	sanity::(sharedValue:int)
+	{
+		print `leaving sharedValue ({..sharedValue}) alone; It should not be {sharedValue}`
+		print ../sharedValue
+	}
+)
+
+upperclass lowerclass 5
+upperclass sanity 2000000

@@ -162,7 +162,9 @@ class GenLexer(eons.Functor):
 			possibleToken = this.SubstituteRepresentations(possibleToken, "")
 			for builtin in summary.builtins:
 				possibleToken = possibleToken.replace(builtin, '')
-			
+
+			possibleToken = possibleToken.replace(r'\s+', '')
+
 			if (not "all.catch.block" in syntax.exclusions):
 				this.tokens.partial.append(possibleToken)
 			
@@ -172,7 +174,7 @@ class GenLexer(eons.Functor):
 				and possibleToken not in this.tokens.syntactic.values()
 			):
 				this.tokens.syntactic[syntax.name.upper()] = possibleToken
-				
+
 			else:
 				logging.info(f"Syntax {syntax.name} has no matchable tokens.")
 
@@ -181,7 +183,7 @@ class GenLexer(eons.Functor):
 		this.tokens.all.update(this.tokens.close)
 		this.tokens.all.update(this.tokens.syntactic)
 
-		this.tokens.all[summary.catchAllBlock.upper()] = fr"[{''.join(this.catchAllBlock.specialStarts)}]?(?:(?!{'|'.join(t for t in this.tokens.partial)})\S)+"
+		this.tokens.all[summary.catchAllBlock.upper()] = fr"({'|'.join(this.catchAllBlock.explicitMatches)}|(?:(?!{'|'.join(t for t in this.tokens.partial)})\S)+)"
 
 		this.tokens.use = this.tokens.unparsed
 		this.tokens.use.update(this.tokens.all)
