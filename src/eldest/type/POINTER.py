@@ -13,9 +13,14 @@ class POINTER(TYPE):
 	def to(obj):
 		return POINTER(obj)
 
-	def __getattribute__(this, __name: str):
-		if (__name == "to"):
+	def __getattribute__(this, attribute):
+		if (attribute == "to"):
 			return POINTER.to
-		if (this.value is not None):
-			return this.value.__getattribute__(__name)
-		return super().__getattribute__(__name)
+		if (attribute in ["value", "isPointer"]):
+			return object.__getattribute__(this, attribute)
+		try:
+			# Will fail if value is null.
+			return object.__getattribute__(this, 'value').__getattribute__(attribute)
+		except:
+			# TODO: consider raising an exception when trying to dereference a null pointer.
+			return super().__getattribute__(attribute)

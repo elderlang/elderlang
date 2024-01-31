@@ -1,8 +1,6 @@
 import eons
 import types
 import logging
-from .vital.Call import Call
-from .vital.Type import Type
 from .EldestFunctor import EldestFunctor
 
 class TYPE(EldestFunctor):
@@ -168,20 +166,30 @@ class TYPE(EldestFunctor):
 
 	def length(this):
 		return this.size()
-	
+
 	def PossiblyReduceOther(this, other):
 		if (isinstance(other, types.FunctionType) or isinstance(other, types.MethodType)):
 			other = other()
-		elif (this.isBasicType and isinstance(other, eons.Functor)):
-			other = other()
 		elif (isinstance(other, TYPE) and other.isBasicType):
 			other = other.value
+		elif (this.isBasicType and isinstance(other, eons.Functor)):
+			other = other()
 		return other
-	
+
 	def PossiblyReduceThis(this):
-		if (this.isBasicType):
-			return this.value
-		return this
+		ret = this
+		while (True):
+			try:
+				if (isinstance(this, POINTER)): # POINTER cannot be imported, but that's fine. Just assume it exists.
+					ret = ret.value
+				elif (ret.isBasicType):
+					ret = ret.value
+				else:
+					break
+			except AttributeError:
+				break
+
+		return ret
 
 def CreateArithmeticFunction(functionName):
 	return lambda this, *args: getattr(this.value, functionName)(*args)

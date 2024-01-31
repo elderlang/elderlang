@@ -136,7 +136,7 @@ class EVAL (E___):
 		return this.result.data.returned, this.unwrapReturn
 
 	def PrepareReturn(this):
-		if (this.unwrapReturn):
+		if (this.unwrapReturn and len(this.result.data.evaluation)):
 			this.result.data.returned = this.result.data.evaluation[0]
 		else:
 			this.result.data.returned = this.result.data.evaluation

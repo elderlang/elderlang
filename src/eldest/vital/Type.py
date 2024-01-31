@@ -4,13 +4,14 @@ import logging
 from ..EldestFunctor import EldestFunctor
 from ..EVAL import EVAL
 from ..EXEC import EXEC
+from ..TYPE import TYPE
 
 class Type (EldestFunctor):
 	def __init__(this, name="Type"):
 		super().__init__(name)
 
 		this.arg.kw.required.append('name')
-		this.arg.kw.required.append('kind')
+		this.arg.kw.optional['kind'] = [TYPE]
 
 		this.arg.kw.optional['parameter'] = None
 		this.arg.kw.optional['execution'] = []
