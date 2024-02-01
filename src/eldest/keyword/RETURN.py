@@ -15,11 +15,12 @@ class RETURN (KEYWORD):
 		for i, tup in enumerate(this.executor.stack):
 			if (isinstance(tup[1], FUNCTOR)):
 				toHalt = this.executor.stack[i-1][1] # the exec for the current functor.
+				break
 		if (toHalt is None):
 			raise RuntimeError(f"RETURN called outside of a functor.")
 		
-		toReturn = EVAL(this.parameter, unwrapReturn=True)
+		toReturn = this.parameter #EVAL(this.parameter, unwrapReturn=True)[0]
 
 		this.result.data.returned = toReturn
-		toHalt.context.result.data.returned = toReturn
-		toHalt.context.Halt()
+		toHalt.result.data.returned = toReturn
+		toHalt.Halt()

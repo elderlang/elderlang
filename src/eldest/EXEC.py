@@ -59,7 +59,7 @@ class EXEC (E___):
 		if (failMessage is not None):
 			raise RuntimeError(failMessage)
 
-		this.PrepareReturn
+		this.PrepareReturn()
 		return this.result.data.returned
 	
 	# NOTE: my return value should be set by RETURN as this.result.data.returned
