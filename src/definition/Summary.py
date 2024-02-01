@@ -76,6 +76,7 @@ summary.syntax.block = [
 	"SimpleType",
 	"ContainerAccess",
 	"StandardInvokation",
+	"AccessInvokation",
 	"InvokationWithExecution",
 	"StructType",
 	"ExecutiveType",

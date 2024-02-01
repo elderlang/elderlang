@@ -14,6 +14,6 @@ class E___ (KEYWORD):
 		this.HALT = False
 
 	def Halt(this):
-		logging.debug(f"Halting {this.name} ({id(this)})")
+		logging.debug(f"Halting {this.name} ({id(this)}). Will return {this.result.data.returned}.")
 		this.HALT = True
 		raise HaltExecution(str(id(this)))

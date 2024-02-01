@@ -32,13 +32,6 @@ class SourceTargetFunctor (EldestFunctor):
 					this.Set('source', EVAL(possibleSource)[0])
 				else:
 					this.Set('source', possibleSource)
-		
-		# # FIXME: There's a conflict in the Sanitizer whereby 'container'=... is replaced with 'CONTAINER'=...
-		# try:
-		# 	if (this.container is None):
-		# 		this.Set('container', this.Fetch('CONTAINER', None, ['args']))
-		# except:
-		# 	pass
 
 		# Not strictly necessary, but useful for keeping the nameStack indices static/
 		this.nameStack.append(this.name)

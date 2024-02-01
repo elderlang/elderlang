@@ -1,6 +1,6 @@
 upperclass:
 (
-	sharedValue: int := 1
+	sharedValue: int
 
 	lowerclass::(sharedValue:int)
 	{
@@ -16,6 +16,15 @@ upperclass:
 	}
 )
 
+/*
+ * Should print:
+ * 5
+ * 5
+ * 5
+ * 37
+ * 37
+ * 37
+
 upperclass lowerclass 5
 upperclass sanity 2000000
 ~/upperclass sanity 8
@@ -24,3 +33,4 @@ newkidz::()
 
 ~/upperclass/newkidz lowerclass 37
 upperclass/newkidz sanity 42
+upperclass.sanity(1)

@@ -82,6 +82,7 @@ def FullExpression(
 		'ExecutiveType',
 		'SimpleType',
 		'StandardInvokation',
+		'AccessInvokation',
 		'InvokationWithParametersAndExecution',
 		'ContainerInvokationWithParameters',
 	],

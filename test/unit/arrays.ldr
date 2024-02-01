@@ -37,21 +37,8 @@ Print+SortArray:functor( // <- this should be a valid functor name.
 	sort::(array:container:,){
 			for(enumerate(array))[index, value]{
 
-				//FIXME: this does not parse.
-				//if(index.==((array.length - 1))){break}
+				if(index == array.length.-(2)){break}
 
-				if (
-					index == (array length - 2)
-				) {
-					print "BREAKING"
-					break
-				}
-
-				//v1 = value;
-				//v2 = array[index + 1];
-				//print `{v1} > {v2}?`
-
-				//print `{array[index]} > {array[index + 1]}`
 if
 			(sorter(value, array[index + 1]))
 			{

@@ -24,7 +24,7 @@ for test in tests:
 	testFile.close()
 
 	tokens = elder.lexer.tokenize(ldr)
-	[logging.critical(t) for t in tokens]
+	[logging.info(t) for t in tokens]
 	logging.critical(f"======================== {test} Parsed ========================")
 	logging.info(elder.parser.parse(elder.lexer.tokenize(ldr)))
 	logging.critical(f"======================== {test} Executed ========================")

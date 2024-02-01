@@ -63,9 +63,25 @@ class Autofill (EldestFunctor):
 				this.target.startswith('Within')
 				or this.target.startswith('Invoke')
 			):
-				search = re.search(r'\(name=(.*?),', this.target)
-				target.name = search.group(1)
-				target.type = 2
+				try:
+					search = re.search(r'\(name=(.*?),', this.target)
+					target.name = search.group(1)
+					target.type = 2
+				except Exception as e:
+					if (this.target.startswith('Invoke')):
+						argRetrieval = this.target.replace('Invoke', 'GetKWArgs')
+						args = eval(argRetrieval)
+						target.name = this.target
+						toReplace = args['source']
+						toReplace = re.sub(r'\\', r'\\\\', toReplace)
+						toReplace = re.sub(r'\'', '\\\'', toReplace)
+						toReplace = f"'{toReplace}'"
+						newTarget = this.target.replace(toReplace, 'this.NEXTSOURCE')
+						nextSource = EVAL([args['source']], unwrapReturn = True,)[0]
+						target.object = EVAL([newTarget], unwrapReturn = True, NEXTSOURCE = nextSource)[0]
+						target.type = 5
+					else:
+						raise e
 			elif (
 				this.target.startswith('Autofill')
 				or this.target.startswith('Call')
@@ -78,7 +94,7 @@ class Autofill (EldestFunctor):
 
 			if (target.name == None or target.type == 0):
 				raise RuntimeError(f"Invalid target for autofill on {source.object}: {this.target}")
-			
+
 			if (target.name[0] == target.name[-1] 
 				and (
 					target.name[0] == '"'
@@ -92,6 +108,9 @@ class Autofill (EldestFunctor):
 			target.type = 4
 
 		logging.debug(f"Target name: {target.name}; target type: {target.type}; source: {source.object} source type: {source.type}")
+
+		if (target.type == 5):
+			return source.object(target.object)
 
 		attemptedAccess = False
 		ret = None

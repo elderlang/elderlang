@@ -17,5 +17,9 @@ class RETURN (KEYWORD):
 				toHalt = this.executor.stack[i-1][1] # the exec for the current functor.
 		if (toHalt is None):
 			raise RuntimeError(f"RETURN called outside of a functor.")
-		toHalt.context.result.data.returned = this.parameter
+		
+		toReturn = EVAL(this.parameter, unwrapReturn=True)
+
+		this.result.data.returned = toReturn
+		toHalt.context.result.data.returned = toReturn
 		toHalt.context.Halt()

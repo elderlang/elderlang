@@ -39,10 +39,6 @@ class Structure (eons.Functor):
 			ret = ret[1:-1]
 
 		if (escape):
-			# ret = ret.replace(r"'", r"\'")
-			# # First, replace all occurrences of \' with \\\'
+			ret = re.sub(r"\\", r"\\\\", ret)
 			ret = re.sub(r"'", r"\'", ret)
-			# # Then, replace any remaining unescaped single quotes with \\'
-			# ret = re.sub(r"\\'", r"\\\'", ret)
-		
 		return ret
