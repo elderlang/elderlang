@@ -36,7 +36,7 @@ if ('value' in kwargs):
 					'default': a.default,
 					'type': a.__class__
 				})
-				for a in EVAL(this.parameter, unwrapReturn=False)[0]
+				for a in EVAL(this.parameter, unwrapReturn=False, shouldAutoType=True)[0]
 				if a is not None # TODO: why???
 			}
 

@@ -130,22 +130,103 @@ def AutofillAccessOrInvokation(
 		r'simpletype containeraccess',
 		r'simpletype standardinvokation',
 		r'simpletype sequence',
+		r'simpletype this',
+		r'simpletype epidefoption1',
+		r'simpletype epidefoption2',
+		r'simpletype globalscope',
+		r'simpletype caller',
+
 		r'containeraccess autofillinvokation',
 		r'containeraccess standardinvokation',
+		r'containeraccess containeraccess',
 		r'containeraccess sequence',
+		r'containeraccess this',
+		r'containeraccess epidefoption1',
+		r'containeraccess epidefoption2',
+		r'containeraccess globalscope',
+		r'containeraccess caller',
+
 		r'standardinvokation autofillinvokation',
 		r'standardinvokation sequence',
 		r'standardinvokation containeraccess',
+		r'standardinvokation this',
+		r'standardinvokation epidefoption1',
+		r'standardinvokation epidefoption2',
+		r'standardinvokation globalscope',
+		r'standardinvokation caller',
+
+		r'this autofillinvokation',
+		r'this containeraccess',
+		r'this standardinvokation',
+		r'this sequence',
+		r'this this',
+		r'this epidefoption1',
+		r'this epidefoption2',
+		r'this globalscope',
+		r'this caller',
+
+		r'epidefoption1 autofillinvokation',
+		r'epidefoption1 containeraccess',
+		r'epidefoption1 standardinvokation',
+		r'epidefoption1 sequence',
+		r'epidefoption1 this',
+		r'epidefoption1 epidefoption1',
+		r'epidefoption1 epidefoption2',
+		r'epidefoption1 globalscope',
+		r'epidefoption1 caller',
+
+		r'epidefoption2 autofillinvokation',
+		r'epidefoption2 containeraccess',
+		r'epidefoption2 standardinvokation',
+		r'epidefoption2 sequence',
+		r'epidefoption2 this',
+		r'epidefoption2 epidefoption1',
+		r'epidefoption2 epidefoption2',
+		r'epidefoption2 globalscope',
+		r'epidefoption2 caller',
+
+		r'globalscope autofillinvokation',
+		r'globalscope containeraccess',
+		r'globalscope standardinvokation',
+		r'globalscope sequence',
+		r'globalscope this',
+		r'globalscope epidefoption1',
+		r'globalscope epidefoption2',
+		r'globalscope globalscope',
+		r'globalscope caller',
+
+		r'caller autofillinvokation',
+		r'caller containeraccess',
+		r'caller standardinvokation',
+		r'caller sequence',
+		r'caller this',
+		r'caller epidefoption1',
+		r'caller epidefoption2',
+		r'caller globalscope',
+		r'caller caller',
+
 		r'name sequence',
 		r'name autofillinvokation',
 		r'name containeraccess',
 		r'name standardinvokation',
+		r'name this',
+		r'name epidefoption1',
+		r'name epidefoption2',
+		r'name globalscope',
+		r'name caller',
+
 		r'simpletype name',
 		r'containeraccess name',
 		r'standardinvokation name',
 		r'sequence name',
+		r'this name',
+		r'epidefoption1 name',
+		r'epidefoption2 name',
+		r'globalscope name',
+		r'caller name',
 		r'name name',
 		r'number name',
+		r'string name',
 		r'autofillaccessorinvokation number',
 	],
 	recurseOn = "name"
@@ -188,21 +269,31 @@ def ShortType(
 	return f"Get(Type(name={this.p[0]}), '=')"
 
 @eons.kind(ExactSyntax)
-def UpperScopeOption1(
-	match = r'\.\.NAME'
+def This(
+	match = r'\./NAME'
 ):
-	return f"Upper.{this.p[0][2:]}"
+	return f"this.{this.p[0][2:]}"
 
 @eons.kind(ExactSyntax)
-def UpperScopeOption2(
+def EpidefOption1(
+	match = r'\.\.NAME'
+):
+	return f"this.epi.{this.p[0][2:]}"
+
+@eons.kind(ExactSyntax)
+def EpidefOption2(
 	match = r'\.\./NAME'
 ):
-	return f"Upper.{this.p[0][3:]}"
+	return f"this.epi.{this.p[0][3:]}"
 
-@eons.kind(FlexibleTokenSyntax)
+@eons.kind(ExactSyntax)
 def GlobalScope(
-	match = [
-		r'SEQUENCE NAME' # The / character has already been taken, so we have to reference it
-	],
+	match = r'~/NAME'
 ):
 	return f"Global.{this.p[0][1:]}"
+
+@eons.kind(ExactSyntax)
+def Caller(
+	match = r'@NAME',
+):
+	return f"this.caller.{this.p[0][1:]}"

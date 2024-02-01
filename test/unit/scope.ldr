@@ -4,12 +4,12 @@ upperclass:
 
 	lowerclass::(sharedValue:int)
 	{
-		print `setting sharedValue ({..sharedValue}) to {sharedValue}`
+		print `setting sharedValue ({..sharedValue}) to {./sharedValue}`
 		..sharedValue = sharedValue
 		print ../sharedValue
 	}
 
-	sanity::(sharedValue:int)
+	sanity::(sharedValue)
 	{
 		print `leaving sharedValue ({..sharedValue}) alone; It should not be {sharedValue}`
 		print ../sharedValue
@@ -18,3 +18,9 @@ upperclass:
 
 upperclass lowerclass 5
 upperclass sanity 2000000
+~/upperclass sanity 8
+
+newkidz::()
+
+~/upperclass/newkidz lowerclass 37
+upperclass/newkidz sanity 42
