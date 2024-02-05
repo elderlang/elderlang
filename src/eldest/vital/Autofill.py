@@ -107,7 +107,7 @@ class Autofill (EldestFunctor):
 			target.name = this.target
 			target.type = 4
 
-		logging.debug(f"Target name: {target.name}; target type: {target.type}; source: {source.object} source type: {source.type}")
+		logging.debug(f"Target name: {target.name}; target type: {target.type}; source: {source.object} ({type(source.object)}) source type: {source.type}")
 
 		if (target.type == 5):
 			return source.object(target.object)
@@ -117,7 +117,7 @@ class Autofill (EldestFunctor):
 		unwrapped = False
 		try:
 			# If member access works, use that.
-			usableSource = source.object.__getattribute__(target.name)
+			usableSource = eval(f"source.object.{target.name}")
 			logging.debug(f"Found {target.name} on {source.object}")
 			attemptedAccess = True
 			if (target.type == 1):
@@ -180,10 +180,15 @@ class Autofill (EldestFunctor):
 				logging.error(f"Error while attempting to autofill {source.object} with {target.name}: {e}")
 
 		name, object = this.executor.stack[1]
-		if (isinstance(object, EXEC.__class__) and (
-			isinstance(ret, types.MethodType)
-			or isinstance(ret, types.FunctionType)
-		)):
+		if ((
+				isinstance(ret, types.MethodType)
+				or isinstance(ret, types.FunctionType)
+			)
+			and (
+				isinstance(object, EXEC.__class__)
+				or isinstance(object, RETURN.__class__) # This may be a bug; it happens when a functor returns without any further action being taken, e.g. if(returns_false()){nop}THIS_AUTOFILL;
+			)
+		):
 			logging.debug(f"It looks like I'm the last statement in this expression. I'll execute {ret}...")
 			ret = ret()
 

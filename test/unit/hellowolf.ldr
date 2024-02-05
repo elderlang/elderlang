@@ -1,6 +1,6 @@
 hello_wolf: functor
 (
-	greeting:string := 'hello'
+	greeting := 'hello'
 ) {
 	return "{greeting} wolf"
 }

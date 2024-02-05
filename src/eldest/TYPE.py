@@ -26,6 +26,7 @@ class TYPE(EldestFunctor):
 		return False
 
 	def EQ(this, other):
+		other = this.PossiblyReduceOther(other)
 		valueSet = False
 
 		if (this.needs.typeAssignment):
@@ -89,7 +90,10 @@ class TYPE(EldestFunctor):
 
 		if (not valueSet):
 			logging.info(f"Setting {this.name} to {other}")
-			this = other
+			if (this.isBasicType):
+				this.value = this.PossiblyReduceOther(other)
+			else:
+				this = this.PossiblyReduceOther(other)
 
 		return this
 

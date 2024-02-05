@@ -4,7 +4,7 @@
  */
 
 /*
- * Output of this should be:
+ * Output of this should be: (excluding debug prints)
  * 5
  * 3
  * 2
@@ -26,25 +26,43 @@ Print+SortArray:functor( // <- this should be a valid functor name.
 	sorter:functor
 	(
 		value1,value2::
-	){print `{value1} > {value2}?`
+	){//print `{value1} > {value2}?`
 		
-	if(value1 > value2){print `yop`;return true}
-		else{print 			  		   `noo`;
+	if(value1 > value2){/*print `yop`;*/return true}
+		else{/*print 			  		   `noo`*/;
 			return false}
 	}, // <- \n, ,, ;, etc. should all be valid line endings here.
 
 	// default type should be functor.
 	sort::(array:container:,){
-			for(enumerate(array))[index, value]{
 
-				if(index == array.length.-(2)){break}
-
+		isOrdered:bool: = false
+		while(! isOrdered){
+			index := 0
+			isOrdered = true
+			while(index < array.length.-(1)){
 if
-			(sorter(value, array[index + 1]))
-			{
-				print `Swapping {array[index]} and {array[index + 1]}`
-				array[index] = array[index + 1]; array[index + 1] = value
+				(sorter(array[index], array[index + 1]))
+				{
+					isOrdered = false
+					value:: = array [
+						index
+					];
+					print `Swapping {value} and {array[index + 1]}`
+					array[index] = array[index + 1];
+					
+					# These should print the same number twice, then the original first number..
+					#print `index: {array[index]}`
+					#print `index + 1: {array[index + 1]}`
+					#print `value: {value}`
+					
+					# This should print the first number.
+					array[index + 1] = value
+					#print `index + 1: {array[index + 1]}`
+				}
+				index ++
 			}
+			print array
 		}
 };){
 
@@ -57,9 +75,9 @@ if
 
 
 
-i:int: = 0;while(i < (array length)){ //aka i.<(array.length)
-		print(array[i]) //aka i.++() i++ is a valid name, not an operation.
-		i ++
+i:int: = 0;while(i < (array length)){
+		print(array[i])
+		i.++()
 }
 
 	sort(array);for (array)[

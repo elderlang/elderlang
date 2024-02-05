@@ -74,7 +74,8 @@ class EVAL (E___):
 					and statement not in Sanitize.allBuiltins
 				):
 					logging.debug(f"It looks like {statement} is a Functor or variable name.")
-					possibleFunctor = this.context.Fetch(statement, None, fetchFrom = ['current_invokation'])
+					# possibleFunctor = this.context.Fetch(statement, None, fetchFrom = ['current_invokation'])
+					possibleFunctor = this.context.Fetch(statement, None)
 
 					if (possibleFunctor is None):
 						if (this.shouldAutoType):

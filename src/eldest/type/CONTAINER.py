@@ -9,7 +9,7 @@ class CONTAINER(TYPE):
 		this.value = []
 		if (value is not None):
 			for item in value:
-				this.value.append(POINTER(item))
+				this.value.append(item)
 		this.isBasicType = True
 		this.needs.typeAssignment = False
 
@@ -27,16 +27,15 @@ class CONTAINER(TYPE):
 			return {key: key for key in this.value}
 
 	def __getitem__(this, index):
-		return this.value[index]
+		ret = POINTER(this.value[index])
+		ret.SET = lambda x: this.__setitem__(index, x)
+		return ret
 
 	def __setitem__(this, index, value):
-		if (isinstance(this.value, list)):
-			this.value.insert(index, POINTER(value))
-		else:
-			this.value[index] = POINTER(value)
+			this.value[index] = value
 
 	def insert(this, index, value):
-		this.value.insert(index, POINTER(value))
+		this.value.insert(index, value)
 
 	def Function(this):
 		return this.value

@@ -21,6 +21,9 @@ class Invoke (SourceTargetFunctor):
 		this.feature.mapArgs = False
 
 	def Function(this):
+		if (isinstance(this.source, str)):
+			this.source = EVAL([this.source], unwrapReturn = True)[0]
+
 		isFunctor = isinstance(this.source, eons.Functor)
 		if (isFunctor):
 			this.context.currentlyTryingToInvoke = this.source
