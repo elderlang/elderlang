@@ -8,8 +8,5 @@ class STRING(TYPE):
 		this.isBasicType = True
 		this.needs.typeAssignment = False
 
-	def __str__(this):
-		return this.value
-
 	def Function(this):
 		return this.value

@@ -24,6 +24,9 @@ class TYPE(EldestFunctor):
 			this.value = value
 			return True
 		return False
+	
+	def IMPL_EQL(this, other):
+		this = other
 
 	def EQ(this, other):
 		other = this.PossiblyReduceOther(other)
@@ -93,7 +96,7 @@ class TYPE(EldestFunctor):
 			if (this.isBasicType):
 				this.value = this.PossiblyReduceOther(other)
 			else:
-				this = this.PossiblyReduceOther(other)
+				this.IMPL_EQ(other)
 
 		return this
 
