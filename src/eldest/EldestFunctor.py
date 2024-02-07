@@ -101,6 +101,8 @@ class EldestFunctor (eons.Functor):
 				continue
 			elif (isinstance(object, Type.__class__)):
 				return True
+			else:
+				break
 		return False
 	
 	def IsCurrentlyInTypeExecutionBlock(this):
@@ -132,6 +134,11 @@ class EldestFunctor (eons.Functor):
 		if (this.executor is None):
 			return default, False
 		
+		
+		if (varName.upper() not in Sanitize.allBuiltins):
+			return default, False
+
+
 		if (varName.upper() not in Sanitize.allBuiltins):
 			return default, False
 
@@ -146,9 +153,10 @@ class EldestFunctor (eons.Functor):
 			return default, False
 
 		if (isinstance(varName, str)):
-			if(varName.upper() not in Sanitize.allBuiltins):
+			try:
+				typeToFind = eval(varName)
+			except:
 				return default, False
-			typeToFind = eval(varName)
 
 		if (inspect.isclass(varName)):
 			typeToFind = varName
@@ -170,9 +178,6 @@ class EldestFunctor (eons.Functor):
 	# History should only be used for keywords like ELSE.
 	def fetch_location_history(this, varName, default, fetchFrom, attempted):
 		if (this.context is None):
-			return default, False
-		
-		if (varName.upper() not in Sanitize.allBuiltins):
 			return default, False
 		
 		for name, object in this.context.history:

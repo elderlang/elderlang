@@ -10,6 +10,13 @@ class FUNCTOR(TYPE):
 		this.needs.typeAssignment = False
 		this.isBasicType = False
 		this.value = value # Should be pointless, but who knows.
-		
+
+	def ValidateMethods(this):
+		super().ValidateMethods()
+		for okwarg in this.arg.kw.optional.keys():
+			mem = getattr(this, okwarg)
+			if (isinstance(mem, FUNCTOR)):
+				mem.epidef = this
+
 	def Function(this):
 		return EXEC(this.execution, currentlyTryingToInvoke=this)

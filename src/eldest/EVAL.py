@@ -13,6 +13,7 @@ class EVAL (E___):
 
 		this.arg.kw.optional['unwrapReturn'] = None
 		this.arg.kw.optional['shouldAutoType'] = False
+		this.arg.kw.optional['currentlyTryingToDefine'] = None
 		this.arg.kw.optional['shouldAttemptInvokation'] = False
 		
 		# used by Autofill
@@ -75,19 +76,27 @@ class EVAL (E___):
 				):
 					logging.debug(f"It looks like {statement} is a Functor or variable name.")
 					# possibleFunctor = this.context.Fetch(statement, None, fetchFrom = ['current_invokation'])
-					possibleFunctor = this.context.Fetch(statement, None)
+					possibleFunctor = this.context.Fetch(statement)
+					if (isinstance(possibleFunctor, Type.__class__)):
+						# Same as below, just faster.
+						possibleFunctor = possibleFunctor.returned
 
 					if (possibleFunctor is None):
 						if (this.shouldAutoType):
 							logging.debug(f"Autotyping {statement}.")
-							this.result.data.evaluation.append(eval(f"Type(name = '{statement}', kind = Kind())", globals(), {'this': this}))
+							this.result.data.evaluation.append(eval(f"Type(name = '{statement}', kind = Kind())", globals().update({'currentlyTryingToDefine': this.currentlyTryingToDefine}), {'this': this}))
+						possibleFunctorName = statement
+						if (this.currentlyTryingToDefine is not None):
+							possibleFunctorName = f"{this.currentlyTryingToDefine}_{statement}"
 						possibleFunctor = this.Fetch(statement)
+						if (isinstance(possibleFunctor, Type.__class__)):
+							possibleFunctor = possibleFunctor.returned
 						if (possibleFunctor is None):
 							try:
-								possibleFunctor = eons.SelfRegistering(statement)
+								possibleFunctor = eons.SelfRegistering(possibleFunctorName)
 							except:
 								try:
-									this.executor.GetRegistered(statement)
+									this.executor.GetRegistered(possibleFunctorName)
 								except:
 									pass
 
@@ -112,7 +121,7 @@ class EVAL (E___):
 				statement = this.CorrectForImproperQuotes(statement)
 
 				logging.debug(f"Evaluating: {statement}")
-				evaluation = eval(statement, globals(), {'this': this})
+				evaluation = eval(statement, globals().update({'currentlyTryingToDefine': this.currentlyTryingToDefine}), {'this': this})
 				if (isinstance(evaluation, types.MethodType) and this.shouldAttemptInvokation):
 					evaluation = evaluation()
 				this.result.data.evaluation.append(evaluation)
