@@ -23,7 +23,7 @@ Print+SortArray:functor( // <- this should be a valid functor name.
 		3, 2; 0.1
 		 4.3					]
 	
-	sorter:functor
+	sorter:
 	(
 		value1,value2::
 	){//print `{value1} > {value2}?`

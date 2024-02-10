@@ -1,0 +1,37 @@
+callee:
+{
+	// @ should reference the caller, the same way ./ references this.
+	print @name
+}
+
+caller:
+{
+	callee
+}
+
+// Should print "caller"
+caller
+
+nested:
+(
+	callee:
+	{
+		print @name
+	}
+)
+
+also_caller:
+{
+	nested callee
+}
+
+// Should print "also_caller"
+also_caller
+
+
+// Extra test to see if nested can handle another function for callee.
+// Should be the same as above.
+caller_once_more:
+{
+	nested(callee = ~/callee).callee()
+}

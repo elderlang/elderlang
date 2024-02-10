@@ -1,0 +1,92 @@
+/******************************************************************************
+
+This test demonstrates how to use "namespaces" in Elder.
+There is no such thing as a namespace in Elder.
+There are only Functors.
+So, here, we demonstrate how to extend and redefine Functors.
+
+*******************************************************************************/
+
+/**
+ * Simple class to print the current functor's name
+ */
+printme:
+{
+	print ./name
+}
+
+/**
+ * Our test object.
+ * It should start empty and grow throughout the test.
+ */
+tree: 
+{
+	try
+	{
+		./trunk
+	}
+	catch
+	{
+		print "{./name} has no trunk"
+	}
+}
+
+// Confirm the tree is empty
+tree
+
+/**
+ * Simply by redefining tree without any explicit parent classes, we can add a trunk to it.
+ * In other words, an empty type block ADDS TO the previous definition of tree.
+ * The following parameters should be injected into the tree paramaters.
+ * The tree should now have a trunk.
+ */
+tree:
+(
+	trunk: printme
+	(
+		branch: printme
+		(
+			leaf1: printme
+			leaf2: printme
+		)
+	)
+)
+
+// Confirm the tree has a trunk
+tree
+
+//// NEXT TEST ////
+
+/**
+ * Go through and try to "rustle" the leaves by printing which ones are found.
+ */
+rustle:
+{
+	for ['leaf1', 'leaf2', 'leaf3', 'leaf4'] [leaf]
+	{
+		// NOTE: eval is a python function, not an elder one.
+		try { eval `tree.trunk.branch.{leaf}` }
+		catch { print `{leaf} not found` }
+	}
+}
+
+// Should find only leaf1 and leaf2
+rustle
+
+/**
+ * To destroy a previous definition and redefine it, we just need to add content to the type block.
+ */
+tree: // extend
+(
+	trunk: // extend
+	(
+		branch: printme // REDEFINE
+		(
+			leaf3: printme
+			leaf4: printme
+		)
+	)
+)
+
+// Should find only leaf3 and leaf4
+rustle

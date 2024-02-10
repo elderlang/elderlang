@@ -25,6 +25,13 @@ class Type (EldestFunctor):
 		if (this.currentlyTryingToDefine is not None):
 			this.name = f"{this.currentlyTryingToDefine}_{this.name}"
 
+		try:
+			alreadyDefined = EVAL(this.parameter, unwrapReturn=False, shouldAutoType=False, currentlyTryingToDefine=this.name)
+			if (isinstance(alreadyDefined, TYPE)):
+				raise RuntimeError(f"Type {this.name} is already defined.")
+		except:
+			pass
+
 		parameters = {
 			'constructor': eons.util.DotDict({
 				'name': 'constructor',

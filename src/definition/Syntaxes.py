@@ -135,6 +135,19 @@ def EOL(
 @eons.kind(FlexibleTokenSyntax)
 def AutofillAccessOrInvokation(
 	match = [
+		r'sequence autofillinvokation',
+		r'sequence containeraccess',
+		r'sequence standardinvokation',
+		r'sequence accessinvokation',
+		r'sequence explicitaccess',
+		r'sequence sequence',
+
+		r'explicitaccess autofillinvokation',
+		r'explicitaccess containeraccess',
+		r'explicitaccess standardinvokation',
+		r'explicitaccess accessinvokation',
+		r'explicitaccess sequence',
+
 		r'simpletype autofillinvokation',
 		r'simpletype containeraccess',
 		r'simpletype standardinvokation',
@@ -307,19 +320,19 @@ def This(
 def EpidefOption1(
 	match = r'\.\.NAME'
 ):
-	return f"this.epi.{this.p[0][2:]}"
+	return f"this.epidef.{this.p[0][2:]}"
 
 @eons.kind(ExactSyntax)
 def EpidefOption2(
 	match = r'\.\./NAME'
 ):
-	return f"this.epi.{this.p[0][3:]}"
+	return f"this.epidef.{this.p[0][3:]}"
 
 @eons.kind(ExactSyntax)
 def GlobalScope(
 	match = r'~/NAME'
 ):
-	return f"Global.{this.p[0][1:]}"
+	return f"HOME.{this.p[0][1:]}"
 
 @eons.kind(ExactSyntax)
 def Caller(

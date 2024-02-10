@@ -11,6 +11,8 @@ class FUNCTOR(TYPE):
 		this.isBasicType = False
 		this.value = value # Should be pointless, but who knows.
 
+		this.fetch.use.append('home')
+
 	def ValidateMethods(this):
 		super().ValidateMethods()
 		for okwarg in this.arg.kw.optional.keys():
@@ -20,3 +22,6 @@ class FUNCTOR(TYPE):
 
 	def Function(this):
 		return EXEC(this.execution, currentlyTryingToInvoke=this)
+
+	def fetch_location_home(this, varName, default, fetchFrom, attempted):
+		return default, False
