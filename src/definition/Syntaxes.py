@@ -297,12 +297,42 @@ def Sequence(
 ):
 	return f"Sequence({this.p[0]},{this.p[2]})"
 
+@eons.kind(FlexibleTokenSyntax)
+def ComplexSequence(
+	match = [
+		r'standardinvokation SEQUENCE name',
+		r'standardinvokation SEQUENCE autofillaccessorinvokation',
+		r'standardinvokation SEQUENCE standardinvokation',
+		r'standardinvokation SEQUENCE containeraccess',
+		r'containeraccess SEQUENCE name',
+		r'containeraccess SEQUENCE autofillaccessorinvokation',
+		r'containeraccess SEQUENCE standardinvokation',
+		r'containeraccess SEQUENCE containeraccess',
+	]
+):
+	return f"Sequence({this.Engulf(str(this.p[0]))},{this.Engulf(str(this.p[2]))})"
+
 @eons.kind(ExactSyntax)
 def ExplicitAccess(
 	match = r'NAME\.NAME',
 	recurseOn = "name"
 ):
 	return f"Get({this.p[0]},{this.p[2]})"
+
+@eons.kind(FlexibleTokenSyntax)
+def ComplexExplicitAccess(
+	match = [
+		r'standardinvokation EXPLICITACCESS name',
+		r'standardinvokation EXPLICITACCESS autofillaccessorinvokation',
+		r'standardinvokation EXPLICITACCESS standardinvokation',
+		r'standardinvokation EXPLICITACCESS containeraccess',
+		r'containeraccess EXPLICITACCESS name',
+		r'containeraccess EXPLICITACCESS autofillaccessorinvokation',
+		r'containeraccess EXPLICITACCESS standardinvokation',
+		r'containeraccess EXPLICITACCESS containeraccess',
+	]
+):
+	return f"Get({this.Engulf(str(this.p[0]))},{this.Engulf(str(this.p[2]))})"
 
 @eons.kind(ExactSyntax)
 def ShortType(
@@ -314,28 +344,28 @@ def ShortType(
 def This(
 	match = r'\./NAME'
 ):
-	return f"this.{this.p[0][2:]}"
+	return f"this.{this.Engulf(this.p[1][1:-1])}"
 
 @eons.kind(ExactSyntax)
 def EpidefOption1(
 	match = r'\.\.NAME'
 ):
-	return f"this.epidef.{this.p[0][2:]}"
+	return f"this.epidef.{this.Engulf(this.p[1][1:-1])}"
 
 @eons.kind(ExactSyntax)
 def EpidefOption2(
 	match = r'\.\./NAME'
 ):
-	return f"this.epidef.{this.p[0][3:]}"
+	return f"this.epidef.{this.Engulf(this.p[1][1:-1])}"
 
 @eons.kind(ExactSyntax)
 def GlobalScope(
 	match = r'~/NAME'
 ):
-	return f"HOME.{this.p[0][1:]}"
+	return f"HOME.{this.Engulf(this.p[1][1:-1])}"
 
 @eons.kind(ExactSyntax)
 def Caller(
 	match = r'@NAME',
 ):
-	return f"this.caller.{this.p[0][1:]}"
+	return f"this.caller.{this.Engulf(this.p[1][1:-1])}"

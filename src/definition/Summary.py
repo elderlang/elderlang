@@ -88,7 +88,9 @@ summary.syntax.block = [
 
 summary.syntax.exact = [
 	"ExplicitAccess",
+	"ComplexExplicitAccess",
 	"Sequence",
+	"ComplexSequence",
 	"AutofillAccessOrInvokation",
 	"AutofillInvokation",
 	"EOL",

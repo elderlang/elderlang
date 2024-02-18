@@ -1,21 +1,14 @@
 import eons
 import logging
-import re
 import types
 from .E___ import E___
 from .Exceptions import *
-from .Sanitize import Sanitize
 
 class EVAL (E___):
 	def __init__(this):
 		super().__init__(name="eval")
 		this.arg.kw.required.append('parameter')
 
-		this.arg.kw.optional['unwrapReturn'] = None
-		this.arg.kw.optional['shouldAutoType'] = False
-		this.arg.kw.optional['currentlyTryingToDefine'] = None
-		this.arg.kw.optional['shouldAttemptInvokation'] = False
-		
 		# used by Autofill
 		this.arg.kw.optional['NEXTSOURCE'] = None
 
@@ -70,49 +63,10 @@ class EVAL (E___):
 					this.result.data.evaluation.append(statement[1:-1])
 					continue
 
-				# Check if the statement is a Functor name.
-				if (re.search(rf"^{ElderLexer.NAME}$", statement)
-					and statement not in Sanitize.allBuiltins
-				):
-					logging.debug(f"It looks like {statement} is a Functor or variable name.")
-					# possibleFunctor = this.context.Fetch(statement, None, fetchFrom = ['current_invokation'])
-					possibleFunctor = this.context.Fetch(statement)
-					if (isinstance(possibleFunctor, Type.__class__)):
-						# Same as below, just faster.
-						possibleFunctor = possibleFunctor.returned
-
-					if (possibleFunctor is None):
-						if (this.shouldAutoType):
-							logging.debug(f"Autotyping {statement}.")
-							this.result.data.evaluation.append(eval(f"Type(name = '{statement}', kind = Kind())", globals().update({'currentlyTryingToDefine': this.currentlyTryingToDefine}), {'this': this}))
-						possibleFunctorName = statement
-						if (this.currentlyTryingToDefine is not None):
-							possibleFunctorName = f"{this.currentlyTryingToDefine}_{statement}"
-						possibleFunctor = this.Fetch(statement)
-						if (isinstance(possibleFunctor, Type.__class__)):
-							possibleFunctor = possibleFunctor.returned
-						if (possibleFunctor is None):
-							try:
-								possibleFunctor = eons.SelfRegistering(possibleFunctorName)
-							except:
-								try:
-									this.executor.GetRegistered(possibleFunctorName)
-								except:
-									pass
-
-					if (possibleFunctor is not None):
-						if (this.shouldAttemptInvokation 
-		  					and (
-								isinstance(possibleFunctor, eons.Functor)
-								or isinstance(possibleFunctor, types.MethodType)
-								or isinstance(possibleFunctor, types.FunctionType)
-							)
-						):
-							logging.debug(f"Attempting to invoke {statement}.")
-							this.result.data.evaluation.append(possibleFunctor())
-						else:
-							this.result.data.evaluation.append(possibleFunctor)
-						continue
+				evaluatedFunctor, wasFunctor = this.AttemptEvaluationOfFunctor(statement)
+				if (wasFunctor):
+					this.result.data.evaluation.append(evaluatedFunctor)
+					continue
 
 				# Detect & correct escape drift:
 				# if (re.search(r"[^\\]\',", repr(statement))):

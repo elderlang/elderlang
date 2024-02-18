@@ -290,6 +290,7 @@ class ElderParser(Parser):
 					f"{openName.lower()} {block.content.lower()} close_{summary.expression.lower()}",
 					f"{openName.lower()} {block.content.lower()} {openName.lower()}",
 					f"{openName.lower()} {openName.lower()}",
+					f"{openName.lower()}",
 					# f"{openName.lower()} close_{summary.expression.lower()}",
 				]
 				

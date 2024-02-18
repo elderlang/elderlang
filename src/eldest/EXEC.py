@@ -12,7 +12,8 @@ class EXEC (E___):
 		this.arg.kw.required.append('execution')
 
 		this.arg.kw.optional['currentlyTryingToInvoke'] = None
-
+		this.arg.kw.optional['shouldAttemptInvokation'] = True
+		
 		this.arg.mapping.append('execution')
 
 		this.history = []
@@ -42,6 +43,10 @@ class EXEC (E___):
 		try:
 			for instruction in this.execution:
 				logging.debug(instruction)
+				evaluatedFunctor, wasFunctor = this.AttemptEvaluationOfFunctor(instruction)
+				if (wasFunctor):
+					this.result.data.execution.append(evaluatedFunctor)
+					continue
 				this.result.data.execution.append(exec(instruction, globals()))
 		except HaltExecution as halt:
 			this.PrepareReturn()
@@ -61,7 +66,7 @@ class EXEC (E___):
 
 		this.PrepareReturn()
 		return this.result.data.returned
-	
+
 	# NOTE: my return value should be set by RETURN as this.result.data.returned
 	def PrepareReturn(this):
 		if (this.result.data.returned is not None):
@@ -78,7 +83,7 @@ class EXEC (E___):
 
 	def fetch_location_current_invokation(this, varName, default, fetchFrom, attempted):
 		try:
-			if (this.currentlyTryingToInvoke is None):	
+			if (this.currentlyTryingToInvoke is None):
 				if (this.episcope is None):
 						return default, False
 				return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)

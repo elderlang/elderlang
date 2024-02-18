@@ -25,12 +25,11 @@ class Type (EldestFunctor):
 		if (this.currentlyTryingToDefine is not None):
 			this.name = f"{this.currentlyTryingToDefine}_{this.name}"
 
-		try:
-			alreadyDefined = EVAL(this.parameter, unwrapReturn=False, shouldAutoType=False, currentlyTryingToDefine=this.name)
-			if (isinstance(alreadyDefined, TYPE)):
-				raise RuntimeError(f"Type {this.name} is already defined.")
-		except:
-			pass
+		# alreadyDefined = None
+		# try:
+		# 	alreadyDefined = EVAL(this.parameter, unwrapReturn=False, shouldAutoType=False, currentlyTryingToDefine=this.name)
+		# except:
+		# 	pass
 
 		parameters = {
 			'constructor': eons.util.DotDict({
@@ -81,6 +80,10 @@ if ('value' in kwargs):
 
 		ret.WarmUp(executor=this.executor)
 
+		# if (alreadyDefined is not None and this.kind == [TYPE]):
+		# 	this.CombineWithExisting(alreadyDefined, ret)
+		# 	return alreadyDefined
+
 		# Export this symbol to the current context iff we're not adding a parameter to another type.
 		if (not this.IsCurrentlyInTypeParameterBlock(1)):
 			if (this.currentlyTryingToDefine is not None):
@@ -90,3 +93,12 @@ if ('value' in kwargs):
 
 		this.result.data.returned = ret
 		return ret
+	
+	def CombineWithExisting(this, existing, new):
+		pass
+		# for key, val in new.__dict__.items():
+		# 	if (key in existing.__dict__):
+		# 		if (isinstance(val, eons.Functor)):
+		# 			this.CombineWithExisting(existing.__dict__[key], val)
+		# 		else:
+		# 			existing.__dict__[key] = val

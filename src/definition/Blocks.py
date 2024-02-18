@@ -108,6 +108,9 @@ def Kind(
 	representation = r':KIND',
 	content = "LimitedExpression",
 ):
+	if (len(this.p) <= 1):
+		return "Kind()"
+
 	if (this.p[0] in openings and this.p[1] in openings):
 		return "Kind()"
 	if (this.p[0].startswith('Kind')):

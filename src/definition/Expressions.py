@@ -85,6 +85,10 @@ def FullExpression(
 		'AccessInvokation',
 		'InvokationWithParametersAndExecution',
 		'ContainerInvokationWithParameters',
+
+		# ExactSyntaxes
+		'ComplexSequence',
+		'ComplexExplicitAccess',
 	],
 	before = "FunctorType",
 ):

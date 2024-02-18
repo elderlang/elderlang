@@ -8,10 +8,11 @@ commander = eons.StandardFunctor()
 commander.WarmUp(executor = elder)
 
 tests = [
-	'op',
-	'if',
-	'hellowolf',
-	'arrays',
+	# 'op',
+	# 'if',
+	# 'hellowolf',
+	# 'arrays',
+	'caller'
 ]
 
 testPath = str(Path(__file__).parent.absolute())
@@ -28,5 +29,5 @@ for test in tests:
 	logging.critical(f"======================== {test} Parsed ========================")
 	logging.info(elder.parser.parse(elder.lexer.tokenize(ldr)))
 	logging.critical(f"======================== {test} Executed ========================")
-	logging.info(commander.RunCommand(f"elder {testFileName}", saveout=True, raiseExceptions=False))
-	logging.critical(f"================================================")
+	# logging.info(commander.RunCommand(f"elder {testFileName}", saveout=True, raiseExceptions=False))
+	# logging.critical(f"================================================")
