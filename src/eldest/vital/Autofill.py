@@ -76,7 +76,7 @@ class Autofill (EldestFunctor):
 						toReplace = re.sub(r'\\', r'\\\\', toReplace)
 						toReplace = re.sub(r'\'', '\\\'', toReplace)
 						toReplace = f"'{toReplace}'"
-						newTarget = this.target.replace(toReplace, 'this.NEXTSOURCE')
+						newTarget = this.target.replace(toReplace, 'E____OBJECT.NEXTSOURCE')
 						nextSource = EVAL([args['source']], unwrapReturn = True,)[0]
 						target.object = EVAL([newTarget], unwrapReturn = True, NEXTSOURCE = nextSource)[0]
 						target.type = 5
@@ -123,10 +123,10 @@ class Autofill (EldestFunctor):
 			if (target.type == 1):
 				ret =  usableSource
 			elif (target.type == 2):
-				newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=this.NEXTSOURCE", this.target)
+				newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=E____OBJECT.NEXTSOURCE", this.target)
 				ret, unwrapped =  EVAL(newTarget, NEXTSOURCE = usableSource)
 			elif (target.type == 3):
-				newTarget = re.sub(rf"(\\*['\"]?){target.name}(\\*['\"]?),", rf"this.NEXTSOURCE,", this.target)
+				newTarget = re.sub(rf"(\\*['\"]?){target.name}(\\*['\"]?),", rf"E____OBJECT.NEXTSOURCE,", this.target)
 				ret, unwrapped = EVAL(newTarget, NEXTSOURCE = usableSource)
 
 		except Exception as e:
@@ -154,7 +154,7 @@ class Autofill (EldestFunctor):
 						if (this.target.startswith("Invoke") and target.name in Sanitize.operatorMap.keys()):
 							try:
 								usableSource = source.object.__getattribute__(Sanitize.operatorMap[target.name])
-								newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=this.NEXTSOURCE", this.target)
+								newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=E____OBJECT.NEXTSOURCE", this.target)
 								return EVAL(newTarget, NEXTSOURCE = usableSource)[0]
 							except:
 								pass

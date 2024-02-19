@@ -5,6 +5,7 @@ from ..EldestFunctor import EldestFunctor
 from ..EVAL import EVAL
 from ..EXEC import EXEC
 from ..TYPE import TYPE
+from ..type.FUNCTOR import FUNCTOR
 
 class Type (EldestFunctor):
 	def __init__(this, name="Type"):
@@ -22,8 +23,11 @@ class Type (EldestFunctor):
 		except:
 			this.Set('currentlyTryingToDefine', None)
 
+		unsetCurrentlyTryingToDefine = False
 		if (this.currentlyTryingToDefine is not None):
 			this.name = f"{this.currentlyTryingToDefine}_{this.name}"
+		else:
+			unsetCurrentlyTryingToDefine = True
 
 		# alreadyDefined = None
 		# try:
@@ -69,6 +73,9 @@ if ('value' in kwargs):
 				this.execution = [this.execution]
 			source = f"return this.executor.EXEC({this.execution}, currentlyTryingToInvoke=this)"
 
+			if (this.kind == [TYPE]):
+				this.kind = [FUNCTOR]
+
 		ret = eons.kind(this.kind) (
 			None,
 			this.name,
@@ -91,9 +98,18 @@ if ('value' in kwargs):
 			else:
 				this.context.Set(this.name, ret)
 
-		this.result.data.returned = ret
+		# FIXME: this should be an impossibility. Perhaps we're using globals wrong?
+		# NOTE Python bug: any access of currentlyTryingToDefine here, even within uninterpreted code, will cause it to be set to None.
+		try:
+			if (unsetCurrentlyTryingToDefine):
+				globals().update({'currentlyTryingToDefine': None})
+		except:
+			pass
+
+		ret.EXEC_NO_EXECUTE = True
+		this.result.data.product = ret
 		return ret
-	
+
 	def CombineWithExisting(this, existing, new):
 		pass
 		# for key, val in new.__dict__.items():

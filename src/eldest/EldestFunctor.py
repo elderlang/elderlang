@@ -10,6 +10,7 @@ class EldestFunctor (eons.Functor):
 		super().__init__(name)
 
 		this.feature.autoReturn = False
+		this.feature.track = False
 
 		# New features
 		this.feature.cloneOnCall = True

@@ -63,6 +63,8 @@ class EVAL (E___):
 					this.result.data.evaluation.append(statement[1:-1])
 					continue
 
+				statement = this.CorrectReferencesToThis(statement)
+
 				evaluatedFunctor, wasFunctor = this.AttemptEvaluationOfFunctor(statement)
 				if (wasFunctor):
 					this.result.data.evaluation.append(evaluatedFunctor)
@@ -81,10 +83,11 @@ class EVAL (E___):
 				this.result.data.evaluation.append(evaluation)
 
 		except HaltExecution as halt:
-			this.PrepareReturn()
-			if (str(id(this)) == str(halt)):
+			if (str(id(this)) != str(halt)):
 				logging.debug(f"Passing on halt: {halt} ({id(this)})")
 				raise halt
+			this.PrepareReturn()
+			logging.debug(f"Caught halt: {halt} ({id(this)})")
 			return this.result.data.returned, this.unwrapReturn
 
 		except Exception as e:
@@ -100,6 +103,9 @@ class EVAL (E___):
 		return this.result.data.returned, this.unwrapReturn
 
 	def PrepareReturn(this):
+		if (this.result.data.returned is not None):
+			return
+		
 		if (this.unwrapReturn and len(this.result.data.evaluation)):
 			this.result.data.returned = this.result.data.evaluation[0]
 		else:

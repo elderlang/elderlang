@@ -12,6 +12,7 @@ class E___ (KEYWORD):
 		this.arg.kw.optional['shouldAutoType'] = False
 		this.arg.kw.optional['unwrapReturn'] = None
 		this.arg.kw.optional['currentlyTryingToDefine'] = None
+		this.arg.kw.optional['currentlyTryingToInvoke'] = None
 		this.arg.kw.optional['shouldAttemptInvokation'] = False
 
 		this.HALT = False
@@ -24,6 +25,13 @@ class E___ (KEYWORD):
 		logging.debug(f"Halting {this.name} ({id(this)}). Will return {this.result.data.returned}.")
 		this.HALT = True
 		raise HaltExecution(str(id(this)))
+	
+	def CorrectReferencesToThis(this, statement):
+		if (this.currentlyTryingToInvoke is not None and 'currentlyTryingToInvoke' not in statement):
+			# Regex copied from eons.kind
+			statement = re.sub(r"this([\s\[\]\.\(\)\}}\*\+/-=%,]|$)", r"this.currentlyTryingToInvoke\1", statement)
+		statement = re.sub(r"E____OBJECT", r"this", statement)
+		return statement
 	
 	def AttemptEvaluationOfFunctor(this, statement):
 		# Check if the statement is a Functor name.
@@ -40,7 +48,7 @@ class E___ (KEYWORD):
 
 		if (isinstance(possibleFunctor, Type.__class__)):
 			# Same as below, just faster.
-			possibleFunctor = possibleFunctor.returned
+			possibleFunctor = possibleFunctor.product
 
 		if (possibleFunctor is None):
 			if (this.shouldAutoType):
@@ -56,7 +64,7 @@ class E___ (KEYWORD):
 			possibleFunctor = this.Fetch(statement)
 
 			if (isinstance(possibleFunctor, Type.__class__)):
-				possibleFunctor = possibleFunctor.returned
+				possibleFunctor = possibleFunctor.product
 
 			if (possibleFunctor is None):
 				try:

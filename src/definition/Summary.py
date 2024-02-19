@@ -35,11 +35,11 @@ summary.token.priority = [
 	"CLOSE_PARAMETER",
 	"CLOSE_CONTAINER",
 	"CLOSE_EXPRESSION",
-	"EXPLICITACCESS",
 	"THIS",
 	"EPIDEFOPTION1",
 	"EPIDEFOPTION2",
 	"GLOBALSCOPE",
+	"EXPLICITACCESS",
 	"SEQUENCE",
 	"CALLER",
 	"EOL",
@@ -87,6 +87,10 @@ summary.syntax.block = [
 ]
 
 summary.syntax.exact = [
+	"This",
+	"EpidefOption1",
+	"EpidefOption2",
+	"GlobalScope",
 	"ExplicitAccess",
 	"ComplexExplicitAccess",
 	"Sequence",
@@ -95,9 +99,5 @@ summary.syntax.exact = [
 	"AutofillInvokation",
 	"EOL",
 	"ShortType",
-	"This",
-	"EpidefOption1",
-	"EpidefOption2",
-	"GlobalScope",
 	"Caller",
 ]

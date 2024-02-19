@@ -1,3 +1,4 @@
+import logging
 from ..KEYWORD import KEYWORD
 from ..EVAL import EVAL
 from ..EXEC import EXEC
@@ -14,6 +15,7 @@ class RETURN (KEYWORD):
 		toHalt = None
 		for i, tup in enumerate(this.executor.stack):
 			if (isinstance(tup[1], FUNCTOR)):
+				logging.debug(f"Returning from {tup[1]}.name ({tup[1]}).")
 				toHalt = this.executor.stack[i-1][1] # the exec for the current functor.
 				break
 		if (toHalt is None):

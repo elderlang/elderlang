@@ -1,6 +1,7 @@
 import eons
 import logging
 import re
+import types
 from .E___ import E___
 from .Exceptions import *
 
@@ -11,7 +12,6 @@ class EXEC (E___):
 
 		this.arg.kw.required.append('execution')
 
-		this.arg.kw.optional['currentlyTryingToInvoke'] = None
 		this.arg.kw.optional['shouldAttemptInvokation'] = True
 		
 		this.arg.mapping.append('execution')
@@ -43,17 +43,32 @@ class EXEC (E___):
 		try:
 			for instruction in this.execution:
 				logging.debug(instruction)
+				instruction = this.CorrectReferencesToThis(instruction)
 				evaluatedFunctor, wasFunctor = this.AttemptEvaluationOfFunctor(instruction)
 				if (wasFunctor):
 					this.result.data.execution.append(evaluatedFunctor)
 					continue
-				this.result.data.execution.append(exec(instruction, globals()))
+
+				# eval instead of exec to grab result.
+				result = eval(instruction, globals().update({'context': this}), {'this': this.currentlyTryingToInvoke, 'currentlyTryingToInvoke': this.currentlyTryingToInvoke})
+				if (isinstance(result, types.MethodType)
+					or isinstance(result, types.FunctionType)
+					or (
+						isinstance(result, eons.Functor)
+						and not hasattr(result, 'EXEC_NO_EXECUTE')
+					)
+				):
+					result = result()
+				this.result.data.execution.append(result)
+
 		except HaltExecution as halt:
-			this.PrepareReturn()
 			if (str(id(this)) != str(halt)):
 				logging.debug(f"Passing on halt: {halt} ({id(this)})")
 				raise halt
+			logging.debug(f"Caught halt: {halt} ({id(this)})")
+			this.PrepareReturn()
 			return this.result.data.returned
+
 		except Exception as e:
 			failMessage = f"Error in execution of {this.execution}: {e}"
 			logging.error(failMessage)

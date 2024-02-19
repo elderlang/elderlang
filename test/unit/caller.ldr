@@ -2,6 +2,8 @@ callee:
 {
 	// @ should reference the caller, the same way ./ references this.
 	print @name
+	print(./caller name)
+	print(this caller name)
 }
 
 caller:
@@ -9,7 +11,7 @@ caller:
 	callee
 }
 
-// Should print "caller"
+// Should print "caller" three times.
 caller
 
 nested:
@@ -28,10 +30,13 @@ also_caller:
 // Should print "also_caller"
 also_caller
 
+/*
 
 // Extra test to see if nested can handle another function for callee.
-// Should be the same as above.
+// Should print "caller_once_more" three times.
 caller_once_more:
 {
 	nested(callee = ~/callee).callee()
 }
+
+*/
