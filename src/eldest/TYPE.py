@@ -13,6 +13,7 @@ class TYPE(EldestFunctor):
 		this.needs.typeAssignment = True
 		this.feature.cloneOnCall = False
 		this.feature.track = True
+		this.feature.sequential = False
 
 	# This is generally what other types will use. Those that don't can override it.
 	def Function(this):

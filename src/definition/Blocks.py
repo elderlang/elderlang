@@ -5,10 +5,13 @@ import eons
 def UnformattedString(
 	openings = [r"\'"],
 	representation = "\\'UNFORMATTED_STRING\\'", #NOT a raw string
-	content = None
+	content = None,
+	overrides = [
+		'prioritize',
+	],
 ):
 	# UnformattedStrings are lexed wholesale.
-	return f"String({this.p[0]})"
+	return f"String('{this.Engulf(this.p[0], escape=True)}')"
 
 @eons.kind(SymmetricBlock)
 def FormattedString(
@@ -19,7 +22,10 @@ def FormattedString(
 	content = None,
 	nest = [
 		'Execution',
-	]
+	],
+	overrides = [
+		'prioritize',
+	],
 ):
 	if (lexer is None):
 		lexer = this.FetchWithout(['this'], 'lexer')
@@ -45,10 +51,10 @@ def FormattedString(
 			# logging.critical(f"Execution block: {rawString[openPos:i]}")
 			executionBlocks.append(rawString[openPos:i])
 			openPos = 0
-	
+
 	if (openCount > 0):
 		raise SyntaxError(f"Unbalanced curly braces in formatted string: {rawString}")
-	
+
 	# logging.critical(f"Execution blocks: {executionBlocks}")
 
 	stringComponents = [rawString]
@@ -69,6 +75,9 @@ def String(
 	representation = r'`STRING`',
 	content = None,
 	exclusions = ['lexer'],
+	overrides = [
+		'prioritize',
+	],
 ):
 	return this.p[0] # already parsed.
 

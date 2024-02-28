@@ -17,18 +17,24 @@ class Type (EldestFunctor):
 		this.arg.kw.optional['parameter'] = None
 		this.arg.kw.optional['execution'] = []
 
-	def Function(this):
+
+	def BeforeFunction(this):
+		this.unsetCurrentlyTryingToDefine = False
+
 		try:
 			this.Set('currentlyTryingToDefine', currentlyTryingToDefine) # easy global fetch.
 		except:
 			this.Set('currentlyTryingToDefine', None)
 
-		unsetCurrentlyTryingToDefine = False
-		if (this.currentlyTryingToDefine is not None):
+		if (this.currentlyTryingToDefine):
 			this.name = f"{this.currentlyTryingToDefine}_{this.name}"
 		else:
-			unsetCurrentlyTryingToDefine = True
+			this.unsetCurrentlyTryingToDefine = True
 
+		return super().BeforeFunction()
+
+
+	def Function(this):
 		# alreadyDefined = None
 		# try:
 		# 	alreadyDefined = EVAL(this.parameter, unwrapReturn=False, shouldAutoType=False, currentlyTryingToDefine=this.name)
@@ -58,6 +64,10 @@ if ('value' in kwargs):
 				if a is not None # TODO: why???
 			}
 
+			# Having a parameter implies this is a functor, even if it doesn't have an execution block.
+			if (this.kind == [TYPE]):
+				this.kind = [FUNCTOR]
+
 		toDelete = []
 		for key in parameters.keys():
 			if (key.startswith(this.name)):
@@ -73,6 +83,7 @@ if ('value' in kwargs):
 				this.execution = [this.execution]
 			source = f"return this.executor.EXEC({this.execution}, currentlyTryingToInvoke=this)"
 
+			# Having an execution block implies this is a functor.
 			if (this.kind == [TYPE]):
 				this.kind = [FUNCTOR]
 
@@ -92,16 +103,14 @@ if ('value' in kwargs):
 		# 	return alreadyDefined
 
 		# Export this symbol to the current context iff we're not adding a parameter to another type.
-		if (not this.IsCurrentlyInTypeParameterBlock(1)):
-			if (this.currentlyTryingToDefine is not None):
-				this.context.Set(this.name[len(this.currentlyTryingToDefine)+1:], ret)
-			else:
-				this.context.Set(this.name, ret)
+		# 2: One for the Type() the other for the parameter EVAL().
+		if (this.currentlyTryingToDefine is None and not this.IsCurrentlyInTypeParameterBlock(2)):
+			this.context.Set(this.name, ret)
 
 		# FIXME: this should be an impossibility. Perhaps we're using globals wrong?
 		# NOTE Python bug: any access of currentlyTryingToDefine here, even within uninterpreted code, will cause it to be set to None.
 		try:
-			if (unsetCurrentlyTryingToDefine):
+			if (this.unsetCurrentlyTryingToDefine):
 				globals().update({'currentlyTryingToDefine': None})
 		except:
 			pass
@@ -109,6 +118,7 @@ if ('value' in kwargs):
 		ret.EXEC_NO_EXECUTE = True
 		this.result.data.product = ret
 		return ret
+
 
 	def CombineWithExisting(this, existing, new):
 		pass

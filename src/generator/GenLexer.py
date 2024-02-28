@@ -183,7 +183,7 @@ class GenLexer(eons.Functor):
 		this.tokens.all.update(this.tokens.close)
 		this.tokens.all.update(this.tokens.syntactic)
 
-		this.tokens.all[summary.catchAllBlock.upper()] = fr"({'|'.join(this.catchAllBlock.explicitMatches)}|(?:(?!{'|'.join(t for t in this.tokens.partial)})\S)+)"
+		this.tokens.all[summary.catchAllBlock.upper()] = fr"(?:(?!{'|'.join(t for t in this.tokens.partial)})\S)+"
 
 		this.tokens.use = this.tokens.unparsed
 		this.tokens.use.update(this.tokens.all)

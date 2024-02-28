@@ -1,5 +1,6 @@
 from .EXEC import EXEC
 from .EVAL import EVAL
+from .HOME import HOME
 from .vital.Autofill import Autofill
 from .vital.Call import Call
 from .vital.Get import Get

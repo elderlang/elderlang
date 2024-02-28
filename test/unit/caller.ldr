@@ -29,14 +29,3 @@ also_caller:
 
 // Should print "also_caller"
 also_caller
-
-/*
-
-// Extra test to see if nested can handle another function for callee.
-// Should print "caller_once_more" three times.
-caller_once_more:
-{
-	nested(callee = ~/callee).callee()
-}
-
-*/

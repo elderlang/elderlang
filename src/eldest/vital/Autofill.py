@@ -181,7 +181,8 @@ class Autofill (EldestFunctor):
 
 		name, object = this.executor.stack[1]
 		if ((
-				isinstance(ret, types.MethodType)
+				isinstance(ret, eons.Functor)
+				or isinstance(ret, types.MethodType)
 				or isinstance(ret, types.FunctionType)
 			)
 			and (

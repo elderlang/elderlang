@@ -12,8 +12,8 @@ class Get (SourceTargetFunctor):
 	def Function(this):
 		if (isinstance(this.target, list)):
 			this.target = this.target[0]
-		elif (isinstance(this.target, str)):
-			this.target = EVAL(this.target, unwrapReturn=True)[0]
+		# elif (isinstance(this.target, str)):
+		# 	this.target = EVAL(this.target, unwrapReturn=True)[0]
 
 		source = this.source
 		if (isinstance(source, types.FunctionType) or isinstance(source, types.MethodType)):
@@ -23,8 +23,8 @@ class Get (SourceTargetFunctor):
 				return getattr(source, this.target)
 			except AttributeError:
 				source = source()
-		
+
 		if (type(source) in [int, float, str, bool] and this.target in Sanitize.operatorMap.keys()):
 			return source.__getattribute__(Sanitize.operatorMap[this.target])
-		
+
 		return getattr(source, this.target)

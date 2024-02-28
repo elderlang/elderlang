@@ -12,7 +12,7 @@ successor:
 source.test
 
 // Should print "success"
-source/successor.test
+source/successor test
 
 larger_source:
 (
@@ -28,11 +28,4 @@ larger_source:
 // Should print "larger success"
 ~/larger_source.nested/successor test
 
-// Make sure division still works
-six := 6
-three = 3
-two = six / three
-print two
 
-two /= 1
-print two

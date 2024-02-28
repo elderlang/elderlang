@@ -6,6 +6,7 @@ from .lexer import *
 from .parser import *
 from .eldest.EXEC import EXEC
 from .eldest.EVAL import EVAL
+from .eldest.HOME import HOME
 from .eldest.Sanitize import Sanitize
 
 class ELDERLANG(eons.Executor):
@@ -54,4 +55,4 @@ class ELDERLANG(eons.Executor):
 		toExec = this.parser.parse(this.lexer.tokenize(ldr))
 		toExec = this.Sanitize(toExec).returned
 		logging.info(f"Sanitized: {toExec}")
-		return EXEC(toExec, executor=this)
+		return EXEC(toExec, executor=this, home=HOME.Instance())

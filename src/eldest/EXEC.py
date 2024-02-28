@@ -13,6 +13,7 @@ class EXEC (E___):
 		this.arg.kw.required.append('execution')
 
 		this.arg.kw.optional['shouldAttemptInvokation'] = True
+		this.arg.kw.optional['home'] = None
 		
 		this.arg.mapping.append('execution')
 
@@ -26,6 +27,10 @@ class EXEC (E___):
 		]
 
 	def Function(this):
+		if (this.home is not None):
+			logging.debug(f"Setting {id(this)} ({this}) as home.")
+			this.home.exec = this
+
 		if (type(this.execution) != list):
 			this.execution = [this.execution]
 

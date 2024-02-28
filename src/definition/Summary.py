@@ -25,6 +25,7 @@ summary.token = eons.util.DotDict()
 summary.token.priority = [
 	"UNFORMATTEDSTRING",
 	"FORMATTEDSTRING",
+	"DIVISIONASSIGNMENT",
 	"NUMBER",
 	"SHORTTYPE",
 	"OPEN_EXECUTION",
@@ -36,8 +37,8 @@ summary.token.priority = [
 	"CLOSE_CONTAINER",
 	"CLOSE_EXPRESSION",
 	"THIS",
-	"EPIDEFOPTION1",
 	"EPIDEFOPTION2",
+	"EPIDEFOPTION1",
 	"GLOBALSCOPE",
 	"EXPLICITACCESS",
 	"SEQUENCE",
@@ -77,6 +78,7 @@ summary.syntax.block = [
 	"ContainerAccess",
 	"StandardInvokation",
 	"AccessInvokation",
+	"ComplexAccessInvokation",
 	"InvokationWithExecution",
 	"StructType",
 	"ExecutiveType",
@@ -87,10 +89,14 @@ summary.syntax.block = [
 ]
 
 summary.syntax.exact = [
+	"DivisionAssignment",
+	"ComplexDivisionAssignment",
 	"This",
-	"EpidefOption1",
 	"EpidefOption2",
+	"EpidefOption1",
 	"GlobalScope",
+	"DivisionOverload",
+	"DivisionAssignmentOverload",
 	"ExplicitAccess",
 	"ComplexExplicitAccess",
 	"Sequence",
@@ -99,5 +105,6 @@ summary.syntax.exact = [
 	"AutofillInvokation",
 	"EOL",
 	"ShortType",
+	"SimpleTypeWithShortTypeAssignment",
 	"Caller",
 ]

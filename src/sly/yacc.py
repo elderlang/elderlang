@@ -34,9 +34,12 @@
 import sys
 import inspect
 import logging
+import eons
+import jsonpickle # NOTE: both pickle & dill fail to save and restore the Parser; however jsonpickle appears to work.
+from pathlib import Path
 from collections import OrderedDict, defaultdict, Counter
 
-__all__		= [ 'Parser' ]
+# __all__		= [ 'Parser' ]
 
 class YaccError(Exception):
 	'''
@@ -53,30 +56,6 @@ class YaccError(Exception):
 
 ERROR_COUNT = 3				# Number of symbols that must be shifted to leave recovery mode
 MAXINT = sys.maxsize
-
-# This object is a stand-in for a logging object created by the
-# logging module.   SLY will use this by default to create things
-# such as the parser.out file.  If a user wants more detailed
-# information, they can create their own logging object and pass
-# it into SLY.
-
-class SlyLogger(object):
-	def __init__(self, f):
-		self.f = f
-
-	def debug(self, msg, *args, **kwargs):
-		self.f.write((msg % args) + '\n')
-
-	info = debug
-
-	def warning(self, msg, *args, **kwargs):
-		self.f.write('WARNING: ' + (msg % args) + '\n')
-
-	def error(self, msg, *args, **kwargs):
-		self.f.write('ERROR: ' + (msg % args) + '\n')
-
-	critical = debug
-
 
 # ----------------------------------------------------------------------
 # This class is used to hold non-terminal grammar symbols during parsing.
@@ -193,6 +172,34 @@ class YaccProduction:
 #	   usyms	 - Set of unique symbols found in the production
 # -----------------------------------------------------------------------------
 
+class AccessFunctor1 (eons.Functor):
+	def __init__(this, name="AccessFunctor1", index=0):
+		super().__init__(name)
+
+		this.arg.kw.optional['s'] = 0
+		this.arg.kw.optional['i'] = index
+
+		this.arg.mapping = ['s', 'i']
+
+		this.feature.track = False
+		this.feature.autoReturn = False
+		this.feature.rollback = False
+
+	def Function(this):
+		return this.s[this.i].value
+
+
+class AccessFunctor2 (AccessFunctor1):
+	def __init__(this, name="AccessFunctor2", index=0, n=0):
+		super().__init__(name, index)
+
+		this.arg.kw.optional['n'] = n
+
+		this.arg.mapping.append('n')
+
+	def Function(this):
+		return ([x[this.n] for x in this.s[this.i].value]) if isinstance(this.s[this.i].value, list) else this.s[this.i].value[this.n]
+
 class Production(object):
 	reduced = 0
 	def __init__(self, number, name, prod, precedence=('right', 0), func=None, file='', line=0):
@@ -233,7 +240,7 @@ class Production(object):
 				nameuse[key] += 1
 			else:
 				k = key
-			namemap[k] = lambda s,i=index: s[i].value
+			namemap[k] = AccessFunctor1(str(k), index)
 			if key in _name_aliases:
 				for n, alias in enumerate(_name_aliases[key]):
 					if namecount[alias] > 1:
@@ -242,7 +249,7 @@ class Production(object):
 					else:
 						k = alias
 					# The value is either a list (for repetition) or a tuple for optional 
-					namemap[k] = lambda s,i=index,n=n: ([x[n] for x in s[i].value]) if isinstance(s[i].value, list) else s[i].value[n]
+					namemap[k] = AccessFunctor2(str(k), index, n)
 
 		self.namemap = namemap
 				
@@ -1824,9 +1831,6 @@ class ParserMeta(type):
 class Parser(metaclass=ParserMeta):
 	# Automatic tracking of position information
 	track_positions = True
-	
-	# Logging object where debugging/diagnostic messages are sent
-	log = SlyLogger(sys.stderr)	 
 
 	# Debugging filename where parsetab.out data can be written
 	debugfile = None
@@ -1834,15 +1838,15 @@ class Parser(metaclass=ParserMeta):
 	@classmethod
 	def __validate_tokens(cls):
 		if not hasattr(cls, 'tokens'):
-			cls.log.error('No token list is defined')
+			logging.error('No token list is defined')
 			return False
 
 		if not cls.tokens:
-			cls.log.error('tokens is empty')
+			logging.error('tokens is empty')
 			return False
 
 		if 'error' in cls.tokens:
-			cls.log.error("Illegal token name 'error'. Is a reserved word")
+			logging.error("Illegal token name 'error'. Is a reserved word")
 			return False
 
 		return True
@@ -1855,20 +1859,20 @@ class Parser(metaclass=ParserMeta):
 
 		preclist = []
 		if not isinstance(cls.precedence, (list, tuple)):
-			cls.log.error('precedence must be a list or tuple')
+			logging.error('precedence must be a list or tuple')
 			return False
 
 		for level, p in enumerate(cls.precedence, start=1):
 			if not isinstance(p, (list, tuple)):
-				cls.log.error(f'Bad precedence table entry {p!r}. Must be a list or tuple')
+				logging.error(f'Bad precedence table entry {p!r}. Must be a list or tuple')
 				return False
 
 			if len(p) < 2:
-				cls.log.error(f'Malformed precedence entry {p!r}. Must be (assoc, term, ..., term)')
+				logging.error(f'Malformed precedence entry {p!r}. Must be (assoc, term, ..., term)')
 				return False
 
 			if not all(isinstance(term, str) for term in p):
-				cls.log.error('precedence items must be strings')
+				logging.error('precedence items must be strings')
 				return False
 			
 			assoc = p[0]
@@ -1930,25 +1934,25 @@ class Parser(metaclass=ParserMeta):
 		unused_terminals = grammar.unused_terminals()
 		if unused_terminals:
 			unused_str = '{' + ','.join(unused_terminals) + '}'
-			cls.log.warning(f'Token{"(s)" if len(unused_terminals) >1 else ""} {unused_str} defined, but not used')
+			logging.warning(f'Token{"(s)" if len(unused_terminals) >1 else ""} {unused_str} defined, but not used')
 
 		unused_rules = grammar.unused_rules()
 		for prod in unused_rules:
-			cls.log.warning('%s:%d: Rule %r defined, but not used', prod.file, prod.line, prod.name)
+			logging.warning('%s:%d: Rule %r defined, but not used', prod.file, prod.line, prod.name)
 
 		if len(unused_terminals) == 1:
-			cls.log.warning('There is 1 unused token')
+			logging.warning('There is 1 unused token')
 		if len(unused_terminals) > 1:
-			cls.log.warning('There are %d unused tokens', len(unused_terminals))
+			logging.warning('There are %d unused tokens', len(unused_terminals))
 
 		if len(unused_rules) == 1:
-			cls.log.warning('There is 1 unused rule')
+			logging.warning('There is 1 unused rule')
 		if len(unused_rules) > 1:
-			cls.log.warning('There are %d unused rules', len(unused_rules))
+			logging.warning('There are %d unused rules', len(unused_rules))
 
 		unreachable = grammar.find_unreachable()
 		for u in unreachable:
-		   cls.log.warning('Symbol %r is unreachable', u)
+		   logging.warning('Symbol %r is unreachable', u)
 
 		if len(undefined_symbols) == 0:
 			infinite = grammar.infinite_cycles()
@@ -1974,16 +1978,18 @@ class Parser(metaclass=ParserMeta):
 		# Report shift/reduce and reduce/reduce conflicts
 		if num_sr != getattr(cls, 'expected_shift_reduce', None):
 			if num_sr == 1:
-				cls.log.warning('1 shift/reduce conflict')
+				logging.warning('1 shift/reduce conflict')
 			elif num_sr > 1:
-				cls.log.warning('%d shift/reduce conflicts', num_sr)
+				logging.warning('%d shift/reduce conflicts', num_sr)
+			logging.warning(str(lrtable.sr_conflict))
 
 		num_rr = len(lrtable.rr_conflicts)
 		if num_rr != getattr(cls, 'expected_reduce_reduce', None):
 			if num_rr == 1:
-				cls.log.warning('1 reduce/reduce conflict')
+				logging.warning('1 reduce/reduce conflict')
 			elif num_rr > 1:
-				cls.log.warning('%d reduce/reduce conflicts', num_rr)
+				logging.warning('%d reduce/reduce conflicts', num_rr)
+			logging.warning(str(lrtable.rr_conflict))
 
 		cls._lrtable = lrtable
 		return True
@@ -2015,18 +2021,27 @@ class Parser(metaclass=ParserMeta):
 			raise YaccError('Invalid parser specification')
 
 		# Build the underlying grammar object
+		# Always build the grammar fresh.
 		cls.__build_grammar(rules)
 
 		# Build the LR tables
-		if not cls.__build_lrtables():
-			raise YaccError('Can\'t build parsing tables')
+		lrtableFile = Path(__file__).resolve().parent.joinpath(f"{cls.__qualname__.lower()}.lrtable")
+		try:
+			with open(lrtableFile, 'r') as f:
+					cls._lrtable = jsonpickle.decode(f.read(), keys=True)
+		except:
+			if not cls.__build_lrtables():
+				raise YaccError('Can\'t build parsing tables')
+			with open(lrtableFile, 'w+') as f:
+					f.write(jsonpickle.encode(cls._lrtable, keys=True))
 
 		if cls.debugfile:
 			with open(cls.debugfile, 'w') as f:
 				f.write(str(cls._grammar))
 				f.write('\n')
 				f.write(str(cls._lrtable))
-			cls.log.info('Parser debugging for %s written to %s', cls.__qualname__, cls.debugfile)
+			logging.info('Parser debugging for %s written to %s', cls.__qualname__, cls.debugfile)
+
 
 	# ----------------------------------------------------------------------
 	# Parsing Support.  This is the parsing runtime that users use to

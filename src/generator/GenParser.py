@@ -1,6 +1,7 @@
 import eons
 import logging
 import re
+import copy
 from .Blocks import *
 from .Syntax import *
 from .Expressions import *
@@ -25,6 +26,8 @@ class GenParser(eons.Functor):
 		this.precedence.token.block = []
 		this.precedence.token.syntax = []
 		this.precedence.rule = []
+		this.precedence.prioritized = []
+		this.precedence.deprioritized = []
 		this.precedence.unparsedBlock = []
 		this.possibleNestings = []
 
@@ -40,8 +43,8 @@ class GenParser(eons.Functor):
 
 		this.PopulateBlockSyntaxGrammar()
 		this.PopulateBlockGrammar()
-		this.PopulateExpressionGrammar()
 		this.PopulateExactSyntaxGrammar()
+		this.PopulateExpressionGrammar()
 		this.PopulatePrecedence()
 
 		# Build Grammar
@@ -68,18 +71,37 @@ class GenParser(eons.Functor):
 		# Has to be declared outside of f-string to use backslashes.
 		precedenceJoiner = ",\n\t\t"
 		# precedenceString = f"('left', 'EXCLUDED'){precedenceJoiner}"
-		precedenceString = f"{precedenceJoiner[2:]}('left', 'EXACT_SYNTAX'){ precedenceJoiner}"
-		precedenceString += precedenceJoiner.join(this.precedence.token.block)
+		precedenceString = "\t\t"
+		if (len(this.precedence.deprioritized)):
+			precedenceString += precedenceJoiner.join([f"('left', '{dep.upper()}')" for dep in this.precedence.deprioritized])
+			precedenceString += precedenceJoiner
+		if (len(this.precedence.token.block)):
+			precedenceString += precedenceJoiner.join(this.precedence.token.block)
+			precedenceString += precedenceJoiner
+		if (len(this.precedence.token.syntax)):
+			precedenceString += precedenceJoiner.join(this.precedence.token.syntax)
+			precedenceString += precedenceJoiner
+		if (len(this.precedence.unparsedBlock)):
+			precedenceString += precedenceJoiner.join(this.precedence.unparsedBlock)
+			precedenceString += precedenceJoiner
+		if (len(this.precedence.rule)):	
+			precedenceString += precedenceJoiner.join(this.precedence.rule)
+			precedenceString += precedenceJoiner
+		if (len(this.gen_lexer.tokens.syntactic.keys())):
+			precedenceString += f"('left', {', '.join([t for t in this.gen_lexer.tokens.syntactic.keys() if t != 'EOL'])})"
+			precedenceString += precedenceJoiner
+		precedenceString += f"('left', {summary.catchAllBlock.upper()})"
 		precedenceString += precedenceJoiner
-		precedenceString += precedenceJoiner.join(this.precedence.unparsedBlock)
-		precedenceString += precedenceJoiner
-		precedenceString += precedenceJoiner.join(this.precedence.rule)
-		precedenceString += precedenceJoiner
-		precedenceString += precedenceJoiner.join(this.precedence.token.syntax)
+		builtins = [builtin.upper() for builtin in summary.builtins]
+		if (len(builtins)):
+			precedenceString += f"('left', {', '.join(builtins)})"
+			precedenceString += precedenceJoiner
+		if (len(this.precedence.prioritized)):
+			precedenceString += precedenceJoiner.join([f"('left', '{pri.upper()}')" for pri in this.precedence.prioritized])
 		
 		this.outFile.write(f"""\
 class ElderParser(Parser):
-	tokens = {{ {', '.join(summary.builtins)}, {', '.join([t for t in this.tokens])} }}
+	tokens = {{ {', '.join([t for t in this.tokens])} }}
 	start = '{summary.startingBlock.lower()}'
 """)
 
@@ -136,25 +158,26 @@ class ElderParser(Parser):
 	def PopulatePrecedence(this):
 		logging.debug(f"Populating Precedence")
 
-		builtins = [builtin.upper() for builtin in summary.builtins]
-		if (len(builtins)):
-			this.precedence.token.syntax.append(f"('left', {', '.join(builtins)})")
-
 		# CLOSE_EXPRESSION should be the lowest priority possible, since it directly translates EOLs.
 		this.precedence.rule.append(f"('left', 'CLOSE_{summary.expression.upper()}')")
 
 		for block in summary.blocks:
 			if (block == summary.catchAllBlock):
 				continue
+			
 			blockObject = this.gen_lexer.GetBlock(block)
 			if (blockObject is None):
 				continue
 			if ('parser' in blockObject.exclusions):
 				continue
+			if ('prioritize' in blockObject.overrides):
+				this.precedence.prioritized.append(block)
+				continue
+			if ('deprioritize' in blockObject.overrides):
+				this.precedence.deprioritized.append(block)
+				continue
 			if (blockObject.content is None): # NOTE: This must come BEFORE the exclusions check (we'll use it later).
 				this.precedence.unparsedBlock.append(f"('left', '{block.upper()}')")
-				continue
-			if ("parser" in blockObject.exclusions):
 				continue
 			this.precedence.rule.append(f"('left', '{block.upper()}')")
 
@@ -180,8 +203,8 @@ class ElderParser(Parser):
 			precedence = f" %prec {implName.upper()}"
 			# if ('precedence' in implementation.exclusions):
 			# 	precedence = " %prec EXCLUDED"
-			if (isinstance(implementation, ExactSyntax)):
-				precedence = " %prec EXACT_SYNTAX"
+			# if (isinstance(implementation, ExactSyntax)):
+			# 	precedence = " %prec EXACT_SYNTAX"
 		else:
 			precedence = ""
 		
@@ -291,9 +314,15 @@ class ElderParser(Parser):
 					f"{openName.lower()} {block.content.lower()} {openName.lower()}",
 					f"{openName.lower()} {openName.lower()}",
 					f"{openName.lower()}",
-					# f"{openName.lower()} close_{summary.expression.lower()}",
+					f"{block.name.lower()} {openName.lower()}",
+
+					# TODO: why doesn't upper (i.e. token) -> lower (i.e. rule) work? Can be tested with Kind.
+					f"{openName.upper()} {block.content.lower()}",
+					f"{openName.upper()} {block.content.lower()} close_{summary.expression.lower()}",
+					f"{openName.upper()} {block.content.lower()} {openName.upper()}",
+					f"{openName.upper()} {openName.upper()}",
 				]
-				
+
 				for closing in block.closings:
 					this.grammar[block].append(f"{openName} {block.content.lower()} {closing.lower()}")
 
@@ -302,7 +331,7 @@ class ElderParser(Parser):
 				# 	this.grammar[block] += [
 				# 		rule.replace('set', '') for rule in this.grammar[block]
 				# 	]
-			
+
 			elif (isinstance(block, SymmetricBlock)):
 				continue
 
@@ -320,7 +349,6 @@ class ElderParser(Parser):
 				]
 				if (block.content.endswith('Set')):
 					this.grammar[block].append(f"{openName.lower()} {block.content[:-3].lower()} {closeName.lower()}")
-				
 
 			for name, key in {'openName': 'open', 'closeName': 'close'}.items():
 				actualName = eval(name)
@@ -396,17 +424,42 @@ class ElderParser(Parser):
 			if ("parser" in syntax.exclusions):
 				continue
 
-			match = []
-			if (isinstance(syntax, FlexibleTokenSyntax)):
-				match = syntax.match
-			
+			precedenceName = f"{syntax.name.upper()}_SYNTAX"
+
+			if ('prioritize' in syntax.overrides):
+				this.precedence.prioritized.append(precedenceName)
+			elif ('deprioritize' in syntax.overrides):
+				this.precedence.deprioritized.append(precedenceName)
 			else:
-				match = [this.gen_lexer.SubstituteRepresentations(
+				tokens.append(precedenceName)
+
+			match = [
+				f"PRECEDENCE {precedenceName}",
+			]
+			if (isinstance(syntax, FlexibleTokenSyntax)):
+				for m in syntax.match:
+					if (isinstance(m, dict)):
+						if (len(m.keys()) == 2):
+							for first in m['first']:
+								for second in m['second']:
+									match.append(f"{first} {second}")
+						elif (len(m.keys()) == 3):
+							for first in m['first']:
+								for second in m['second']:
+									for third in m['third']:
+										match.append(f"{first} {second} {third}")
+						else:
+							logging.error(f"Unsupported match format: {m}")
+					else:
+						match.append(m)
+
+			else:
+				match.extend([this.gen_lexer.SubstituteRepresentations(
 					syntax.match,
 					" block ",
 					quoteContents = False,
 					replaceContentsWith = f" {syntax.name.upper()} "
-				)]
+				)])
 			this.grammar[syntax] = match
 			
 			if (syntax.recurseOn is not None and len(syntax.recurseOn)):
@@ -419,10 +472,8 @@ class ElderParser(Parser):
 
 					if (recursiveMatch != match[i]):
 						this.grammar[syntax].append(recursiveMatch)
-		
-		tokens += [syntax.name.upper() for syntax in this.gen_lexer.syntax.exact
-			if not 'parser' in syntax.exclusions 
-			and syntax.name.upper() in this.gen_lexer.tokens.syntactic.keys()
-		]
-		tokens.append(summary.catchAllBlock.upper())
-		this.precedence.token.syntax.append(f"('left', {', '.join(tokens)})")
+
+		tokensByAscendingPriorityOrder = copy.copy(tokens)
+		tokensByAscendingPriorityOrder.reverse()
+		for tok in tokensByAscendingPriorityOrder:
+			this.precedence.token.syntax.append(f"('left', '{tok}')")

@@ -1,0 +1,57 @@
+
+/**
+ * outer allows us to test for storing pointers to functors.
+ * We're not testing negative cases here, but it should be known that defining functors within the parameter block of another makes those functors immutable (i.e. they cannot be changed by simple assignment at call time).
+ */
+outer:
+(
+	/**
+	 * undetermined is an explicit pointer that requires an argument to function.
+	 */
+	undetermined: pointer to functor
+	
+	/**
+	 * inner is a functor with a default value of another functor called 'default'.
+	 * inner should function with AND without an overriding argument to outer.
+	 */
+	inner := default::(arg)
+	{
+		try
+		{
+			undetermined(arg)
+		}
+		catch
+		{
+			print 'oops'
+		}
+	}
+)
+
+// Should print 'oops'
+outer.inner('nu uh')
+
+/**
+ * determined will be provided to outer to fill in for undetermined.
+ */
+determined::(arg)
+{
+	print `arg: {arg}`
+}
+
+// Should print 'arg: nu uh'
+outer(undetermined = determined).inner('nu uh')
+
+/**
+ * inner defined outside of outer should be a distinct object.
+ */
+inner::()
+{
+	print 'inner overridden'
+}
+
+// Should print 'inner overridden'
+outer(inner = inner).inner()
+
+// Make sure the override wasn't permanent.
+// Should print 'oops'
+outer.inner('nu uh')

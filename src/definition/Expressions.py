@@ -4,10 +4,6 @@ import eons
 @eons.kind(CatchAllBlock)
 def Name(
 	representation = r'NAME',
-	explicitMatches = [
-		'/',
-		'/=',
-	],
 ):
 	return f"'{this.p[0]}'"
 
@@ -23,6 +19,7 @@ def ProtoExpression(
 		'AutofillAccessOrInvokation',
 		'AutofillInvokation',
 		'Sequence',
+		'DivisionAssignment',
 		'ExplicitAccess',
 		'EpidefOption1',
 		'EpidefOption2',
@@ -39,6 +36,7 @@ def ProtoExpressionSet(
 	before = "ProtoExpression",
 ):
 	return this.parent.Function(this)
+
 
 @eons.kind(Expression)
 def LimitedExpression(
@@ -75,7 +73,7 @@ def FullExpression(
 		'LimitedExpressionSet',
 		'Kind',
 		# 'Parameter',
-		
+
 		# BlockSyntaxes
 		'FunctorType',
 		'StructType',
@@ -83,11 +81,16 @@ def FullExpression(
 		'SimpleType',
 		'StandardInvokation',
 		'AccessInvokation',
+		'ComplexAccessInvokation',
 		'InvokationWithParametersAndExecution',
 		'ContainerInvokationWithParameters',
 
 		# ExactSyntaxes
+		'SimpleTypeWithShortTypeAssignment',
 		'ComplexSequence',
+		'DivisionOverload',
+		'ComplexDivisionAssignment',
+		'DivisionAssignmentOverload',
 		'ComplexExplicitAccess',
 	],
 	before = "FunctorType",

@@ -25,8 +25,8 @@ class EldestFunctor (eons.Functor):
 			# 'history',
 			'globals',
 			# 'config', #local (if applicable) or per Executor; should be before 'executor' if using a local config.
-			# 'precursor',
-			# 'caller',
+			'precursor',
+			# 'caller', # Must be accessed directly.
 			# 'executor',
 			# 'environment',
 		]
@@ -38,6 +38,7 @@ class EldestFunctor (eons.Functor):
 		clone = this
 		if (this.feature.cloneOnCall):
 			clone = deepcopy(this)
+			clone.executor = this.executor
 		return super(EldestFunctor, clone).__call__(*args, **kwargs)
 
 
@@ -55,8 +56,8 @@ class EldestFunctor (eons.Functor):
 				(this.name, this)
 			)
 			logging.debug(f"Stack is now: {this.executor.stack}")
-		except:
-			logging.error(f"Could not add {this.name} ({type(this)}) to the stack.")
+		except Exception as e:
+			logging.error(f"Could not add {this.name} ({type(this)}) to the stack: {e}")
 
 		super().BeforeFunction()
 
@@ -70,8 +71,8 @@ class EldestFunctor (eons.Functor):
 			this.executor.stack.remove(
 				(this.name, this)
 			)
-		except:
-			logging.debug(f"Could not remove {this.name} ({type(this)}) from the stack.")
+		except Exception as e:
+			logging.debug(f"Could not remove {this.name} ({type(this)}) from the stack: {e}")
 
 		try:
 			this.context.history.insert(
@@ -79,8 +80,8 @@ class EldestFunctor (eons.Functor):
 				(this.name, this)
 			)
 			logging.debug(f"History is now: {this.context.history}")
-		except:
-			logging.debug(f"Could not add {this.name} ({type(this)}) to the history.")
+		except Exception as e:
+			logging.debug(f"Could not add {this.name} ({type(this)}) to the history: {e}")
 
 	
 	def IsCurrentlyInTypeParameterBlock(this, offset=0):

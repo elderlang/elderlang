@@ -10,6 +10,7 @@ class Structure (eons.Functor):
 
 		this.optionalKWArgs['exclusions'] = []
 		this.optionalKWArgs['inclusions'] = []
+		this.optionalKWArgs['overrides'] = []
 
 	def Function(this):
 		pass
