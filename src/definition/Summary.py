@@ -94,6 +94,7 @@ summary.syntax.exact = [
 	"This",
 	"EpidefOption2",
 	"EpidefOption1",
+	"ComplexEpidef",
 	"GlobalScope",
 	"DivisionOverload",
 	"DivisionAssignmentOverload",

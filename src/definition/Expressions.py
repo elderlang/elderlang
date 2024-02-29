@@ -24,6 +24,7 @@ def ProtoExpression(
 		'ExplicitAccess',
 		'EpidefOption1',
 		'EpidefOption2',
+		'ComplexEpidef',
 		'GlobalScope',
 	],
 	before = "Sequence",

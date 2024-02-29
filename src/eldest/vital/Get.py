@@ -16,13 +16,15 @@ class Get (SourceTargetFunctor):
 		# 	this.target = EVAL(this.target, unwrapReturn=True)[0]
 
 		source = this.source
-		if (isinstance(source, types.FunctionType) or isinstance(source, types.MethodType)):
-			source = source()
 		if (isinstance(source, eons.Functor)):
+			if (not source.warm):
+				source.WarmUp()
 			try:
 				return getattr(source, this.target)
 			except AttributeError:
 				source = source()
+		elif (isinstance(source, types.FunctionType) or isinstance(source, types.MethodType)):
+			source = source()
 
 		if (type(source) in [int, float, str, bool] and this.target in Sanitize.operatorMap.keys()):
 			return source.__getattribute__(Sanitize.operatorMap[this.target])

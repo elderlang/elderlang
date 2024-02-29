@@ -35,3 +35,30 @@ newkidz::()
 ~/upperclass/newkidz lowerclass 37
 upperclass/newkidz sanity 42
 upperclass.sanity(1)
+
+
+/**
+ * This scope test should ensure we can go up multiple levels.
+ * it should print:
+ * 807
+ * x
+ * 3
+ */
+layer1:
+(
+	value := 3
+	layer2:
+	(
+		value := 'x'
+		layer3:
+		(
+			value := 807
+		)
+		{
+			print ./value
+			print ../value
+			print ../../value
+		}
+	)
+)
+layer1.layer2.layer3

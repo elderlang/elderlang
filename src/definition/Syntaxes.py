@@ -158,6 +158,7 @@ def AutofillAccessOrInvokation(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 				# Explicitly NOT simpletype
@@ -175,6 +176,7 @@ def AutofillAccessOrInvokation(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 			],
@@ -221,6 +223,7 @@ def AutofillInvokation(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 				r'autofillaccessorinvokation',
@@ -248,6 +251,7 @@ def AutofillInvokation(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 				r'autofillaccessorinvokation',
@@ -280,6 +284,7 @@ def ComplexSequence(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 			],
@@ -295,6 +300,7 @@ def ComplexSequence(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 			],
@@ -314,6 +320,7 @@ def ComplexSequence(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 			],
@@ -354,6 +361,7 @@ def ComplexDivisionAssignment(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 			],
@@ -369,6 +377,7 @@ def ComplexDivisionAssignment(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 			],
@@ -388,6 +397,7 @@ def ComplexDivisionAssignment(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 			],
@@ -424,6 +434,7 @@ def ComplexExplicitAccess(
 				r'this',
 				r'epidefoption1',
 				r'epidefoption2',
+				r'complexepidef',
 				r'globalscope',
 				r'caller',
 			],
@@ -484,6 +495,23 @@ def EpidefOption2(
 	match = r'\.\./NAME'
 ):
 	return f"this.epidef.{this.Engulf(this.p[1][1:-1])}"
+
+@eons.kind(FlexibleTokenSyntax)
+def ComplexEpidef(
+	match = [
+		{
+			'first': [
+				r'EPIDEFOPTION2'
+			],
+			'second': [
+				r'epidefoption1',
+				r'epidefoption2',
+				r'complexepidef'
+			]
+		}
+	]
+):
+	return f"this.epidef.{this.Engulf(this.p[1][5:])}"
 
 @eons.kind(ExactSyntax)
 def GlobalScope(
