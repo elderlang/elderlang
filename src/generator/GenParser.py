@@ -231,7 +231,7 @@ class ElderParser(Parser):
 			this.outFile.write(f'\t\tret = this.executor.Execute("{implName}", p=p).returned')
 		
 		this.outFile.write(f"""
-		logging.debug(f"...{implName} produced {{ret}}")
+		logging.info(f"...{implName} produced {{ret}}")
 		return ret
 """)
 

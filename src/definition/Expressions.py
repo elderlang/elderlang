@@ -20,6 +20,7 @@ def ProtoExpression(
 		'AutofillInvokation',
 		'Sequence',
 		'DivisionAssignment',
+		'This',
 		'ExplicitAccess',
 		'EpidefOption1',
 		'EpidefOption2',

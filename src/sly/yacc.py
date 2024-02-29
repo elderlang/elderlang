@@ -1981,7 +1981,6 @@ class Parser(metaclass=ParserMeta):
 				logging.warning('1 shift/reduce conflict')
 			elif num_sr > 1:
 				logging.warning('%d shift/reduce conflicts', num_sr)
-			logging.warning(str(lrtable.sr_conflict))
 
 		num_rr = len(lrtable.rr_conflicts)
 		if num_rr != getattr(cls, 'expected_reduce_reduce', None):
@@ -1989,7 +1988,6 @@ class Parser(metaclass=ParserMeta):
 				logging.warning('1 reduce/reduce conflict')
 			elif num_rr > 1:
 				logging.warning('%d reduce/reduce conflicts', num_rr)
-			logging.warning(str(lrtable.rr_conflict))
 
 		cls._lrtable = lrtable
 		return True

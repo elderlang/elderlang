@@ -30,7 +30,7 @@ class FUNCTOR(TYPE):
 		next.feature.autoReturn = True # <- recommended if you'd like to be able to access the modified sequence result.
 
 	def Function(this):
-		return EXEC(this.execution, currentlyTryingToInvoke=this)
+		pass
 
 	# See note in constructor regarding fetching from home.
 	# def fetch_location_home(this, varName, default, fetchFrom, attempted):

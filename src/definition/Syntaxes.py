@@ -468,7 +468,10 @@ def SimpleTypeWithShortTypeAssignment(
 def This(
 	match = r'\./NAME'
 ):
-	return f"this.{this.Engulf(this.p[1][1:-1])}"
+	toAccess = this.Engulf(this.p[1][1:-1])
+	if (toAccess.startswith('this')):
+		return toAccess
+	return f"this.{toAccess}"
 
 @eons.kind(ExactSyntax)
 def EpidefOption1(
@@ -494,6 +497,6 @@ def Caller(
 ):
 	# Enable @@... to become this.caller.caller...
 	toAccess = this.Engulf(this.p[1][1:-1])
-	if (not toAccess.startswith('caller')):
-		return f"this.caller.{toAccess}"
-	return f"caller.{toAccess}"
+	if (toAccess.startswith('this.caller')):
+		return f"this.caller.{toAccess[5:]}"
+	return f"this.caller.{toAccess}"
