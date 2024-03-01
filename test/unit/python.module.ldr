@@ -1,0 +1,6 @@
+message := 'substitution failed'
+message = (re sub('failed', 'succeeded', message))
+print message
+
+sys.exit 0
+print 'FAILURE'

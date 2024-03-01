@@ -1,6 +1,7 @@
 import eons
 import logging
 import re
+import sys
 from .KEYWORD import KEYWORD
 from .Exceptions import *
 from .Sanitize import Sanitize
@@ -71,9 +72,12 @@ class E___ (KEYWORD):
 					possibleFunctor = eons.SelfRegistering(possibleFunctorName)
 				except:
 					try:
-						this.executor.GetRegistered(possibleFunctorName)
+						possibleFunctor = this.executor.GetRegistered(possibleFunctorName)
 					except:
-						pass
+						try:
+							possibleFunctor = sys.modules[possibleFunctorName]
+						except:
+							pass
 
 		if (possibleFunctor is not None):
 			if (this.shouldAttemptInvokation 
