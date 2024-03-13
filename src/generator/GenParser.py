@@ -70,10 +70,10 @@ class GenParser(eons.Functor):
 
 		# Has to be declared outside of f-string to use backslashes.
 		precedenceJoiner = ",\n\t\t"
-		# precedenceString = f"('left', 'EXCLUDED'){precedenceJoiner}"
+		# precedenceString = f"('right', 'EXCLUDED'){precedenceJoiner}"
 		precedenceString = "\t\t"
 		if (len(this.precedence.deprioritized)):
-			precedenceString += precedenceJoiner.join([f"('left', '{dep.upper()}')" for dep in this.precedence.deprioritized])
+			precedenceString += precedenceJoiner.join([f"('right', '{dep.upper()}')" for dep in this.precedence.deprioritized])
 			precedenceString += precedenceJoiner
 		if (len(this.precedence.token.block)):
 			precedenceString += precedenceJoiner.join(this.precedence.token.block)
@@ -88,16 +88,16 @@ class GenParser(eons.Functor):
 			precedenceString += precedenceJoiner.join(this.precedence.rule)
 			precedenceString += precedenceJoiner
 		if (len(this.gen_lexer.tokens.syntactic.keys())):
-			precedenceString += f"('left', {', '.join([t for t in this.gen_lexer.tokens.syntactic.keys() if t != 'EOL'])})"
+			precedenceString += f"('right', {', '.join([t for t in this.gen_lexer.tokens.syntactic.keys() if t != 'EOL'])})"
 			precedenceString += precedenceJoiner
-		precedenceString += f"('left', {summary.catchAllBlock.upper()})"
+		precedenceString += f"('right', {summary.catchAllBlock.upper()})"
 		precedenceString += precedenceJoiner
 		builtins = [builtin.upper() for builtin in summary.builtins]
 		if (len(builtins)):
-			precedenceString += f"('left', {', '.join(builtins)})"
+			precedenceString += f"('right', {', '.join(builtins)})"
 			precedenceString += precedenceJoiner
 		if (len(this.precedence.prioritized)):
-			precedenceString += precedenceJoiner.join([f"('left', '{pri.upper()}')" for pri in this.precedence.prioritized])
+			precedenceString += precedenceJoiner.join([f"('right', '{pri.upper()}')" for pri in this.precedence.prioritized])
 		
 		this.outFile.write(f"""\
 class ElderParser(Parser):
@@ -159,7 +159,7 @@ class ElderParser(Parser):
 		logging.debug(f"Populating Precedence")
 
 		# CLOSE_EXPRESSION should be the lowest priority possible, since it directly translates EOLs.
-		this.precedence.rule.append(f"('left', 'CLOSE_{summary.expression.upper()}')")
+		this.precedence.rule.append(f"('right', 'CLOSE_{summary.expression.upper()}')")
 
 		for block in summary.blocks:
 			if (block == summary.catchAllBlock):
@@ -177,12 +177,12 @@ class ElderParser(Parser):
 				this.precedence.deprioritized.append(block)
 				continue
 			if (blockObject.content is None): # NOTE: This must come BEFORE the exclusions check (we'll use it later).
-				this.precedence.unparsedBlock.append(f"('left', '{block.upper()}')")
+				this.precedence.unparsedBlock.append(f"('right', '{block.upper()}')")
 				continue
-			this.precedence.rule.append(f"('left', '{block.upper()}')")
+			this.precedence.rule.append(f"('right', '{block.upper()}')")
 
 		for syntax in summary.syntax.block:
-			this.precedence.rule.append(f"('left', '{syntax.upper()}')")
+			this.precedence.rule.append(f"('right', '{syntax.upper()}')")
 
 
 	# Recursive to implement the "before" keyword.
@@ -360,7 +360,7 @@ class ElderParser(Parser):
 					]
 
 		if (len(blockPrecedenceOpen) and len(blockPrecedenceClose)):
-			this.precedence.token.block.append(f"('left', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
+			this.precedence.token.block.append(f"('right', {', '.join(blockPrecedenceOpen)}, {', '.join(blockPrecedenceClose)})")
 
 
 	# These will not have tokens associated with them and thus no precedence.
@@ -476,4 +476,4 @@ class ElderParser(Parser):
 		tokensByAscendingPriorityOrder = copy.copy(tokens)
 		tokensByAscendingPriorityOrder.reverse()
 		for tok in tokensByAscendingPriorityOrder:
-			this.precedence.token.syntax.append(f"('left', '{tok}')")
+			this.precedence.token.syntax.append(f"('right', '{tok}')")

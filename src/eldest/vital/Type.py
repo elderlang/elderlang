@@ -6,6 +6,7 @@ from ..EVAL import EVAL
 from ..EXEC import EXEC
 from ..TYPE import TYPE
 from ..type.FUNCTOR import FUNCTOR
+from ..type.STRUCTOR import STRUCTOR
 
 class Type (EldestFunctor):
 	def __init__(this, name="Type"):
@@ -27,8 +28,12 @@ class Type (EldestFunctor):
 			this.Set('currentlyTryingToDefine', None)
 
 		if (this.currentlyTryingToDefine):
+			this.originalName = this.name
+			this.originallyTryingToDefine = this.currentlyTryingToDefine
 			this.name = f"{this.currentlyTryingToDefine}_{this.name}"
+			this.executor.SetGlobal('currentlyTryingToDefine', this.name)
 		else:
+			this.executor.SetGlobal('currentlyTryingToDefine', this.name)
 			this.unsetCurrentlyTryingToDefine = True
 
 		return super().BeforeFunction()
@@ -45,7 +50,10 @@ class Type (EldestFunctor):
 			'constructor': eons.util.DotDict({
 				'name': 'constructor',
 				'kind': inspect.Parameter.POSITIONAL_OR_KEYWORD,
-				'default': '''
+				'default': f'''
+if (this.name is None):
+	this.name = {this.name}
+
 if ('value' in kwargs):
 	this.value = kwargs['value']
 	del kwargs['value']
@@ -64,9 +72,9 @@ if ('value' in kwargs):
 				if a is not None # TODO: why???
 			}
 
-			# Having a parameter implies this is a functor, even if it doesn't have an execution block.
+			# Having a parameter implies this is a functor or structor
 			if (this.kind == [TYPE]):
-				this.kind = [FUNCTOR]
+				this.kind = [STRUCTOR]
 
 		toDelete = []
 		for key in parameters.keys():
@@ -84,7 +92,7 @@ if ('value' in kwargs):
 			source = f"return this.executor.EXEC({this.execution}, currentlyTryingToInvoke=this)"
 
 			# Having an execution block implies this is a functor.
-			if (this.kind == [TYPE]):
+			if (this.kind == [TYPE] or this.kind == [STRUCTOR]):
 				this.kind = [FUNCTOR]
 
 		ret = eons.kind(this.kind) (
@@ -103,21 +111,26 @@ if ('value' in kwargs):
 		# 	return alreadyDefined
 
 		# Export this symbol to the current context iff we're not adding a parameter to another type.
-		# 2: One for the Type() the other for the parameter EVAL().
-		if (this.currentlyTryingToDefine is None and not this.IsCurrentlyInTypeParameterBlock(2)):
+		if (this.currentlyTryingToDefine is None):
 			this.context.Set(this.name, ret)
-
-		# FIXME: this should be an impossibility. Perhaps we're using globals wrong?
-		# NOTE Python bug: any access of currentlyTryingToDefine here, even within uninterpreted code, will cause it to be set to None.
-		try:
-			if (this.unsetCurrentlyTryingToDefine):
-				globals().update({'currentlyTryingToDefine': None})
-		except:
-			pass
 
 		ret.EXEC_NO_EXECUTE = True
 		this.result.data.product = ret
 		return ret
+
+
+	def AfterFunction(this):
+		# NOTE Python bug: any access of currentlyTryingToDefine here, even within uninterpreted code, will cause it to be set to None.
+		if (this.unsetCurrentlyTryingToDefine):
+			this.executor.ExpireGlobal('currentlyTryingToDefine')
+			globals()['currentlyTryingToDefine'] = None # TODO: the above is not enough???
+
+		# If nothing was added, i.e. no sub-types were declared, and we're done, but 
+		# Only occurs with short-typed functor pointers, like 'inner' in pointer.ldr. 
+		else:
+			this.executor.SetGlobal('currentlyTryingToDefine', this.originallyTryingToDefine)
+
+		return super().AfterFunction()
 
 
 	def CombineWithExisting(this, existing, new):

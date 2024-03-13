@@ -28,9 +28,9 @@ def FormattedString(
 	],
 ):
 	if (lexer is None):
-		lexer = this.FetchWithout(['this'], 'lexer')
+		lexer = this.executor.Fetch('lexer')
 	if (parser is None):
-		parser = this.Fetch(['this'], 'parser')
+		parser = this.executor.Fetch('parser')
 
 	rawString = f"'{this.p[0][1:-1]}'" # Standardize quotations
 
@@ -124,7 +124,7 @@ def Kind(
 		return "Kind()"
 	if (this.p[0].startswith('Kind')):
 		return this.p[0]
-	kind = this.Engulf(this.p[1]) # escape=False; if it's true there's likely a larger problem.
+	kind = this.Engulf(this.p[1], escape=True)
 	if (len(kind)):
 		kind = f"'{kind}'"
 	return f"Kind({kind})"

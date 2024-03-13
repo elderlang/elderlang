@@ -1,6 +1,8 @@
 import eons
 from ..EldestFunctor import EldestFunctor
 from ..TYPE import TYPE
+from ..EVAL import EVAL
+from ..EXEC import EXEC
 
 class Kind (EldestFunctor):
 	def __init__(this, name="Kind"):
@@ -13,8 +15,10 @@ class Kind (EldestFunctor):
 	def Function(this):
 		if (this.kind is None):
 			this.kind = [TYPE]
+		elif (isinstance(this.kind, str)):
+			this.kind = EVAL([this.kind], unwrapReturn=True)[0]
 
-		elif (type(this.kind) != list):
+		if (type(this.kind) != list):
 			this.kind = [this.kind]
 
 		# We shouldn't need to actually do anything here.

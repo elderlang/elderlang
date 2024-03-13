@@ -255,6 +255,10 @@ def AutofillInvokation(
 				r'globalscope',
 				r'caller',
 				r'autofillaccessorinvokation',
+				r'simpletype',
+				r'structtype',
+				r'executivetype',
+				r'functortype',
 			],
 		}
 	],

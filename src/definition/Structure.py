@@ -12,6 +12,12 @@ class Structure (eons.Functor):
 		this.optionalKWArgs['inclusions'] = []
 		this.optionalKWArgs['overrides'] = []
 
+		this.fetch.use = [
+			'args',
+			'this',
+		]
+		this.fetch.attr.use = []
+
 	def Function(this):
 		pass
 

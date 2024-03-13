@@ -17,35 +17,42 @@ class SourceTargetFunctor (EldestFunctor):
 	def BeforeFunction(this):
 		if (this.needs.source):
 			this.Set('name', f"source_name_{this.Fetch('name', None, ['args'])}")
-			this.Set('source', this.Fetch('source', None, ['args']))
-			if (this.source is not None):
-				pass
+			possibleSource = this.Fetch('source', None, ['args'])
+			if (hasattr(this, 'source') and this.source is not None):
+				possibleSource = this.source
 			elif (this.name != 'source_name_None'):
-				this.Set('source', EVAL(this.name[len('source_name_'):])[0])
+				possibleSource = EVAL(this.name[len('source_name_'):])[0]
 			else:
-				possibleSource = None
 				if (len(this.args)):
 					possibleSource = this.args[0]
 				if (possibleSource is None):
 					raise RuntimeError(f"Neither source nor name was provided to {this.nameStack[-1]}")
 				elif (isinstance(possibleSource, str)):
-					this.Set('source', EVAL(possibleSource)[0])
-				else:
-					this.Set('source', possibleSource)
+					possibleSource = EVAL(possibleSource)[0]
+
+		if (isinstance(possibleSource, Type.__class__)):
+			possibleSource = possibleSource.product
+
+		this.Set('source', possibleSource)
 
 		# Not strictly necessary, but useful for keeping the nameStack indices static/
 		this.nameStack.append(this.name)
 
 		if (this.needs.target):
-			this.Set('target', this.Fetch('target', None, ['args']))
+			possibleTarget = this.Fetch('target', None, ['args'])
 
-			if (this.target is None):
+			if (hasattr(this, 'target') and this.target is not None):
+				possibleTarget = this.target
+			else:
 				if (len(this.args) > 1):
-					this.Set('target', this.args[1:])
+					possibleTarget = this.args[1:]
 				else:
 					raise RuntimeError(f"Target was not provided to {this.nameStack[-2]}")
-			if (not isinstance(this.target, list)):
-				this.Set('target', [this.target])
+
+			if (not isinstance(possibleTarget, list)):
+				possibleTarget = [possibleTarget]
+
+			this.Set('target', possibleTarget)
 
 		super().BeforeFunction()
 

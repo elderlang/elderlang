@@ -6,52 +6,56 @@
 outer:
 (
 	/**
-	 * undetermined is an explicit pointer that requires an argument to function.
+	 * undetermined is an explicit pointer that requires an paramument to function.
 	 */
 	undetermined: pointer to functor
 	
 	/**
 	 * inner is a functor with a default value of another functor called 'default'.
-	 * inner should function with AND without an overriding argument to outer.
+	 * inner should function with AND without an overriding paramument to outer.
+	 * pointer kind specification is necessary for 'default' to be treated as an object, rather than evaluated off the bat.
 	 */
-	inner := default::(arg)
+	inner := defval::(param)
 	{
 		try
 		{
-			undetermined(arg)
+			undetermined(param)
 		}
 		catch
 		{
-			print 'oops'
+			print 'undeterminable'
 		}
 	}
 )
 
-// Should print 'oops'
-outer.inner('nu uh')
+// Should print 'undeterminable'
+outer.inner('SHOULD NOT PRINT')
 
 /**
  * determined will be provided to outer to fill in for undetermined.
  */
-determined::(arg)
+determined::(param)
 {
-	print `arg: {arg}`
+	print `param: {param}`
 }
 
-// Should print 'arg: nu uh'
-outer(undetermined = determined).inner('nu uh')
+// Should print 'param: success!'
+outer(undetermined = determined).inner('success')
 
 /**
  * inner defined outside of outer should be a distinct object.
+ * NOTE: when overriding a functor pointer, as we do here, you must keep the arguments the same (at least in number) or turn off the arg mapping feature, etc.
  */
-inner::()
+inner_override::(vestigial::)
 {
 	print 'inner overridden'
 }
 
 // Should print 'inner overridden'
-outer(inner = inner).inner()
+// FIXME: There is a bug if inner_override is just called 'inner' and outer tries to assign inner to itself.
+outer(inner = inner_override).inner()
 
-// Make sure the override wasn't permanent.
-// Should print 'oops'
-outer.inner('nu uh')
+// Make sure the override wasn't permanent (it is).
+// Should print 'undeterminable'
+// NOTE: This currently prints 'inner overridden'.
+outer.inner('SHOULD NOT PRINT')

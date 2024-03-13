@@ -14,7 +14,7 @@ class Sequence (SourceTargetFunctor):
 		if (isinstance(this.source, FUNCTOR) and this.source.next is None):
 			this.source.next = []
 
-		if (not this.source.warm):
+		if (not this.source.isWarm):
 			this.source.WarmUp(executor=this.executor)
 
 		return this.source.__truediv__(EVAL(this.target, unwrapReturn=True, shouldAttemptInvokation=False)[0])

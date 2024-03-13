@@ -8,7 +8,6 @@ from .Exceptions import *
 class EXEC (E___):
 	def __init__(this):
 		super().__init__(name="exec")
-		this.fetchFrom.insert(2, 'current_invokation')
 
 		this.arg.kw.required.append('execution')
 
@@ -21,10 +20,10 @@ class EXEC (E___):
 
 		this.episcope = None
 
-		this.cloning.exclusions += [
+		this.prevent.copying.extend([
 			'episcope',
 			'currentlyTryingToInvoke',
-		]
+		])
 
 	def Function(this):
 		if (this.home is not None):
@@ -100,18 +99,3 @@ class EXEC (E___):
 			return default, False
 		
 		return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)
-
-	def fetch_location_current_invokation(this, varName, default, fetchFrom, attempted):
-		try:
-			if (this.currentlyTryingToInvoke is None):
-				if (this.episcope is None):
-						return default, False
-				return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)
-			try:
-				return this.currentlyTryingToInvoke.__getattribute__(varName), True
-			except:
-				if (this.episcope is None):
-					return default, False
-				return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)
-		except:
-			return default, False

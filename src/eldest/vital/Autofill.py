@@ -149,7 +149,7 @@ class Autofill (EldestFunctor):
 							toEval = toEval.replace(match, replace)
 						logging.debug(f"Attempting to eval: {toEval}")
 						return eval(toEval)
-					
+
 					elif (target.type == 2):
 						if (this.target.startswith("Invoke") and target.name in Sanitize.operatorMap.keys()):
 							try:
@@ -167,10 +167,10 @@ class Autofill (EldestFunctor):
 
 				target.object = EVAL(this.target)[0]
 
-				if (target.type == 1):
+				if (target.type == 1 and '.EQ of ' not in str(source.object)):
 					if (isinstance(target.object, eons.Functor)
-		 				or isinstance(target.object, types.FunctionType)
-		 				or isinstance(target.object, types.MethodType)
+						or isinstance(target.object, types.FunctionType)
+						or isinstance(target.object, types.MethodType)
 					):
 						target.object = target.object()
 

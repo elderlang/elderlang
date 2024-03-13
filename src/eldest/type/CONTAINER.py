@@ -10,7 +10,7 @@ class CONTAINER(TYPE):
 		if (value is not None):
 			for item in value:
 				this.value.append(item)
-		this.isBasicType = True
+		this.useValue = True
 		this.needs.typeAssignment = False
 
 	@staticmethod
@@ -27,7 +27,7 @@ class CONTAINER(TYPE):
 			return {key: key for key in this.value}
 
 	def __getitem__(this, index):
-		ret = POINTER(this.value[index])
+		ret = POINTER(f"{this.name}[{index}]", this.value[index])
 		ret.SET = lambda x: this.__setitem__(index, x)
 		return ret
 

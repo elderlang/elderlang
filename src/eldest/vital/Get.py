@@ -17,7 +17,7 @@ class Get (SourceTargetFunctor):
 
 		source = this.source
 		if (isinstance(source, eons.Functor)):
-			if (not source.warm):
+			if (not source.isWarm):
 				source.WarmUp()
 			try:
 				return getattr(source, this.target)

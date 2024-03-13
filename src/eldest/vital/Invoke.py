@@ -38,7 +38,7 @@ class Invoke (SourceTargetFunctor):
 			shouldEvaluateParameter = False
 			evaluatedParameter = []
 
-		if (shouldEvaluateParameter and this.parameter is not None):
+		if (shouldEvaluateParameter):
 			evaluatedParameter, unwrapped = EVAL(this.parameter, shouldAttemptInvokation = True)
 
 			if (unwrapped):

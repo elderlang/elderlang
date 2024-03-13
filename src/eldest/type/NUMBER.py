@@ -6,7 +6,7 @@ class NUMBER(TYPE):
 		super().__init__(name)
 
 		this.value = value
-		this.isBasicType = True
+		this.useValue = True
 		this.needs.typeAssignment = False
 
 	def __int__(this):

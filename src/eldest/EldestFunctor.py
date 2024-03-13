@@ -16,22 +16,36 @@ class EldestFunctor (eons.Functor):
 		this.feature.cloneOnCall = True
 		this.needs = eons.util.DotDict()
 
+		this.fetch.possibilities = [
+			'args',
+			'this',
+			'epidef',
+			'stack_name',
+			'stack_type',
+			'context',
+			'history',
+			'globals',
+			'config', #local (if applicable) or per Executor; should be before 'executor' if using a local config.
+			'precursor',
+			'caller', # Must be accessed directly.
+			'executor',
+			'environment',
+		]
+
 		this.fetch.use = [
 			'args',
 			'this',
 			'stack_name',
-			# 'stack_type',
 			'context',
-			# 'history',
 			'globals',
-			# 'config', #local (if applicable) or per Executor; should be before 'executor' if using a local config.
-			'precursor',
-			# 'caller', # Must be accessed directly.
-			# 'executor',
-			# 'environment',
 		]
 
 		this.context = None
+
+		this.prevent.copying.extend([
+			'context',
+			'home',
+		])
 
 
 	def __call__(this, *args, **kwargs):
@@ -83,7 +97,10 @@ class EldestFunctor (eons.Functor):
 		except Exception as e:
 			logging.debug(f"Could not add {this.name} ({type(this)}) to the history: {e}")
 
-	
+
+	# NOTE: USE THIS METHOD WITH EXTREME CARE.
+	# Because nested classes are defined before the parent, this will always return true from a parent class if it has nested children.
+	# Consider checking if currentlyTryingToDefine is set (in globals, per executor).
 	def IsCurrentlyInTypeParameterBlock(this, offset=0):
 		
 		# FIXME: Not having an executor should be an impossibility.
@@ -91,20 +108,23 @@ class EldestFunctor (eons.Functor):
 		if (not this.executor):
 			return False
 
-		for name, object in this.executor.stack[offset:]:
-			if (name == 'Autofill'):
-				continue
-			elif (name == 'eval'):
-				continue
-			elif (name == 'Within'):
-				continue
-			# Objects will be provided later, don't worry about where they come from.
-			elif (isinstance(object, Call.__class__)):
-				continue
-			elif (isinstance(object, Type.__class__)):
-				return True
-			else:
-				break
+		try:
+			for name, obj in this.executor.stack[offset:]:
+				if (name == 'Autofill'):
+					continue
+				elif (name == 'eval'):
+					continue
+				elif (name == 'Within'):
+					continue
+				# Objs will be provided later, don't worry about where they come from.
+				elif (isinstance(obj, Call.__class__)):
+					continue
+				elif (isinstance(obj, Type.__class__)):
+					return True
+				else:
+					break
+		except:
+			pass
 		return False
 	
 	def IsCurrentlyInTypeExecutionBlock(this):
@@ -144,9 +164,9 @@ class EldestFunctor (eons.Functor):
 		if (varName.upper() not in Sanitize.allBuiltins):
 			return default, False
 
-		for name, object in this.executor.stack:
+		for name, obj in this.executor.stack:
 			if (name == varName):
-				return object, True
+				return obj, True
 
 		return default, False
 	
@@ -163,17 +183,17 @@ class EldestFunctor (eons.Functor):
 		if (inspect.isclass(varName)):
 			typeToFind = varName
 
-		# TODO: UnboundLocalError: cannot access local variable 'object' where it is not associated with a value
-		# elif (isinstance(varName, object)):
+		# TODO: UnboundLocalError: cannot access local variable 'obj' where it is not associated with a value
+		# elif (isinstance(varName, obj)):
 		# 	typeToFind = varName.__class__
 
 		if (typeToFind is None or not inspect.isclass(typeToFind)):
 			logging.debug(f"Could not find type {varName} in stack.")
 			return default, False
 
-		for name, object in this.executor.stack:
-			if (isinstance(object, typeToFind)):
-				return object, True
+		for name, obj in this.executor.stack:
+			if (isinstance(obj, typeToFind)):
+				return obj, True
 
 		return default, False
 
@@ -182,9 +202,14 @@ class EldestFunctor (eons.Functor):
 		if (this.context is None):
 			return default, False
 		
-		for name, object in this.context.history:
+		for name, obj in this.context.history:
+			# Types should be retrieved through eons.SelfRegistering, etc.
+			# Fetching a Functor and getting a Type is just rude.
+			if (type(obj) is Type.__class__):
+				continue
+
 			if (name == varName):
-				return object, True
+				return obj, True
 
 		return default, False
 	

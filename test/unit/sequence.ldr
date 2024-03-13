@@ -6,7 +6,7 @@ source:
 	}
 )
 
-successor:
+successor::() // Must be at least a Structor to be used in sequences.
 
 // Should print "success"
 source.test
@@ -27,5 +27,3 @@ larger_source:
 
 // Should print "larger success"
 ~/larger_source.nested/successor test
-
-

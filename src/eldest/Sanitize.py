@@ -15,6 +15,8 @@ class Sanitize (eons.Functor):
 		'return',
 		'switch',
 		'while',
+		'try',
+		'catch',
 	]
 
 	keywordInvokations = [
@@ -29,6 +31,7 @@ class Sanitize (eons.Functor):
 		'string',
 		'functor',
 		'container',
+		'pointer',
 	]
 
 	symbols = {
@@ -58,6 +61,8 @@ class Sanitize (eons.Functor):
 		'RETURN',
 		'SWITCH',
 		'WHILE',
+		'TRY',
+		'CATCH',
 		'BOOL',
 		'FLOAT',
 		'INT',

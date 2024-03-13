@@ -14,6 +14,10 @@ class EVAL (E___):
 
 		this.arg.mapping.append('parameter')
 
+		this.prevent.copying.extend([
+			'NEXTSOURCE',
+		])
+
 	def Function(this):
 		if (this.unwrapReturn is None):
 			if (type(this.parameter) != list):
@@ -70,10 +74,6 @@ class EVAL (E___):
 					this.result.data.evaluation.append(evaluatedFunctor)
 					continue
 
-				# Detect & correct escape drift:
-				# if (re.search(r"[^\\]\',", repr(statement))):
-				# 	statement = re.sub(r"\',", "'", repr(statement))
-				
 				statement = this.CorrectForImproperQuotes(statement)
 
 				logging.debug(f"Evaluating: {statement}")

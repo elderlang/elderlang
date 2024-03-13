@@ -9,15 +9,36 @@ class FUNCTOR(TYPE):
 		super().__init__(name)
 
 		this.needs.typeAssignment = False
-		this.isBasicType = False
-		this.value = value # Should be pointless, but who knows.
+		this.useValue = False
+		delattr(this, 'value')
 		this.feature.track = True
 		this.feature.sequential = True
 		this.feature.sequence.clone = True
+		this.feature.autoReturn = False
 
-		# Global variables will be fetched by going up the stack one scope at a time.
-		# We should only grab an item from HOME first if we're explicitly told to.
-		# this.fetch.use.append('home')
+		# TODO: Solidify this behavior.
+		# cloneOnCall being True is required to make changes from one call not persist to the next.
+		# See the pointer.ldr unit test for an example.
+		# FIXME: Making this True induces very strange behavior.
+		this.feature.cloneOnCall = False #True
+
+		this.fetch.use = [
+			'args',
+			'this',
+			'precursor',
+			'epidef',
+			'caller',
+			'context',
+			'history',
+			'globals',
+			'executor',
+			'config',
+			'environment',
+		]
+		this.fetch.attr.use = [
+			'precursor',
+			'epidef',
+		]
 
 	def ValidateMethods(this):
 		super().ValidateMethods()
@@ -32,16 +53,11 @@ class FUNCTOR(TYPE):
 	def Function(this):
 		pass
 
-	# See note in constructor regarding fetching from home.
-	# def fetch_location_home(this, varName, default, fetchFrom, attempted):
-	# 	try:
-	# 		return getattr(HOME.Instance(), varName), True
-	# 	except:
-	# 		return default, False
-	
 	# Restore lost sequence functionality (this method was overridden by TYPE).
 	def __truediv__(this, next):
 		return eons.Functor.__truediv__(this, next)
 
-	def __str__(this):
+	def __str__(this = None):
+		if (this is None):
+			return 'FUNCTOR'
 		return this.name
