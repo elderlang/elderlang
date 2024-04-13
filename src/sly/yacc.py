@@ -89,10 +89,25 @@ class YaccProduction:
 		self._stack = stack
 
 	def __getitem__(self, n):
+		ret = None
 		if n >= 0:
-			return self._slice[n].value
+			try: 
+				ret = self._slice[n].value
+				# if (hasattr(ret, 'type') and ret.type == '$end'):
+				# 	ret = self.__getitem__(n+1)
+				# else:
+				# 	ret = ret.value
+			except Exception as e:
+				logging.error(f'Could not get {self._slice}[{n}].value: {e}')
+				return None
 		else:
-			return self._stack[n].value
+			try:
+				ret = self._stack[n].value
+			except Exception as e:
+				logging.error(f'Could not get {self._stack}[{n}].value: {e}')
+				return None
+		
+		return ret
 
 	def __setitem__(self, n, v):
 		if n >= 0:
@@ -1809,11 +1824,11 @@ class ParserMetaDict(dict):
 			return super().__getitem__(key)
 
 def _decorator(rule, *extra):
-	 rules = [rule, *extra]
-	 def decorate(func):
-		 func.rules = [ *getattr(func, 'rules', []), *rules[::-1] ]
-		 return func
-	 return decorate
+	rules = [rule, *extra]
+	def decorate(func):
+		func.rules = [ *getattr(func, 'rules', []), *rules[::-1] ]
+		return func
+	return decorate
 
 class ParserMeta(type):
 	@classmethod
@@ -1952,7 +1967,7 @@ class Parser(metaclass=ParserMeta):
 
 		unreachable = grammar.find_unreachable()
 		for u in unreachable:
-		   logging.warning('Symbol %r is unreachable', u)
+			logging.warning('Symbol %r is unreachable', u)
 
 		if len(undefined_symbols) == 0:
 			infinite = grammar.infinite_cycles()
@@ -2069,9 +2084,9 @@ class Parser(metaclass=ParserMeta):
 		'''
 		del self.statestack[:]
 		del self.symstack[:]
-		sym = YaccSymbol()
-		sym.type = '$end'
-		self.symstack.append(sym)
+		# sym = YaccSymbol()
+		# sym.type = '$end'
+		# self.symstack.append(sym)
 		self.statestack.append(0)
 		self.state = 0
 
@@ -2146,11 +2161,22 @@ class Parser(metaclass=ParserMeta):
 					plen  = p.len
 					pslice._namemap = p.namemap
 
+					if (plen > len(symstack)):
+						possibleCorrectMatch = prod[-t-1]
+						logging.debug(f"Attempting to correct improper product selection. Possible correct match: {possibleCorrectMatch.name} ({possibleCorrectMatch.namemap})")
+						if (possibleCorrectMatch.name == pname and possibleCorrectMatch.len <= len(symstack)):
+							self.production = p = possibleCorrectMatch
+							# pname = p.name # Names are the same.
+							plen  = p.len
+							pslice._namemap = p.namemap
+						else:
+							raise RuntimeError(f"Parse error: {pname} ({p.namemap}) cannot be reduced from {symstack}")
+
 					# Call the production function
 					pslice._slice = symstack[-plen:] if plen else []
 
 					sym = YaccSymbol()
-					sym.type = pname	   
+					sym.type = pname
 					value = p.func(self, pslice)
 					if value is pslice:
 						value = (pname, *(s.value for s in pslice._slice))

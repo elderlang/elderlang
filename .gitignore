@@ -7,3 +7,5 @@ build/**/
 
 parsetab.out
 *.log
+
+*.pyc

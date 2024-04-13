@@ -1,3 +1,5 @@
+#!/usr/local/bin/elder
+
 message := 'substitution failed'
 message = (re sub('failed', 'succeeded', message))
 print message

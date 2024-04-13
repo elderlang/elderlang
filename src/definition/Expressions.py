@@ -5,7 +5,7 @@ import eons
 def Name(
 	representation = r'NAME',
 ):
-	return f"'{this.p[0]}'"
+	return f"'{this.GetProduct(0)}'"
 
 @eons.kind(Expression)
 def ProtoExpression(
@@ -14,7 +14,7 @@ def ProtoExpression(
 		'Name',
 		'Number',
 		'String',
-		
+
 		# ExactSyntaxes
 		'AutofillAccessOrInvokation',
 		'AutofillInvokation',
@@ -71,6 +71,8 @@ def LimitedExpressionSet(
 def FullExpression(
 	representation = r'FULLEXPRESSION',
 	nest = [
+		# 'close_expression',
+
 		'LimitedExpression',
 		'LimitedExpressionSet',
 		'Kind',

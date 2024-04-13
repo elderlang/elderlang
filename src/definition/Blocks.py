@@ -9,9 +9,17 @@ def UnformattedString(
 	overrides = [
 		'prioritize',
 	],
+	inclusions = [
+		'newline',
+	],
 ):
 	# UnformattedStrings are lexed wholesale.
-	return f"String('{this.Engulf(this.p[0], escape=True)}')"
+	string = this.Engulf(this.GetProduct(0), escape=True)
+
+	# Escape any newline characters.
+	string = string.replace('\n', '\\n')
+
+	return f"String('{string}')"
 
 @eons.kind(SymmetricBlock)
 def FormattedString(
@@ -26,13 +34,16 @@ def FormattedString(
 	overrides = [
 		'prioritize',
 	],
+	inclusions = [
+		'newline',
+	],
 ):
 	if (lexer is None):
 		lexer = this.executor.Fetch('lexer')
 	if (parser is None):
 		parser = this.executor.Fetch('parser')
 
-	rawString = f"'{this.p[0][1:-1]}'" # Standardize quotations
+	rawString = f"'{this.GetProduct(0)[1:-1]}'" # Standardize quotations
 
 	# This is what we want to do, but python does not support the P<-...> module (only P<...>)
 	# executionBlocks = re.findall(r'{(?:[^{}]|(?P<open>{)|(?P<-open>}))*(?(open)(?!))}', rawString)
@@ -61,8 +72,14 @@ def FormattedString(
 	for i, block in enumerate(executionBlocks):
 		stringComponents[0] = stringComponents[0].replace(f"{{{block}}}", r"%s", 1)
 		stringComponents.append(parser.parse(lexer.tokenize(block)))
+	
+	# Escape any newline characters only AFTER the rawString has been processed.
+	stringComponents[0] = stringComponents[0].replace('\n', '\\\\n')
 
 	# logging.critical(f"String components: {stringComponents}")
+
+	# Wipe result data, since our return value here can apparently be clobbered by the parser calls.
+	this.result.data = eons.util.DotDict()
 
 	return f"String({', '.join([str(c) for c in stringComponents])})"
 
@@ -79,7 +96,7 @@ def String(
 		'prioritize',
 	],
 ):
-	return this.p[0] # already parsed.
+	return this.GetProduct(0) # already parsed.
 
 @eons.kind(Block)
 def BlockComment(
@@ -93,6 +110,7 @@ def BlockComment(
 	],
 	inclusions = [
 		'newline',
+		'space.padding',
 	],
 ):
 	return ''
@@ -107,6 +125,9 @@ def LineComment(
 		'tokens',
 		'parser',
 	],
+	inclusions = [
+		'space.padding',
+	],
 ):
 	return ''
 
@@ -120,11 +141,11 @@ def Kind(
 	if (len(this.p) <= 1):
 		return "Kind()"
 
-	if (this.p[0] in openings and this.p[1] in openings):
+	if (this.GetProduct(0) in openings and this.GetProduct(1) in openings):
 		return "Kind()"
-	if (this.p[0].startswith('Kind')):
-		return this.p[0]
-	kind = this.Engulf(this.p[1], escape=True)
+	if (this.GetProduct(0).startswith('Kind')):
+		return this.GetProduct(0)
+	kind = this.Engulf(this.GetProduct(1), escape=True)
 	if (len(kind)):
 		kind = f"'{kind}'"
 	return f"Kind({kind})"

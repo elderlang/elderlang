@@ -1,3 +1,5 @@
+#!/usr/local/bin/elder
+
 callee:
 {
 	// @ should reference the caller, the same way ./ references this.

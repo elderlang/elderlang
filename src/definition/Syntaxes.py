@@ -10,7 +10,7 @@ def SimpleType(
 		'Kind',
 	],
 ):
-	return f"Type(name={this.p[0]},kind={this.Engulf(this.p[1])})"
+	return f"Type(name={this.GetProduct(0)},kind={this.Engulf(this.GetProduct(1))})"
 
 @eons.kind(BlockSyntax)
 def ContainerAccess(
@@ -19,7 +19,7 @@ def ContainerAccess(
 		'Container',
 	]
 ):
-	return f"Within(name={this.p[0]},container={this.Engulf(this.p[1])})"
+	return f"Within(name={this.GetProduct(0)},container={this.Engulf(this.GetProduct(1))})"
 
 @eons.kind(Invokation)
 def StandardInvokation(
@@ -28,7 +28,7 @@ def StandardInvokation(
 		'Parameter',
 	]
 ):
-	return f"Invoke(name={this.p[0]},parameter={this.Engulf(this.p[1])})"
+	return f"Invoke(name={this.GetProduct(0)},parameter={this.Engulf(this.GetProduct(1))})"
 
 @eons.kind(Invokation)
 def AccessInvokation(
@@ -37,7 +37,7 @@ def AccessInvokation(
 		'Parameter',
 	]
 ):
-	return f"Invoke(source='{this.Engulf(this.p[0], escape=True)}',parameter={this.Engulf(this.p[1])})"
+	return f"Invoke(source='{this.Engulf(this.GetProduct(0), escape=True)}',parameter={this.Engulf(this.GetProduct(1))})"
 
 @eons.kind(AccessInvokation)
 def ComplexAccessInvokation(
@@ -55,7 +55,7 @@ def InvokationWithExecution(
 		'Execution',
 	]
 ):
-	return f"Invoke(name={this.p[0]},execution={this.Engulf(this.p[1])})"
+	return f"Invoke(name={this.GetProduct(0)},execution={this.Engulf(this.GetProduct(1))})"
 
 @eons.kind(BlockSyntax)
 def StructType(
@@ -65,9 +65,9 @@ def StructType(
 		'Parameter',
 	],
 ):
-	if (this.p[0].startswith('Type')):
-		return f"{this.p[0][:-1]},parameter={this.Engulf(this.p[1])})"
-	return f"Type(name={this.p[0]},kind={this.Engulf(this.p[1])},parameter={this.Engulf(this.p[2])})"
+	if (this.GetProduct(0).startswith('Type')):
+		return f"{this.GetProduct(0)[:-1]},parameter={this.Engulf(this.GetProduct(1))})"
+	return f"Type(name={this.GetProduct(0)},kind={this.Engulf(this.GetProduct(1))},parameter={this.Engulf(this.GetProduct(2))})"
 
 # Executive type is terminal. No other types build on it.
 @eons.kind(BlockSyntax)
@@ -78,9 +78,9 @@ def ExecutiveType(
 		'Execution',
 	],
 ):
-	if (this.p[0].startswith('Type')):
-		return f"{this.p[0][:-1]},execution={this.Engulf(this.p[1])})"
-	return f"Type(name={this.p[0]},kind={this.Engulf(this.p[1])},execution={this.Engulf(this.p[2])})"
+	if (this.GetProduct(0).startswith('Type')):
+		return f"{this.GetProduct(0)[:-1]},execution={this.Engulf(this.GetProduct(1))})"
+	return f"Type(name={this.GetProduct(0)},kind={this.Engulf(this.GetProduct(1))},execution={this.Engulf(this.GetProduct(2))})"
 
 @eons.kind(Invokation)
 def InvokationWithParametersAndExecution(
@@ -90,9 +90,9 @@ def InvokationWithParametersAndExecution(
 		'Execution',
 	]
 ):
-	if (this.p[0].startswith('Invoke')):
-		return f"{this.p[0][:-1]},execution={this.Engulf(this.p[1])})"
-	return f"Invoke(name={this.p[0]},parameter={this.Engulf(this.p[1])},execution={this.Engulf(this.p[2])})"
+	if (this.GetProduct(0).startswith('Invoke')):
+		return f"{this.GetProduct(0)[:-1]},execution={this.Engulf(this.GetProduct(1))})"
+	return f"Invoke(name={this.GetProduct(0)},parameter={this.Engulf(this.GetProduct(1))},execution={this.Engulf(this.GetProduct(2))})"
 
 @eons.kind(Invokation)
 def ContainerInvokation(
@@ -102,9 +102,9 @@ def ContainerInvokation(
 		'Execution',
 	],
 ):
-	if (this.p[0].startswith('Within')):
-		return f"{this.p[0][:-1]},execution={this.Engulf(this.p[1])})"
-	return f"Within(name={this.p[0]},container={this.Engulf(this.p[1])},execution={this.Engulf(this.p[2])})"
+	if (this.GetProduct(0).startswith('Within')):
+		return f"{this.GetProduct(0)[:-1]},execution={this.Engulf(this.GetProduct(1))})"
+	return f"Within(name={this.GetProduct(0)},container={this.Engulf(this.GetProduct(1))},execution={this.Engulf(this.GetProduct(2))})"
 
 @eons.kind(Invokation)
 def ContainerInvokationWithParameters(
@@ -115,9 +115,9 @@ def ContainerInvokationWithParameters(
 		'Execution',
 	],
 ):
-	if (this.p[0].startswith('Invoke')):
-		return f"{this.p[0][:-1]},container={this.Engulf(this.p[1])},execution={this.Engulf(this.p[2])})"
-	return f"Invoke(name={this.p[0]},parameter={this.Engulf(this.p[1])},container={this.Engulf(this.p[2])},execution={this.Engulf(this.p[3])})"
+	if (this.GetProduct(0).startswith('Invoke')):
+		return f"{this.GetProduct(0)[:-1]},container={this.Engulf(this.GetProduct(1))},execution={this.Engulf(this.GetProduct(2))})"
+	return f"Invoke(name={this.GetProduct(0)},parameter={this.Engulf(this.GetProduct(1))},container={this.Engulf(this.GetProduct(2))},execution={this.Engulf(this.GetProduct(3))})"
 
 @eons.kind(BlockSyntax)
 def FunctorType(
@@ -128,9 +128,9 @@ def FunctorType(
 		'Execution',
 	],
 ):
-	if (this.p[0].startswith('Type')):
-		return f"{this.p[0][:-1]},execution={this.Engulf(this.p[1])})"
-	return f"Type(name={this.p[0]},kind={this.Engulf(this.p[1])},parameter={this.Engulf(this.p[2])},execution={this.Engulf(this.p[3])})"
+	if (this.GetProduct(0).startswith('Type')):
+		return f"{this.GetProduct(0)[:-1]},execution={this.Engulf(this.GetProduct(1))})"
+	return f"Type(name={this.GetProduct(0)},kind={this.Engulf(this.GetProduct(1))},parameter={this.Engulf(this.GetProduct(2))},execution={this.Engulf(this.GetProduct(3))})"
 
 @eons.kind(ExactSyntax)
 def EOL(
@@ -204,7 +204,7 @@ def AutofillAccessOrInvokation(
 		'deprioritize'
 	]
 ):
-	return f"Autofill('{this.Engulf(this.p[0], escape=True)}','{this.Engulf(this.p[1], escape=True)}')"
+	return f"Autofill('{this.Engulf(this.GetProduct(0), escape=True)}','{this.Engulf(this.GetProduct(1), escape=True)}')"
 
 @eons.kind(FlexibleTokenSyntax)
 def AutofillInvokation(
@@ -266,14 +266,14 @@ def AutofillInvokation(
 		'deprioritize'
 	]
 ):
-	return f"Call('{this.Engulf(this.p[0], escape=True)}',{this.Engulf(str(this.p[1]))})"
+	return f"Call('{this.Engulf(this.GetProduct(0), escape=True)}',{this.Engulf(str(this.GetProduct(1)))})"
 
 @eons.kind(ExactSyntax)
 def Sequence(
 	match = r'NAME/NAME',
 	# recurseOn = "name" # Now handled by ComplexSequence
 ):
-	return f"Sequence({this.p[0]},{this.p[2]})"
+	return f"Sequence({this.GetProduct(0)},{this.GetProduct(2)})"
 
 @eons.kind(FlexibleTokenSyntax)
 def ComplexSequence(
@@ -331,7 +331,7 @@ def ComplexSequence(
 		}
 	]
 ):
-	return f"Sequence('{this.Engulf(this.p[0], escape=True)}','{this.Engulf(this.p[2], escape=True)}')"
+	return f"Sequence('{this.Engulf(this.GetProduct(0), escape=True)}','{this.Engulf(this.GetProduct(2), escape=True)}')"
 
 @eons.kind(OperatorOverload)
 def DivisionOverload(
@@ -350,7 +350,7 @@ def DivisionOverload(
 def DivisionAssignment(
 	match = r'NAME/=NAME',
 ):
-	return f"{this.Engulf(this.p[0])} /= {this.Engulf(this.p[2])}"
+	return f"{this.Engulf(this.GetProduct(0))} /= {this.Engulf(this.GetProduct(2))}"
 
 # NOTE: Sequences and division CANNOT be combined.
 @eons.kind(FlexibleTokenSyntax)
@@ -408,7 +408,7 @@ def ComplexDivisionAssignment(
 		}
 	]
 ):
-	return f"{this.Engulf(str(this.p[0]))} /= {this.Engulf(str(this.p[2]))}"
+	return f"{this.Engulf(str(this.GetProduct(0)))} /= {this.Engulf(str(this.GetProduct(2)))}"
 
 @eons.kind(OperatorOverload)
 def DivisionAssignmentOverload(
@@ -425,7 +425,7 @@ def ExplicitAccess(
 	match = r'NAME\.NAME',
 	# recurseOn = "name" # Now handled by ComplexExplicitAccess
 ):
-	return f"Get({this.p[0]},{this.p[2]})"
+	return f"Get({this.GetProduct(0)},{this.GetProduct(2)})"
 
 @eons.kind(FlexibleTokenSyntax)
 def ComplexExplicitAccess(
@@ -465,25 +465,25 @@ def ComplexExplicitAccess(
 		},
 	]
 ):
-	return f"Get('{this.Engulf(this.p[0], escape=True)}','{this.Engulf(this.p[2], escape=True)}')"
+	return f"Get('{this.Engulf(this.GetProduct(0), escape=True)}','{this.Engulf(this.GetProduct(2), escape=True)}')"
 
 @eons.kind(ExactSyntax)
 def ShortType(
 	match = r'NAME\s+:=\s+'
 ):
-	return f"Get(Type(name={this.p[0]}),'=')"
+	return f"Get(Type(name={this.GetProduct(0)}),'=')"
 
 @eons.kind(FlexibleTokenSyntax)
 def SimpleTypeWithShortTypeAssignment(
 	match = [r'name OPEN_KIND limitedexpression SHORTTYPE']
 ):
-	return f"Get(Type(name={this.Engulf(this.p[0])}, kind={this.Engulf(this.p[2])}))"
+	return f"Get(Type(name={this.Engulf(this.GetProduct(0))}, kind={this.Engulf(this.GetProduct(2))}))"
 
 @eons.kind(ExactSyntax)
 def This(
 	match = r'\./NAME'
 ):
-	toAccess = this.Engulf(this.p[1][1:-1])
+	toAccess = this.Engulf(this.GetProduct(1)[1:-1])
 	if (toAccess.startswith('this')):
 		return toAccess
 	return f"this.{toAccess}"
@@ -492,13 +492,13 @@ def This(
 def EpidefOption1(
 	match = r'\.\.NAME'
 ):
-	return f"this.epidef.{this.Engulf(this.p[1][1:-1])}"
+	return f"this.epidef.{this.Engulf(this.GetProduct(1)[1:-1])}"
 
 @eons.kind(ExactSyntax)
 def EpidefOption2(
 	match = r'\.\./NAME'
 ):
-	return f"this.epidef.{this.Engulf(this.p[1][1:-1])}"
+	return f"this.epidef.{this.Engulf(this.GetProduct(1)[1:-1])}"
 
 @eons.kind(FlexibleTokenSyntax)
 def ComplexEpidef(
@@ -515,20 +515,20 @@ def ComplexEpidef(
 		}
 	]
 ):
-	return f"this.epidef.{this.Engulf(this.p[1][5:])}"
+	return f"this.epidef.{this.Engulf(this.GetProduct(1)[5:])}"
 
 @eons.kind(ExactSyntax)
 def GlobalScope(
 	match = r'~/NAME'
 ):
-	return f"HOME.Instance().{this.Engulf(this.p[1][1:-1])}"
+	return f"HOME.Instance().{this.Engulf(this.GetProduct(1)[1:-1])}"
 
 @eons.kind(ExactSyntax)
 def Caller(
 	match = r'@NAME',
 ):
 	# Enable @@... to become this.caller.caller...
-	toAccess = this.Engulf(this.p[1][1:-1])
+	toAccess = this.Engulf(this.GetProduct(1)[1:-1])
 	if (toAccess.startswith('this.caller')):
 		return f"this.caller.{toAccess[5:]}"
 	return f"this.caller.{toAccess}"

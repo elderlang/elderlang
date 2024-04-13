@@ -1,0 +1,34 @@
+#!/usr/local/bin/elder
+
+hello_wolf: functor
+(
+	greeting := 'hello'
+) {
+	return "{greeting} wolf"
+}
+
+/*
+ * Should print:
+ * hello wolf
+ * good wolf
+ * happy wolf
+ * hello wolf
+ */
+print(hello_wolf())
+print(hello_wolf(greeting = `good`))
+print hello_wolf('happy')
+print hello_wolf
+
+// Extended tests for multiline strings
+
+print "This is a {hello_wolf('friendly')}.
+He likes BEEF."
+
+// NOTE the use of one formatted string block inside another.
+print "This is a {
+	hello_wolf(`DEAD`)
+}."
+
+print("This is a {hello_wolf('vicious')}." + ' He
+killed
+B0B0!')

@@ -52,7 +52,7 @@ next:
 			- "/src/exe/ELDERLANG.py": "src/ELDERLANG.py"
 			- "/README.md": "README.md"
 			- "/LICENSE": "LICENSE"
-			config:	
+			config:
 				name: elderlang
 				type: exe
 				exeAlias: elder
@@ -63,6 +63,10 @@ next:
 				package_url: https://github.com/elderlang/elderlang
 				license: MIT License
 				python_min: '3.7'
+				ignore_imports:
+				- elderlangdefinitions
+				skip_module_detection:
+				- elderlangdefinitions
 				next:
 				- build: py_install
 					build_in: ../

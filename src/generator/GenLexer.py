@@ -106,18 +106,27 @@ class GenLexer(eons.Functor):
 			if (block.content is None):
 				regex = None
 
+				captureChars = r'.*?'
+				if ('newline' in block.inclusions):
+					captureChars = r'[\s\S]*?'
+
 				closings = block.closings
 				if (isinstance(block, OpenEndedBlock)):
 					regex = fr"({'|'.join(block.openings)})(?:(?!:\n).)+"
 				elif (isinstance(block, SymmetricBlock)):
-					closings = block.openings
-				
+					regex = '('
+					for i, sym in enumerate(block.openings):
+						regex += fr"({sym}){captureChars}([^\\]{sym})"
+						if (i < len(block.openings) - 1):
+							regex += '|'
+					regex += ')'
+
 				if (regex is None):
-					captureChars = r'.*?'
-					if ('newline' in block.inclusions):
-						captureChars = r'[\s\S]*?'
 					regex = fr"({'|'.join(block.openings)}){captureChars}({'|'.join(closings)})"
-				
+
+				if ('space.padding' in block.inclusions):
+					regex = fr"{regex}\s*"
+
 				if ('tokens' in block.exclusions):
 					this.tokens.ignore[block.name] = regex
 				else:
@@ -125,8 +134,10 @@ class GenLexer(eons.Functor):
 				
 				if (not "all.catch.block" in block.exclusions):
 					this.tokens.partial = this.tokens.partial + block.openings + block.closings
+
 				continue
 
+			# Blocks with content.
 			for source, name in tokenSources.items():
 				matches = eval(f"block.{source}")
 				if (len(matches)):
@@ -183,7 +194,7 @@ class GenLexer(eons.Functor):
 		this.tokens.all.update(this.tokens.close)
 		this.tokens.all.update(this.tokens.syntactic)
 
-		this.tokens.all[summary.catchAllBlock.upper()] = fr"(?:(?!{'|'.join(t for t in this.tokens.partial)})\S)+"
+		this.tokens.all[summary.catchAllBlock.upper()] = fr"(?:(?!\\|{'|'.join(t for t in this.tokens.partial)})\S)+"
 
 		this.tokens.use = this.tokens.unparsed
 		this.tokens.use.update(this.tokens.all)
@@ -204,9 +215,9 @@ class GenLexer(eons.Functor):
 			this.outFile.write(f"from .{imp} import *\n")
 		this.outFile.write(f"""\
 class ElderLexer(Lexer):
-	def error(self, t):
-		print("Illegal character '%s'" % t.value[0])
-		self.index += 1
+	def error(this, t):
+		logging.critical(f"Illegal character {{t.value[0]!r}} at index {{this.index}}")
+		this.index += 1
 
 	tokens = {{ {', '.join([t for t in this.tokens.use.keys()])} }}
 

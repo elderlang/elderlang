@@ -18,7 +18,7 @@ def Block(
 	reject = [r'^\s*$'] + openings + closings
 	while (True):
 		try:
-			possibleContent = this.p[i]
+			possibleContent = this.GetProduct(i)
 			logging.debug(f"{this.name} Block has possibleContent '{possibleContent}' ({i}).")
 
 			if (isinstance(possibleContent, str)):
@@ -64,7 +64,7 @@ def SymmetricBlock(
 	content = "",
 ):
 	# SymmetricBlocks should always have 1 opening and 1 closing.
-	return this.p[1]
+	return this.GetProduct(1)
 
 # OpenEndedBlocks only specify openings.
 # They are closed by the beginning of another block.
@@ -99,7 +99,7 @@ def CatchAllBlock(
 		# '/',
 	],
 ):
-	return this.p[0]
+	return this.GetProduct(0)
 
 # Expressions build the contents of all other Blocks beside the CatchAllBlock.
 @eons.kind(OpenEndedBlock)
@@ -110,33 +110,33 @@ def Expression(
 		'EOL',
 	]
 ):
-	return this.Engulf(this.p[0])
+	return this.Engulf(this.GetProduct(0))
 
 # ExpressionSet is constructed from a series of Expressions.
 # Each nest in a Expression is realized through a ExpressionSet.
 @eons.kind(Block)
 def ExpressionSet():
 
-	if (isinstance(this.p[0], str)):
-		if (not len(this.p[0])):
+	if (isinstance(this.GetProduct(0), str)):
+		if (not len(this.GetProduct(0))):
 			return []
-		return [this.Engulf(this.p[0])]
-	elif (isinstance(this.p[0], int) or isinstance(this.p[0], float)):
-		return [this.p[0]]
+		return [this.Engulf(this.GetProduct(0))]
+	elif (isinstance(this.GetProduct(0), int) or isinstance(this.GetProduct(0), float)):
+		return [this.GetProduct(0)]
 
-	ret = this.p[0]
+	ret = this.GetProduct(0)
 
-	if (isinstance(this.p[0], list)):
+	if (isinstance(this.GetProduct(0), list)):
 		try:
-			if (isinstance(this.p[1], list)):
-				ret = this.p[0] + this.p[1]
-			elif (isinstance(this.p[1], str)):
-				if (not len(this.p[1])):
-					ret = this.p[0]
+			if (isinstance(this.GetProduct(1), list)):
+				ret = this.GetProduct(0) + this.GetProduct(1)
+			elif (isinstance(this.GetProduct(1), str)):
+				if (not len(this.GetProduct(1))):
+					ret = this.GetProduct(0)
 				else:
-					ret = this.p[0] + [this.Engulf(this.p[1])]
+					ret = this.GetProduct(0) + [this.Engulf(this.GetProduct(1))]
 			else:
-				ret.append(this.Engulf(this.p[1]))
+				ret.append(this.Engulf(this.GetProduct(1)))
 		except Exception as e:
 			pass
 	

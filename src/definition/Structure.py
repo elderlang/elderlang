@@ -2,6 +2,12 @@ import eons
 import re
 
 class Structure (eons.Functor):
+
+	# Sometimes SLY adds weird things like '$end' to the start of the product list.
+	# To make everything work, we have to skip these values.
+	# NOTE: This is not necessary, since SLY seems to work okay if you just stop it from adding $end...
+	# productOffset = 0
+
 	def __init__(this, name="Structure"):
 		super().__init__(name)
 
@@ -20,6 +26,17 @@ class Structure (eons.Functor):
 
 	def Function(this):
 		pass
+
+	def GetProduct(this, index):
+		# No mangling necessary.. yet..
+		return this.p[index]
+		
+		# ret = this.p[index + this.productOffset]
+		# if (ret is None):
+		# 	this.productOffset += 1
+		# 	return this.GetProduct(index)
+		# #TODO: does the offset ever go down?
+		# return ret
 
 	def Engulf(this, substrate, escape=False):
 		if (

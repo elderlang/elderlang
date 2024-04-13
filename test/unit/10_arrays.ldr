@@ -1,3 +1,5 @@
+#!/usr/local/bin/elder
+
 /*
  * NOTE: The syntax in these tests is occasionally written as bad as possible.
  * This is done to ensure that the parser can handle it.

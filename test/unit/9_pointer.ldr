@@ -1,3 +1,4 @@
+#!/usr/local/bin/elder
 
 /**
  * outer allows us to test for storing pointers to functors.

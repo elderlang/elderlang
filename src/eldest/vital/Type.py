@@ -52,7 +52,7 @@ class Type (EldestFunctor):
 				'kind': inspect.Parameter.POSITIONAL_OR_KEYWORD,
 				'default': f'''
 if (this.name is None):
-	this.name = {this.name}
+	this.name = '{this.name}'
 
 if ('value' in kwargs):
 	this.value = kwargs['value']

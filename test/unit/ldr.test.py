@@ -10,7 +10,7 @@ commander.WarmUp(executor = elder)
 tests = [
 	# 'op',
 	# 'if',
-	'hellowolf',
+	'3_hellowolf',
 	# 'arrays',
 	# 'caller',
 	# 'sequence'
@@ -29,7 +29,7 @@ for test in tests:
 	[logging.info(t) for t in tokens]
 	# logging.critical(f"======================== {test} Parsed ========================")
 	# logging.info(elder.parser.parse(elder.lexer.tokenize(ldr)))
-	logging.critical(f"======================== {test} Executed ========================")
-	elder.parsedArgs.ldr = testFileName
-	elder()
-	logging.critical(f"================================================")
+	# logging.critical(f"======================== {test} Executed ========================")
+	# elder.parsedArgs.ldr = testFileName
+	# elder()
+	# logging.critical(f"================================================")
