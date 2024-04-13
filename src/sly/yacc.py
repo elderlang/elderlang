@@ -98,13 +98,13 @@ class YaccProduction:
 				# else:
 				# 	ret = ret.value
 			except Exception as e:
-				logging.error(f'Could not get {self._slice}[{n}].value: {e}')
+				logging.debug(f'Could not get {self._slice}[{n}].value: {e}')
 				return None
 		else:
 			try:
 				ret = self._stack[n].value
 			except Exception as e:
-				logging.error(f'Could not get {self._stack}[{n}].value: {e}')
+				logging.debug(f'Could not get {self._stack}[{n}].value: {e}')
 				return None
 		
 		return ret
@@ -2066,11 +2066,11 @@ class Parser(metaclass=ParserMeta):
 		if token:
 			lineno = getattr(token, 'lineno', 0)
 			if lineno:
-				sys.stderr.write(f'sly: Syntax error at line {lineno}, token={token.type}\n')
+				logging.critical(f'sly: Syntax error at line {lineno}, token={token.type}\n')
 			else:
-				sys.stderr.write(f'sly: Syntax error, token={token.type}')
+				logging.critical(f'sly: Syntax error, token={token.type}')
 		else:
-			sys.stderr.write('sly: Parse error in input. EOF\n')
+			logging.critical('sly: Parse error in input. EOF\n')
  
 	def errok(self):
 		'''

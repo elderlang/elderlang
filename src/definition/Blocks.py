@@ -79,6 +79,7 @@ def FormattedString(
 	# logging.critical(f"String components: {stringComponents}")
 
 	# Wipe result data, since our return value here can apparently be clobbered by the parser calls.
+	import eons #huh?
 	this.result.data = eons.util.DotDict()
 
 	return f"String({', '.join([str(c) for c in stringComponents])})"

@@ -8,7 +8,7 @@ source:
 	}
 )
 
-successor::() // Must be at least a Structor to be used in sequences.
+successor::(); // Must be at least a Structor to be used in sequences.
 
 // Should print "success"
 source.test
