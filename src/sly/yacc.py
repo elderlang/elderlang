@@ -2084,11 +2084,31 @@ class Parser(metaclass=ParserMeta):
 		'''
 		del self.statestack[:]
 		del self.symstack[:]
-		# sym = YaccSymbol()
-		# sym.type = '$end'
-		# self.symstack.append(sym)
+		sym = YaccSymbol()
+		sym.type = '$end'
+		self.symstack.append(sym)
 		self.statestack.append(0)
 		self.state = 0
+
+	def does_current_production_match_symbols(self, symstack):
+		if (not self.production.len):
+			return True
+
+		# Some tokens are deliberately injected into the symbol stack to help with parsing.
+		# TODO: Make this dynamic.
+		if (self.production.name == "close_expression"):
+			return True
+
+		if (self.production.len > len(symstack)):
+			return False
+		
+		alignment = dict(zip([sym.type for sym in symstack[-self.production.len:]], list(self.production.namemap.keys())))
+		logging.debug(f"Checking alignment of {alignment}")
+		for sym, name in alignment.items():
+			if (not name.startswith(sym)):
+				return False
+		
+		return True
 
 	def parse(self, tokens):
 		'''
@@ -2156,23 +2176,46 @@ class Parser(metaclass=ParserMeta):
 
 				if t < 0:
 					# reduce a symbol on the stack, emit a production
-					self.production = p = prod[-t]
-					pname = p.name
-					plen  = p.len
-					pslice._namemap = p.namemap
+					self.production = prod[-t]
+					pname = self.production.name
+					plen  = self.production.len
 
-					if (plen > len(symstack)):
-						possibleCorrectMatch = prod[-t-1]
-						logging.debug(f"Attempting to correct improper product selection. Possible correct match: {possibleCorrectMatch.name} ({possibleCorrectMatch.namemap})")
-						if (possibleCorrectMatch.name == pname and possibleCorrectMatch.len <= len(symstack)):
-							self.production = p = possibleCorrectMatch
-							# pname = p.name # Names are the same.
-							plen  = p.len
-							pslice._namemap = p.namemap
-						else:
+					# The following match logic has been added to account for situations where one production might match multiple different sets of symbols, each of a possibly different size.
+					# Usually, we don't need to worry about the symbol stacking matching exactly which production to use, since the functions are all the same.
+					# However, if the match is incorrect and uses, say a size larger than the symbol stack or some other erroneous value, we'll crash.
+					# So, for added safety, we take the time to make sure we select exactly the right production.
+					# TODO: If we ever start adding data to the parsing table, we should add the match length so we can skip this calculation.
+
+					matched = self.does_current_production_match_symbols(symstack)
+					if (not matched):
+						logging.debug(f"Attempting to correct improper product selection for {pname} in {symstack}")
+
+						offset = 0
+						while (not matched):
+							offset += 1
+							try:
+								possibleCorrectMatch = prod[-t-offset]
+								if (possibleCorrectMatch.name != pname):
+									break
+
+								logging.debug(f"Possible correct match: {possibleCorrectMatch.name} ({possibleCorrectMatch.namemap})")
+								self.production = possibleCorrectMatch
+
+								if (self.does_current_production_match_symbols(symstack)):
+									logging.debug(f"Correct match found: {possibleCorrectMatch.name} ({possibleCorrectMatch.namemap})")
+									plen = possibleCorrectMatch.len
+									matched = True
+									break
+
+							except:
+								break
+
+						if (not matched):
 							raise RuntimeError(f"Parse error: {pname} ({p.namemap}) cannot be reduced from {symstack}")
 
-					# Call the production function
+					p = self.production
+
+					pslice._namemap = p.namemap
 					pslice._slice = symstack[-plen:] if plen else []
 
 					sym = YaccSymbol()
