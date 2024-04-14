@@ -1,7 +1,10 @@
 import eons
 import re
+from .Sanitize import Sanitize
 
 class Structure (eons.Functor):
+
+	sanitize = Sanitize()
 
 	def __init__(this, name="Structure"):
 		super().__init__(name)

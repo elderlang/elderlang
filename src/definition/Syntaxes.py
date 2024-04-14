@@ -471,7 +471,7 @@ def ComplexExplicitAccess(
 def ShortType(
 	match = r'NAME\s+:=\s+'
 ):
-	return f"Get(Type(name={this.GetProduct(0)}),'=')"
+	return f"Get(Type(name={this.GetProduct(0)}),'EQ')"
 
 @eons.kind(FlexibleTokenSyntax)
 def SimpleTypeWithShortTypeAssignment(

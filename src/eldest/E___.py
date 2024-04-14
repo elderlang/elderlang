@@ -4,7 +4,6 @@ import re
 import sys
 from .KEYWORD import KEYWORD
 from .Exceptions import *
-from .Sanitize import Sanitize
 
 class E___ (KEYWORD):
 	def __init__(this, name = eons.INVALID_NAME()):
@@ -55,7 +54,7 @@ class E___ (KEYWORD):
 	def AttemptEvaluationOfFunctor(this, statement):
 		# Check if the statement is a Functor name.
 		if (not re.search(rf"^{ElderLexer.NAME}$", statement)
-			or statement in Sanitize.allBuiltins
+			or statement in this.executor.sanitize.allBuiltins
 		):
 			return None, False
 

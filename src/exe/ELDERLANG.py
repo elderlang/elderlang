@@ -7,7 +7,7 @@ from .parser import *
 from .eldest.EXEC import EXEC
 from .eldest.EVAL import EVAL
 from .eldest.HOME import HOME
-from .eldest.Sanitize import Sanitize
+from .Sanitize import Sanitize
 
 class ELDERLANG(eons.Executor):
 
@@ -24,7 +24,7 @@ class ELDERLANG(eons.Executor):
 		# For external access (these are pulled from globals, not import)
 		this.EXEC = EXEC
 		this.EVAL = EVAL
-		this.Sanitize = Sanitize()
+		this.sanitize = Sanitize()
 
 	# Register included files early so that they can be used by the rest of the system.
 	# NOTE: this method needs to be overridden in all children which ship included Functors, Data, etc. This is because __file__ is unique to the eons.py file, not the child's location.
@@ -53,6 +53,5 @@ class ELDERLANG(eons.Executor):
 		# 	logging.info(tok)
 		
 		toExec = this.parser.parse(this.lexer.tokenize(ldr))
-		toExec = this.Sanitize(toExec).returned
-		logging.info(f"Sanitized: {toExec}")
+
 		return EXEC(toExec, executor=this, home=HOME.Instance())

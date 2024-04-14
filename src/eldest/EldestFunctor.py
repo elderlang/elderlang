@@ -3,7 +3,6 @@ import logging
 import inspect
 import re
 from copy import deepcopy
-from .Sanitize import Sanitize
 
 class EldestFunctor (eons.Functor):
 	def __init__(this, name=eons.INVALID_NAME()):
@@ -157,11 +156,11 @@ class EldestFunctor (eons.Functor):
 			return default, False
 		
 		
-		if (varName.upper() not in Sanitize.allBuiltins):
+		if (varName.upper() not in this.executor.sanitize.allBuiltins):
 			return default, False
 
 
-		if (varName.upper() not in Sanitize.allBuiltins):
+		if (varName.upper() not in this.executor.sanitize.allBuiltins):
 			return default, False
 
 		for name, obj in this.executor.stack:

@@ -5,7 +5,7 @@ import eons
 def Name(
 	representation = r'NAME',
 ):
-	return f"'{this.GetProduct(0)}'"
+	return f"'{this.sanitize.Clean(this.GetProduct(0))}'"
 
 @eons.kind(Expression)
 def ProtoExpression(

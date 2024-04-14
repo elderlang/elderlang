@@ -4,7 +4,6 @@ import inspect
 import logging
 import types
 from ..EldestFunctor import EldestFunctor
-from ..Sanitize import Sanitize
 from ..EVAL import EVAL
 from ..EXEC import EXEC
 from ..TYPE import TYPE
@@ -145,15 +144,15 @@ class Autofill (EldestFunctor):
 				elif (source.type == 2):
 					if (target.type == 1):
 						toEval = f"source.object.{this.target}"
-						for match, replace in Sanitize.operatorMap.items():
+						for match, replace in this.executor.sanitize.operatorMap.items():
 							toEval = toEval.replace(match, replace)
 						logging.debug(f"Attempting to eval: {toEval}")
 						return eval(toEval)
 
 					elif (target.type == 2):
-						if (this.target.startswith("Invoke") and target.name in Sanitize.operatorMap.keys()):
+						if (this.target.startswith("Invoke") and target.name in this.executor.sanitize.operatorMap.keys()):
 							try:
-								usableSource = source.object.__getattribute__(Sanitize.operatorMap[target.name])
+								usableSource = source.object.__getattribute__(this.executor.sanitize.operatorMap[target.name])
 								newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=E____OBJECT.NEXTSOURCE", this.target)
 								return EVAL(newTarget, NEXTSOURCE = usableSource)[0]
 							except:
@@ -198,7 +197,7 @@ class Autofill (EldestFunctor):
 	def EvaluateCallAfterBasicType(this, source, target):
 		argRetrieval = this.target.replace('Call', 'GetArgs')
 		args = eval(argRetrieval)
-		arg0 = this.executor.Sanitize.Soil(args[0])
+		arg0 = this.executor.sanitize.Soil(args[0])
 		arg1 = args[1]
 		if (type(source.object) in [str, list]):
 			arg1 = f"'{args[1]}'"

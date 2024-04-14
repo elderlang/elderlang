@@ -2194,7 +2194,7 @@ class Parser(metaclass=ParserMeta):
 						while (not matched):
 							offset += 1
 							try:
-								possibleCorrectMatch = prod[-t-offset]
+								possibleCorrectMatch = prod[-t+offset]
 								if (possibleCorrectMatch.name != pname):
 									break
 
@@ -2211,7 +2211,7 @@ class Parser(metaclass=ParserMeta):
 								break
 
 						if (not matched):
-							raise RuntimeError(f"Parse error: {pname} ({p.namemap}) cannot be reduced from {symstack}")
+							raise RuntimeError(f"Parse error: {pname} ({self.production.namemap}) cannot be reduced from {symstack}")
 
 					p = self.production
 

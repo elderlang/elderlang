@@ -1,7 +1,6 @@
 import eons
 import types
 from .SourceTargetFunctor import SourceTargetFunctor
-from ..Sanitize import Sanitize
 from ..EVAL import EVAL
 from ..EXEC import EXEC
 
@@ -26,7 +25,7 @@ class Get (SourceTargetFunctor):
 		elif (isinstance(source, types.FunctionType) or isinstance(source, types.MethodType)):
 			source = source()
 
-		if (type(source) in [int, float, str, bool] and this.target in Sanitize.operatorMap.keys()):
-			return source.__getattribute__(Sanitize.operatorMap[this.target])
+		if (type(source) in [int, float, str, bool] and this.target in this.executor.sanitize.operatorMap.keys()):
+			return source.__getattribute__(this.executor.sanitize.operatorMap[this.target])
 
 		return getattr(source, this.target)
