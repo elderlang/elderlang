@@ -9,6 +9,7 @@ def Block(
 	openings = [],
 	closings = [],
 	content = "",
+	buildContainer = False,
 ):
 	# Return only the content, not the open nor close.
 	# We must also filter for EOL tokens.
@@ -55,7 +56,7 @@ def Block(
 
 			raise SyntaxError(f"Could not find content for {this.name} block in {failedMatches}.")
 
-	return this.Engulf(possibleContent)
+	return this.Engulf(possibleContent, False, buildContainer)
 
 # SymmetricBlocks use the same symbols for both openings and closings.
 @eons.kind(Block)
@@ -120,7 +121,7 @@ def ExpressionSet():
 	if (isinstance(this.GetProduct(0), str)):
 		if (not len(this.GetProduct(0))):
 			return []
-		return [this.Engulf(this.GetProduct(0))]
+		return [this.Engulf(this.GetProduct(0), buildContainer=True)]
 	elif (isinstance(this.GetProduct(0), int) or isinstance(this.GetProduct(0), float)):
 		return [this.GetProduct(0)]
 
@@ -136,7 +137,7 @@ def ExpressionSet():
 				else:
 					ret = this.GetProduct(0) + [this.Engulf(this.GetProduct(1))]
 			else:
-				ret.append(this.Engulf(this.GetProduct(1)))
+				ret.append(this.Engulf(this.GetProduct(1), buildContainer=True))
 		except Exception as e:
 			pass
 	

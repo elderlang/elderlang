@@ -17,7 +17,7 @@ class NUMBER(TYPE):
 	
 	def Function(this):
 		return this.value
-	
+
 	def PLUSPLUS(this):
 		this.value += 1
 		return this

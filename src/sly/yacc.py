@@ -2107,7 +2107,7 @@ class Parser(metaclass=ParserMeta):
 		for sym, name in alignment.items():
 			if (not name.startswith(sym)):
 				return False
-		
+
 		return True
 
 	def parse(self, tokens):
@@ -2195,7 +2195,9 @@ class Parser(metaclass=ParserMeta):
 							offset += 1
 							try:
 								possibleCorrectMatch = prod[-t+offset]
+								logging.debug(f"Looking for {possibleCorrectMatch} in {symstack} (t: {t}, offset: {offset})")
 								if (possibleCorrectMatch.name != pname):
+									logging.error(f"Ran out of possible productions for {pname}")
 									break
 
 								logging.debug(f"Possible correct match: {possibleCorrectMatch.name} ({possibleCorrectMatch.namemap})")
@@ -2207,7 +2209,8 @@ class Parser(metaclass=ParserMeta):
 									matched = True
 									break
 
-							except:
+							except Exception as e:
+								logging.error(f"Failed to find correct match for {pname} in {symstack}: {e}")
 								break
 
 						if (not matched):

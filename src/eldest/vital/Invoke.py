@@ -22,7 +22,7 @@ class Invoke (SourceTargetFunctor):
 
 	def Function(this):
 		if (isinstance(this.source, str)):
-			this.source = EVAL([this.source], unwrapReturn = True)[0]
+			this.source = EVAL([this.source], unwrapReturn=True, shouldAutoType=False)[0]
 
 		isFunctor = isinstance(this.source, eons.Functor)
 		if (isFunctor):
@@ -39,7 +39,7 @@ class Invoke (SourceTargetFunctor):
 			evaluatedParameter = []
 
 		if (shouldEvaluateParameter):
-			evaluatedParameter, unwrapped = EVAL(this.parameter, shouldAttemptInvokation = True)
+			evaluatedParameter, unwrapped = EVAL(this.parameter, shouldAutoType=False, shouldAttemptInvokation=True)
 
 			if (unwrapped):
 				evaluatedParameter = [evaluatedParameter]

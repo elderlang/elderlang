@@ -7,7 +7,7 @@ import re
 def SimpleType(
 	blocks = [
 		'Name',
-		'Kind',
+		'KindBlock',
 	],
 ):
 	return f"Type(name={this.GetProduct(0)},kind={this.Engulf(this.GetProduct(1))})"
@@ -16,7 +16,7 @@ def SimpleType(
 def ContainerAccess(
 	blocks = [
 		'Name',
-		'Container',
+		'ContainerBlock',
 	]
 ):
 	return f"Within(name={this.GetProduct(0)},container={this.Engulf(this.GetProduct(1))})"
@@ -25,7 +25,7 @@ def ContainerAccess(
 def StandardInvokation(
 	blocks = [
 		'Name',
-		'Parameter',
+		'ParameterBlock',
 	]
 ):
 	return f"Invoke(name={this.GetProduct(0)},parameter={this.Engulf(this.GetProduct(1))})"
@@ -34,7 +34,7 @@ def StandardInvokation(
 def AccessInvokation(
 	blocks = [
 		'ExplicitAccess',
-		'Parameter',
+		'ParameterBlock',
 	]
 ):
 	return f"Invoke(source='{this.Engulf(this.GetProduct(0), escape=True)}',parameter={this.Engulf(this.GetProduct(1))})"
@@ -43,7 +43,7 @@ def AccessInvokation(
 def ComplexAccessInvokation(
 	blocks = [
 		'ComplexExplicitAccess',
-		'Parameter',
+		'ParameterBlock',
 	]
 ):
 	return this.parent.Function(this)
@@ -52,7 +52,7 @@ def ComplexAccessInvokation(
 def InvokationWithExecution(
 	blocks = [
 		'Name',
-		'Execution',
+		'ExecutionBlock',
 	]
 ):
 	return f"Invoke(name={this.GetProduct(0)},execution={this.Engulf(this.GetProduct(1))})"
@@ -61,8 +61,8 @@ def InvokationWithExecution(
 def StructType(
 	blocks = [
 		'Name',
-		'Kind',
-		'Parameter',
+		'KindBlock',
+		'ParameterBlock',
 	],
 ):
 	if (this.GetProduct(0).startswith('Type')):
@@ -74,8 +74,8 @@ def StructType(
 def ExecutiveType(
 	blocks = [
 		'Name',
-		'Kind',
-		'Execution',
+		'KindBlock',
+		'ExecutionBlock',
 	],
 ):
 	if (this.GetProduct(0).startswith('Type')):
@@ -86,8 +86,8 @@ def ExecutiveType(
 def InvokationWithParametersAndExecution(
 	blocks = [
 		'Name',
-		'Parameter',
-		'Execution',
+		'ParameterBlock',
+		'ExecutionBlock',
 	]
 ):
 	if (this.GetProduct(0).startswith('Invoke')):
@@ -98,8 +98,8 @@ def InvokationWithParametersAndExecution(
 def ContainerInvokation(
 	blocks = [
 		'Name',
-		'Container',
-		'Execution',
+		'ContainerBlock',
+		'ExecutionBlock',
 	],
 ):
 	if (this.GetProduct(0).startswith('Within')):
@@ -110,9 +110,9 @@ def ContainerInvokation(
 def ContainerInvokationWithParameters(
 	blocks = [
 		'Name',
-		'Parameter',
-		'Container',
-		'Execution',
+		'ParameterBlock',
+		'ContainerBlock',
+		'ExecutionBlock',
 	],
 ):
 	if (this.GetProduct(0).startswith('Invoke')):
@@ -123,9 +123,9 @@ def ContainerInvokationWithParameters(
 def FunctorType(
 	blocks = [
 		'Name',
-		'Kind',
-		'Parameter',
-		'Execution',
+		'KindBlock',
+		'ParameterBlock',
+		'ExecutionBlock',
 	],
 ):
 	if (this.GetProduct(0).startswith('Type')):
@@ -184,7 +184,7 @@ def AutofillAccessOrInvokation(
 		{
 			'first': [
 				r'number',
-				r'string',
+				r'stringblock',
 			],
 			'second': [
 				r'name'
@@ -230,7 +230,7 @@ def AutofillInvokation(
 			],
 			'second': [
 				r'number',
-				r'string',
+				r'stringblock',
 			],
 		},
 		{
@@ -239,9 +239,9 @@ def AutofillInvokation(
 			],
 			'second': [
 				r'number',
-				r'string',
+				r'stringblock',
 				r'sequence',
-				r'container',
+				r'containerblock',
 				r'containeraccess',
 				r'standardinvokation',
 				r'accessinvokation',
@@ -266,14 +266,14 @@ def AutofillInvokation(
 		'deprioritize'
 	]
 ):
-	return f"Call('{this.Engulf(this.GetProduct(0), escape=True)}',{this.Engulf(str(this.GetProduct(1)))})"
+	return f"Invoke(source='{this.Engulf(this.GetProduct(0), escape=True)}',parameter=['{this.Engulf(this.GetProduct(1), escape=True)}'])"
 
 @eons.kind(ExactSyntax)
 def Sequence(
 	match = r'NAME/NAME',
 	# recurseOn = "name" # Now handled by ComplexSequence
 ):
-	return f"Sequence({this.GetProduct(0)},{this.GetProduct(2)})"
+	return f"FormSequence({this.GetProduct(0)},{this.GetProduct(2)})"
 
 @eons.kind(FlexibleTokenSyntax)
 def ComplexSequence(
@@ -331,14 +331,14 @@ def ComplexSequence(
 		}
 	]
 ):
-	return f"Sequence('{this.Engulf(this.GetProduct(0), escape=True)}','{this.Engulf(this.GetProduct(2), escape=True)}')"
+	return f"FormSequence('{this.Engulf(this.GetProduct(0), escape=True)}','{this.Engulf(this.GetProduct(2), escape=True)}')"
 
 @eons.kind(OperatorOverload)
 def DivisionOverload(
 	match = [
-		r'SEQUENCE kind',
-		r'SEQUENCE kind execution',
-		r'SEQUENCE kind parameter execution',
+		r'SEQUENCE kindblock',
+		r'SEQUENCE kindblock executionblock',
+		r'SEQUENCE kindblock parameterblock executionblock',
 	]
 ):
 	return this.parent.Function(this)
@@ -413,16 +413,16 @@ def ComplexDivisionAssignment(
 @eons.kind(OperatorOverload)
 def DivisionAssignmentOverload(
 	match = [
-		r'DIVISIONASSIGNMENT kind',
-		r'DIVISIONASSIGNMENT kind execution',
-		r'DIVISIONASSIGNMENT kind parameter execution',
+		r'DIVISIONASSIGNMENT kindblock',
+		r'DIVISIONASSIGNMENT kindblock executionblock',
+		r'DIVISIONASSIGNMENT kindblock parameterblock executionblock',
 	]
 ):
 	return this.parent.Function(this)
 
 @eons.kind(ExactSyntax)
 def ExplicitAccess(
-	match = r'NAME\.NAME',
+	match = r'NAME\\.NAME',
 	# recurseOn = "name" # Now handled by ComplexExplicitAccess
 ):
 	return f"Get({this.GetProduct(0)},{this.GetProduct(2)})"
@@ -469,19 +469,19 @@ def ComplexExplicitAccess(
 
 @eons.kind(ExactSyntax)
 def ShortType(
-	match = r'NAME\s+:=\s+'
+	match = r'NAME\\s+:=\\s+'
 ):
 	return f"Get(Type(name={this.GetProduct(0)}),'EQ')"
 
 @eons.kind(FlexibleTokenSyntax)
 def SimpleTypeWithShortTypeAssignment(
-	match = [r'name OPEN_KIND limitedexpression SHORTTYPE']
+	match = [r'name OPEN_KINDBLOCK limitedexpression SHORTTYPE']
 ):
 	return f"Get(Type(name={this.Engulf(this.GetProduct(0))}, kind={this.Engulf(this.GetProduct(2))}))"
 
 @eons.kind(ExactSyntax)
 def This(
-	match = r'\./NAME'
+	match = r'\\./NAME'
 ):
 	toAccess = this.Engulf(this.GetProduct(1)[1:-1])
 	if (toAccess.startswith('this')):
@@ -490,13 +490,13 @@ def This(
 
 @eons.kind(ExactSyntax)
 def EpidefOption1(
-	match = r'\.\.NAME'
+	match = r'\\.\\.NAME'
 ):
 	return f"this.epidef.{this.Engulf(this.GetProduct(1)[1:-1])}"
 
 @eons.kind(ExactSyntax)
 def EpidefOption2(
-	match = r'\.\./NAME'
+	match = r'\\.\\./NAME'
 ):
 	return f"this.epidef.{this.Engulf(this.GetProduct(1)[1:-1])}"
 

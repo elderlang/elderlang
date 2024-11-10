@@ -8,11 +8,11 @@ class FOR (LOOP):
 	def __init__(this):
 		super().__init__(name = "FOR")
 
-		this.arg.kw.required.append('source')
+		this.arg.kw.required.append('parameter')
 		this.arg.kw.required.append('container')
 		this.arg.kw.required.append('execution')
 
-		this.arg.mapping.append('source')
+		this.arg.mapping.append('parameter')
 		this.arg.mapping.append('container')
 		this.arg.mapping.append('execution')
 
@@ -22,7 +22,7 @@ class FOR (LOOP):
 			capture = f", {capture}"
 
 		toExec = f"""\
-for {', '.join(this.container)} in this.source:
+for {', '.join(this.container)} in this.parameter:
 	EXEC(this.execution{capture})
 	if (this.BREAK):
 		break

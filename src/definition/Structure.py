@@ -29,17 +29,23 @@ class Structure (eons.Functor):
 		# No mangling necessary.. yet..
 		return this.p[index]
 
-	def Engulf(this, substrate, escape=False):
+	def Engulf(this, substrate, escape=False, buildContainer=False):
 		if (
 			substrate is None
 			or isinstance(substrate, bool)
 			or isinstance(substrate, int)
 			or isinstance(substrate, float)
-			or isinstance(substrate, list)
-			or isinstance(substrate, dict)
 		):
 			return substrate
 		
+		if (isinstance(substrate, list)
+			or isinstance(substrate, dict)
+		):
+			if (buildContainer):
+				ret = f"CreateContainer({substrate})"
+			else:
+				return substrate
+
 		ret = str(substrate)
 		
 		if (not len(ret)):
@@ -52,6 +58,9 @@ class Structure (eons.Functor):
 			)
 		):
 			ret = ret[1:-1]
+
+		if (buildContainer and ret.startswith('[')):
+			ret = f"CreateContainer({ret})"
 
 		if (escape):
 			ret = re.sub(r"\\", r"\\\\", ret)

@@ -9,8 +9,8 @@ class E___ (KEYWORD):
 	def __init__(this, name = eons.INVALID_NAME()):
 		super().__init__(name)
 
-		this.arg.kw.optional['shouldAutoType'] = False
 		this.arg.kw.optional['unwrapReturn'] = None
+		this.arg.kw.optional['shouldAutoType'] = True
 		this.arg.kw.optional['currentlyTryingToDefine'] = None
 		this.arg.kw.optional['currentlyTryingToInvoke'] = None
 		this.arg.kw.optional['shouldAttemptInvokation'] = False
@@ -67,7 +67,7 @@ class E___ (KEYWORD):
 			attemptedFetch = True
 
 		if (possibleFunctor is None):
-			if (this.shouldAutoType):
+			if (this.shouldAutoType): #TODO: Why don't we try to Observe the Functor before creating it?
 				logging.debug(f"Autotyping {statement}.")
 				ret = eval(f"Type(name = '{statement}', kind = Kind())", globals().update({'currentlyTryingToDefine': this.currentlyTryingToDefine}), {'this': this})
 				return ret, True
@@ -86,7 +86,7 @@ class E___ (KEYWORD):
 					possibleFunctor = eons.SelfRegistering(possibleFunctorName)
 				except:
 					try:
-						possibleFunctor = this.executor.GetRegistered(possibleFunctorName)
+						possibleFunctor = this.executor.Observe(possibleFunctorName)
 					except:
 						try:
 							possibleFunctor = sys.modules[possibleFunctorName]

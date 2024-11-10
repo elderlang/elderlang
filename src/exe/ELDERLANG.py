@@ -16,6 +16,7 @@ class ELDERLANG(eons.Executor):
 
 		this.lexer = ElderLexer()
 		this.parser = ElderParser()
+		this.parser.executor = this
 
 		this.stack = []
 		this.exceptions = []

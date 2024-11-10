@@ -11,6 +11,7 @@ class EXEC (E___):
 
 		this.arg.kw.required.append('execution')
 
+		this.arg.kw.optional['shouldAutoType'] = False
 		this.arg.kw.optional['shouldAttemptInvokation'] = True
 		this.arg.kw.optional['home'] = None
 		

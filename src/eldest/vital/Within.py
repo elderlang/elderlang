@@ -20,9 +20,9 @@ class Within (SourceTargetFunctor):
 			or isinstance(this.source, types.FunctionType) 
 			or isinstance(this.source, types.MethodType)
 		):
-			return this.source([EVAL(item, shouldAttemptInvokation=True)[0] for item in this.container])
+			return this.source([EVAL(item, shouldAutoType=False, shouldAttemptInvokation=True)[0] for item in this.container])
 
-		index = EVAL(this.container[0], shouldAttemptInvokation=True)[0]
+		index = EVAL(this.container[0], shouldAutoType=False, shouldAttemptInvokation=True)[0]
 		logging.debug(f"Indexing {this.source} ({type(this.source)}) with {index} ({type(index)}).")
 
 		if (

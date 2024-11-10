@@ -114,13 +114,15 @@ class ElderParser(Parser):
 		if (this.debug):
 			this.outFile.write("\n\tdebugfile = 'parsetab.out'\n")
 
-		this.outFile.write(f"""
-	def __init__(this):
-		this.executor = eons.Executor(name="Parser")
-		this.executor.parser = this
-		this.executor.lexer = ElderLexer()
-		this.executor()
-""")
+# Replaced by parser.executor = this in ELDERLANG
+# 		this.outFile.write(f"""
+# 	def __init__(this):
+# 		this.executor = eons.Executor(name="Parser")
+# 		this.executor.parser = this
+# 		this.executor.lexer = ElderLexer()
+# 		this.executor.sanitize = Sanitize()
+# 		this.executor()
+# """)
 		this.grammarQueue = {i:r for i,r in this.grammar.items() if hasattr(i, "before") and i.before}
 		this.grammar = {i:r for i,r in this.grammar.items() if i not in this.grammarQueue.keys()}
 		for implementation, rules in this.grammar.items():

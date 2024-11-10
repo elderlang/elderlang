@@ -21,14 +21,14 @@ class SourceTargetFunctor (EldestFunctor):
 			if (hasattr(this, 'source') and this.source is not None):
 				possibleSource = this.source
 			elif (this.name != 'source_name_None'):
-				possibleSource = EVAL(this.name[len('source_name_'):])[0]
+				possibleSource = EVAL(this.name[len('source_name_'):], shouldAutoType=False)[0]
 			else:
 				if (len(this.args)):
 					possibleSource = this.args[0]
 				if (possibleSource is None):
 					raise RuntimeError(f"Neither source nor name was provided to {this.nameStack[-1]}")
 				elif (isinstance(possibleSource, str)):
-					possibleSource = EVAL(possibleSource)[0]
+					possibleSource = EVAL(possibleSource, shouldAutoType=False)[0]
 
 		if (isinstance(possibleSource, Type.__class__)):
 			possibleSource = possibleSource.product

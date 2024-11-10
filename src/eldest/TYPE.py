@@ -74,7 +74,14 @@ class TYPE(EldestFunctor):
 			this.value = value
 			return True
 		return False
-	
+
+	def AS (this, T):
+		try:
+			return getattr(this, T)()
+		except:
+			logging.error(f"Failed to cast {this.name} to {T}.")
+			return None
+
 	def IMPL_EQ(this, other):
 		this = other
 
@@ -97,6 +104,10 @@ class TYPE(EldestFunctor):
 				or isinstance(other, dict)
 			):
 				surrogate = CONTAINER()
+				
+			elif (isinstance(other, CONTAINER)):
+				surrogate = CONTAINER()
+				other = other.value # extra step for CONTAINERs.
 			elif (isinstance(other, eons.Functor)):
 				surrogate = POINTER.to(other)
 
@@ -188,11 +199,11 @@ class TYPE(EldestFunctor):
 
 	def MOD(this, other):
 		return this.PossiblyReduceThis() % this.PossiblyReduceOther(other)
-	
+
 	def MODEQ(this, other):
 		this.SomehowSet(this.PossiblyReduceThis() % this.PossiblyReduceOther(other))
 		return this
-	
+
 	def size(this):
 		return len(this)
 

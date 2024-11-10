@@ -1,8 +1,10 @@
 from .Block import *
 import eons
 
+# NOTE: Normally, we would not append "Block" to the following child instances (e.g. "final"(ish) classes). However, we can't have name conflicts with the classes we use in Eldest.
+
 @eons.kind(SymmetricBlock)
-def UnformattedString(
+def UnformattedStringBlock(
 	openings = [r"\'"],
 	representation = "\\'UNFORMATTED_STRING\\'", #NOT a raw string
 	content = None,
@@ -14,7 +16,7 @@ def UnformattedString(
 	],
 ):
 	# UnformattedStrings are lexed wholesale.
-	string = this.Engulf(this.GetProduct(0), escape=True)
+	string = str(this.Engulf(this.GetProduct(0), escape=True))
 
 	# Escape any newline characters.
 	string = string.replace('\n', '\\n')
@@ -22,7 +24,7 @@ def UnformattedString(
 	return f"String('{string}')"
 
 @eons.kind(SymmetricBlock)
-def FormattedString(
+def FormattedStringBlock(
 	lexer = None,
 	parser = None,
 	openings = [r'"', r'`'],
@@ -85,10 +87,10 @@ def FormattedString(
 	return f"String({', '.join([str(c) for c in stringComponents])})"
 
 @eons.kind(MetaBlock)
-def String(
+def StringBlock(
 	compose = [
-		'UnformattedString',
-		'FormattedString',
+		'UnformattedStringBlock',
+		'FormattedStringBlock',
 	],
 	representation = r'`STRING`',
 	content = None,
@@ -103,7 +105,7 @@ def String(
 def BlockComment(
 	openings = [r'/\*'],
 	closings = [r'\*/'],
-	representation = r'/\*BLOCK_COMMENT\*/',
+	representation = r'/\\*BLOCK_COMMENT\\*/',
 	content = None,
 	exclusions = [
 		'tokens',
@@ -133,7 +135,7 @@ def LineComment(
 	return ''
 
 @eons.kind(OpenEndedBlock)
-def Kind(
+def KindBlock(
 	openings = [r':'],
 	closings = [],
 	representation = r':KIND',
@@ -152,10 +154,10 @@ def Kind(
 	return f"Kind({kind})"
 
 @eons.kind(Block)
-def Parameter(
+def ParameterBlock(
 	openings = [r'\('],
 	closings = [r'\)'],
-	representation = r'\(PARAMETER\)',
+	representation = r'\\(PARAMETER\\)',
 	content = "FullExpressionSet",
 	inclusions = [
 		'space.padding',
@@ -164,7 +166,7 @@ def Parameter(
 	return this.parent.Function(this)
 
 @eons.kind(Block)
-def Execution(
+def ExecutionBlock(
 	openings = [r'{'],
 	closings = [r'}'],
 	representation = r'{{EXECUTION}}',
@@ -176,13 +178,14 @@ def Execution(
 	return this.parent.Function(this)
 
 @eons.kind(Block)
-def Container(
+def ContainerBlock(
 	openings = [r'\['],
 	closings = [r'\]'],
-	representation = r'\[CONTAINER\]',
+	representation = r'\\[CONTAINER\\]',
 	content = "FullExpressionSet",
 	inclusions = [
 		'space.padding',
 	],
+	buildContainer = True,
 ):
 	return this.parent.Function(this)

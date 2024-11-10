@@ -13,7 +13,7 @@ def ProtoExpression(
 	nest = [
 		'Name',
 		'Number',
-		'String',
+		'StringBlock',
 
 		# ExactSyntaxes
 		'AutofillAccessOrInvokation',
@@ -73,9 +73,11 @@ def FullExpression(
 	nest = [
 		# 'close_expression',
 
+		'ContainerBlock',
+
 		'LimitedExpression',
 		'LimitedExpressionSet',
-		'Kind',
+		'KindBlock',
 		# 'Parameter',
 
 		# BlockSyntaxes

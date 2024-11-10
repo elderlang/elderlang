@@ -36,7 +36,7 @@ class Autofill (EldestFunctor):
 						logging.debug(f"Will attempt to autotype {this.source}.")
 						shouldAutoType = True
 					break
-			source.object, unwrapped = EVAL(this.source, shouldAutoType = shouldAutoType)
+			source.object, unwrapped = EVAL(this.source, shouldAutoType=shouldAutoType)
 
 		if (isinstance(source.object, types.FunctionType) or isinstance(source.object, types.MethodType)):
 			source.type = 1
@@ -76,8 +76,8 @@ class Autofill (EldestFunctor):
 						toReplace = re.sub(r'\'', '\\\'', toReplace)
 						toReplace = f"'{toReplace}'"
 						newTarget = this.target.replace(toReplace, 'E____OBJECT.NEXTSOURCE')
-						nextSource = EVAL([args['source']], unwrapReturn = True,)[0]
-						target.object = EVAL([newTarget], unwrapReturn = True, NEXTSOURCE = nextSource)[0]
+						nextSource = EVAL([args['source']], unwrapReturn=True, shouldAutoType=False)[0]
+						target.object = EVAL([newTarget], unwrapReturn=True, shouldAutoType=False, NEXTSOURCE=nextSource)[0]
 						target.type = 5
 					else:
 						raise e
@@ -123,10 +123,10 @@ class Autofill (EldestFunctor):
 				ret =  usableSource
 			elif (target.type == 2):
 				newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=E____OBJECT.NEXTSOURCE", this.target)
-				ret, unwrapped =  EVAL(newTarget, NEXTSOURCE = usableSource)
+				ret, unwrapped =  EVAL(newTarget, shouldAutoType=False, NEXTSOURCE=usableSource)
 			elif (target.type == 3):
 				newTarget = re.sub(rf"(\\*['\"]?){target.name}(\\*['\"]?),", rf"E____OBJECT.NEXTSOURCE,", this.target)
-				ret, unwrapped = EVAL(newTarget, NEXTSOURCE = usableSource)
+				ret, unwrapped = EVAL(newTarget, shouldAutoType=False, NEXTSOURCE=usableSource)
 
 		except Exception as e:
 			if (not attemptedAccess):
@@ -154,7 +154,7 @@ class Autofill (EldestFunctor):
 							try:
 								usableSource = source.object.__getattribute__(this.executor.sanitize.operatorMap[target.name])
 								newTarget = re.sub(rf"name=(\\*['\"]?){target.name}(\\*['\"]?)", rf"source=E____OBJECT.NEXTSOURCE", this.target)
-								return EVAL(newTarget, NEXTSOURCE = usableSource)[0]
+								return EVAL(newTarget, shouldAutoType=False, NEXTSOURCE=usableSource)[0]
 							except:
 								pass
 
@@ -164,7 +164,7 @@ class Autofill (EldestFunctor):
 				# Otherwise, treat the source.object as a function.
 				logging.debug(f"Using it as an arg for: {source.object}({this.target})")
 
-				target.object = EVAL(this.target)[0]
+				target.object = EVAL(this.target, shouldAutoType=False)[0]
 
 				if (target.type == 1 and '.EQ of ' not in str(source.object)):
 					if (isinstance(target.object, eons.Functor)

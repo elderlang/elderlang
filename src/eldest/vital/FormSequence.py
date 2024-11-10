@@ -4,7 +4,7 @@ from ..EVAL import EVAL
 from ..EXEC import EXEC
 from ..type.FUNCTOR import FUNCTOR
 
-class Sequence (SourceTargetFunctor):
+class FormSequence (SourceTargetFunctor):
 	def __init__(this, name="Sequence"):
 		super().__init__(name)
 
@@ -17,4 +17,4 @@ class Sequence (SourceTargetFunctor):
 		if (not this.source.isWarm):
 			this.source.WarmUp(executor=this.executor)
 
-		return this.source.__truediv__(EVAL(this.target, unwrapReturn=True, shouldAttemptInvokation=False)[0])
+		return this.source.__truediv__(EVAL(this.target, unwrapReturn=True, shouldAutoType=False, shouldAttemptInvokation=False)[0])

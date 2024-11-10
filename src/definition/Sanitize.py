@@ -21,6 +21,7 @@ class Sanitize (eons.Functor):
 		'while',
 		'try',
 		'catch',
+		'as',
 	]
 
 	keywordInvokations = [

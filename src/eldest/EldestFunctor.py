@@ -109,16 +109,30 @@ class EldestFunctor (eons.Functor):
 
 		try:
 			for name, obj in this.executor.stack[offset:]:
+				# Objs will be provided later, don't worry about where they come from.
+				if (isinstance(obj, Autofill.__class__)):
+					continue
+				if (isinstance(obj, EVAL.__class__)):
+					continue
+				if (isinstance(obj, Within.__class__)):
+					continue
+				if (isinstance(obj, Invoke.__class__)):
+					continue
+				if (isinstance(obj, Call.__class__)):
+					continue
+
+
+				# For extra certainty.
 				if (name == 'Autofill'):
 					continue
-				elif (name == 'eval'):
+				if (name == 'eval'):
 					continue
-				elif (name == 'Within'):
+				if (name == 'Within'):
 					continue
-				# Objs will be provided later, don't worry about where they come from.
-				elif (isinstance(obj, Call.__class__)):
+				if (name == 'source_name_None'): # TODO: ???
 					continue
-				elif (isinstance(obj, Type.__class__)):
+				
+				if (isinstance(obj, Type.__class__)):
 					return True
 				else:
 					break

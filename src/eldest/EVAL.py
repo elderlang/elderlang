@@ -36,6 +36,10 @@ class EVAL (E___):
 					this.result.data.evaluation.append(statement)
 					continue
 
+				if (isinstance(statement, CONTAINER)):
+					this.result.data.evaluation.append(statement)
+					continue
+
 				if (statement == 'true' or statement == 'True'):
 					this.result.data.evaluation.append(True)
 					continue
