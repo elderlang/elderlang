@@ -78,7 +78,6 @@ summary.syntax.block = [
 	"ContainerAccess",
 	"StandardInvokation",
 	"AccessInvokation",
-	"ComplexAccessInvokation",
 	"InvokationWithExecution",
 	"StructType",
 	"ExecutiveType",
@@ -89,6 +88,7 @@ summary.syntax.block = [
 ]
 
 summary.syntax.exact = [
+	"ComplexInvokation",
 	"DivisionAssignment",
 	"ComplexDivisionAssignment",
 	"This",

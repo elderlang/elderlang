@@ -10,7 +10,7 @@ class POINTER(TYPE):
 	def __init__(this, name=None, value=None):
 		if (name is None):
 			name = f"Pointer to {repr(value)}"
-		super().__init__()
+		super().__init__(name)
 
 		if (value is None and hasattr(this, 'target')):
 			this.value = this.target()

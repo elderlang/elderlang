@@ -67,7 +67,7 @@ rustle:
 	for (['leaf1', 'leaf2', 'leaf3', 'leaf4']) [leaf]
 	{
 		// NOTE: eval is a python function, not an elder one.
-		try { tree.trunk.branch }
+		try { tree.trunk.branch.get(leaf)() }
 		catch { print `{leaf} not found` }
 	}
 }

@@ -66,6 +66,15 @@ class TYPE(EldestFunctor):
 	# This is generally what other types will use. Those that don't can override it.
 	def Function(this):
 		return this.value
+
+	# Wrapper methods around Functor calls.
+	# writing myvar.Get() is a syntax error in Elder, since Get is a reserved word.
+	def get(this, attribute):
+		ret = eval(f"this.{attribute}")
+		logging.debug(f"GET {attribute} -> {ret} ({type(ret)})")
+		return ret
+	def set(this, attribute, value):
+		this.Set(attribute, value)
 	
 	# IMPORTANT: Children should override this.
 	# Return whether or not the value in *this should be set.

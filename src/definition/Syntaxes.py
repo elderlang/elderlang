@@ -39,15 +39,6 @@ def AccessInvokation(
 ):
 	return f"Invoke(source='{this.Engulf(this.GetProduct(0), escape=True)}',parameter={this.Engulf(this.GetProduct(1))})"
 
-@eons.kind(AccessInvokation)
-def ComplexAccessInvokation(
-	blocks = [
-		'ComplexExplicitAccess',
-		'ParameterBlock',
-	]
-):
-	return this.parent.Function(this)
-
 @eons.kind(Invokation)
 def InvokationWithExecution(
 	blocks = [
@@ -149,6 +140,24 @@ def EOL(
 	return ''
 
 @eons.kind(FlexibleTokenSyntax)
+def ComplexInvokation(
+	match = [
+		{
+			'first': [
+				r'complexexplicitaccess',
+				r'complexinvokation',
+				# TODO: We probably need more here, but adding may introduce reduce / reduce conflicts.
+			],
+			'second': [
+				r'parameterblock',
+			],
+		},
+	]
+):
+	return f"Invoke(source='{this.Engulf(this.GetProduct(0), escape=True)}',parameter={this.Engulf(this.GetProduct(1))})"
+
+
+@eons.kind(FlexibleTokenSyntax)
 def AutofillAccessOrInvokation(
 	match = [
 		{
@@ -160,7 +169,7 @@ def AutofillAccessOrInvokation(
 				r'complexexplicitaccess',
 				r'standardinvokation',
 				r'accessinvokation',
-				r'complexaccessinvokation',
+				r'complexinvokation',
 				r'containeraccess',
 				r'this',
 				r'epidefoption1',
@@ -178,7 +187,7 @@ def AutofillAccessOrInvokation(
 				r'complexexplicitaccess',
 				r'standardinvokation',
 				r'accessinvokation',
-				r'complexaccessinvokation',
+				r'complexinvokation',
 				r'containeraccess',
 				r'this',
 				r'epidefoption1',
@@ -222,7 +231,7 @@ def AutofillInvokation(
 				r'containeraccess',
 				r'standardinvokation',
 				r'accessinvokation',
-				r'complexaccessinvokation',
+				r'complexinvokation',
 				r'explicitaccess',
 				r'complexexplicitaccess',
 				r'sequence',
@@ -252,7 +261,7 @@ def AutofillInvokation(
 				r'containeraccess',
 				r'standardinvokation',
 				r'accessinvokation',
-				r'complexaccessinvokation',
+				r'complexinvokation',
 				r'explicitaccess',
 				r'complexexplicitaccess',
 				r'this',
@@ -298,6 +307,7 @@ def ComplexSequence(
 				r'complexepidef',
 				r'globalscope',
 				r'caller',
+				r'complexsequence',
 			],
 			'second': [
 				r'SEQUENCE',
@@ -375,6 +385,7 @@ def ComplexDivisionAssignment(
 				r'complexepidef',
 				r'globalscope',
 				r'caller',
+				r'complexdivisionassignment',
 			],
 			'second': [
 				r'DIVISIONASSIGNMENT',
@@ -448,6 +459,7 @@ def ComplexExplicitAccess(
 				r'complexepidef',
 				r'globalscope',
 				r'caller',
+				r'complexexplicitaccess',
 			],
 			'second': [
 				r'EXPLICITACCESS',
