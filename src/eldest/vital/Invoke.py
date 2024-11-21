@@ -25,7 +25,7 @@ class Invoke (SourceTargetFunctor):
 			this.source = EVAL([this.source], unwrapReturn=True, shouldAutoType=False)[0]
 
 		isFunctor = isinstance(this.source, eons.Functor)
-		if (isFunctor):
+		if (isFunctor and not isinstance(this.source, KEYWORD)):
 			this.context.currentlyTryingToInvoke = this.source
 
 		shouldEvaluateParameter = True
@@ -43,6 +43,10 @@ class Invoke (SourceTargetFunctor):
 
 			if (unwrapped):
 				evaluatedParameter = [evaluatedParameter]
+
+		# Happens if the source was invoked during EVAL.
+		if (this.source is None):
+			return evaluatedParameter
 
 		logging.debug(f"Invoking {this.source} with {evaluatedParameter}")
 

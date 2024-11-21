@@ -16,7 +16,7 @@ class Kind (EldestFunctor):
 		if (this.kind is None):
 			this.kind = [TYPE]
 		elif (isinstance(this.kind, str)):
-			this.kind = EVAL([this.kind], unwrapReturn=True)[0]
+			this.kind = EVAL([this.kind], unwrapReturn=True, shouldAttemptInvokation=False)[0]
 
 		if (type(this.kind) != list):
 			this.kind = [this.kind]

@@ -230,5 +230,16 @@ class EldestFunctor (eons.Functor):
 	def fetch_location_context(this, varName, default, fetchFrom, attempted):
 		if (this.context is None):
 			return default, False
-		
+
+		# We always want to search the context's members, but we don't want to propagate 'this' in the fetchFrom upstream of the context.
+		# However, we must exclude values that E___ Functors will attempt to fetch, lest they propagate the last state forever.
+		# We only need to check the optional values, since the required and static values are fewer and easier to manage (i.e. will be hard coded if necessary).
+		if (varName not in this.context.arg.kw.optional.keys()):
+			try:
+				ret = getattr(this.context, varName)
+				if (ret is not None):
+					return ret, True
+			except:
+				pass
+	
 		return this.context.Fetch(varName, default, start=False, fetchFrom=fetchFrom,attempted=attempted)

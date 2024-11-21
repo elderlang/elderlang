@@ -116,8 +116,15 @@ def ContainerInvokationWithParameters(
 	],
 ):
 	if (this.GetProduct(0).startswith('Invoke')):
-		return f"{this.GetProduct(0)[:-1]},container={this.Engulf(this.GetProduct(1))},execution={this.Engulf(this.GetProduct(2))})"
-	return f"Invoke(name={this.GetProduct(0)},parameter={this.Engulf(this.GetProduct(1))},container={this.Engulf(this.GetProduct(2))},execution={this.Engulf(this.GetProduct(3))})"
+		ret = f"{this.GetProduct(0)[:-1]},container={this.Engulf(this.GetProduct(1))},execution={this.Engulf(this.GetProduct(2))})"
+	else:	
+		ret = f"Invoke(name={this.GetProduct(0)},parameter={this.Engulf(this.GetProduct(1))},container={this.Engulf(this.GetProduct(2))},execution={this.Engulf(this.GetProduct(3))})"
+	
+	# We don't want to evaluate or auto-type entries in the container.
+	# Instead, we want to treat them as strings.
+	# This makes FOR and other such syntaxes possible.
+	ret = re.sub(r'container=CreateContainer\(\[(.*?)\]\)', r'container=CreateContainer([\1],stringify=True)', ret)
+	return ret
 
 @eons.kind(BlockSyntax)
 def FunctorType(

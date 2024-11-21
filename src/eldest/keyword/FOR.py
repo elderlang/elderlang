@@ -22,7 +22,7 @@ class FOR (LOOP):
 			capture = f", {capture}"
 
 		toExec = f"""\
-for {', '.join(this.container)} in this.parameter:
+for {', '.join([str(i) for i in this.container])} in this.parameter:
 	EXEC(this.execution{capture})
 	if (this.BREAK):
 		break

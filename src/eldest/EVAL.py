@@ -32,6 +32,10 @@ class EVAL (E___):
 		try:
 			for statement in this.parameter:
 
+				# Dereference pointers, but otherwise continue.
+				if (isinstance(statement, POINTER)):
+					statement = statement()
+
 				if (type(statement) in [int, float, bool]):
 					this.result.data.evaluation.append(statement)
 					continue
@@ -81,7 +85,7 @@ class EVAL (E___):
 				statement = this.CorrectForImproperQuotes(statement)
 
 				logging.debug(f"Evaluating: {statement}")
-				evaluation = eval(statement, globals().update({'currentlyTryingToDefine': this.currentlyTryingToDefine}), {'this': this})
+				evaluation = eval(statement, globals().update({'currentlyTryingToDefine': this.currentlyTryingToDefine, 'currentlyTryingToInvoke': this.currentlyTryingToInvoke}), {'this': this})
 				if (isinstance(evaluation, types.MethodType) and this.shouldAttemptInvokation):
 					evaluation = evaluation()
 				this.result.data.evaluation.append(evaluation)

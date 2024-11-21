@@ -23,8 +23,8 @@ class E___ (KEYWORD):
 			'args', # used in for loops, etc.
 			'this',
 			'current_invokation',
-			'history',
 			'context',
+			'history',
 			'executor',
 			'globals'
 		]
@@ -47,7 +47,7 @@ class E___ (KEYWORD):
 	def CorrectReferencesToThis(this, statement):
 		if (this.currentlyTryingToInvoke is not None and 'currentlyTryingToInvoke' not in statement):
 			# Regex copied from eons.kind
-			statement = re.sub(r"this([\s\[\]\.\(\)\}}\*\+/-=%,]|$)", r"this.currentlyTryingToInvoke\1", statement)
+			statement = re.sub(r"this([\s\[\]\.\(\)\}}\*\+/-=%,]|$)", r"currentlyTryingToInvoke\1", statement)
 		statement = re.sub(r"E____OBJECT", r"this", statement)
 		return statement
 

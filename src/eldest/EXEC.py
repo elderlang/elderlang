@@ -26,6 +26,19 @@ class EXEC (E___):
 			'currentlyTryingToInvoke',
 		])
 
+
+	# Since we use episcope in Fetch, we have to set it before validating args.
+	# This is not a perfect hook location for this logic, but it should work fine.
+	def PopulatePrecursor(this):
+		super().PopulatePrecursor()
+
+		this.episcope = None
+		try:
+			this.Set('episcope', context) # From globals
+		except:
+			pass
+
+
 	def Function(this):
 		if (this.home is not None):
 			logging.debug(f"Setting {id(this)} ({this}) as home.")
@@ -33,12 +46,6 @@ class EXEC (E___):
 
 		if (type(this.execution) != list):
 			this.execution = [this.execution]
-
-		this.episcope = None
-		try:
-			this.Set('episcope', context) # From globals
-		except:
-			pass
 
 		this.executor.SetGlobal('context', this)
 
@@ -95,8 +102,19 @@ class EXEC (E___):
 			return
 		this.result.data.returned = this.result.data.execution[-1]
 
+
+	# This is the same as the EldestFunctor fetch_location_context method, but uses 'episcope' instead of 'context'.
+	# Thus, one context may propagate the contextual search outward.
 	def fetch_location_context(this, varName, default, fetchFrom, attempted):
 		if (this.episcope is None):
 			return default, False
-		
+
+		if (varName not in this.episcope.arg.kw.optional.keys()):
+			try:
+				ret = getattr(this.episcope, varName)
+				if (ret is not None):
+					return ret, True
+			except:
+				pass
+
 		return this.episcope.Fetch(varName, default, fetchFrom=fetchFrom, start=False, attempted=attempted)

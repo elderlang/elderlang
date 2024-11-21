@@ -9,6 +9,7 @@ class CreateContainer (EldestFunctor):
 		super().__init__(name)
 
 		this.arg.kw.optional['container'] = None
+		this.arg.kw.optional['stringify'] = False
 
 		this.arg.mapping.append('container')
 
@@ -21,6 +22,11 @@ class CreateContainer (EldestFunctor):
 			this.container = []
 
 		ret = CONTAINER()
-		for val in this.container:
-			ret.append(EVAL([val], unwrapReturn = True, shouldAttemptInvokation = True)[0])
+
+		if (this.stringify):
+			for val in this.container:
+				ret.append(str(val))
+		else:
+			for val in this.container:
+				ret.append(EVAL([val], unwrapReturn = True, shouldAttemptInvokation = True)[0])
 		return ret

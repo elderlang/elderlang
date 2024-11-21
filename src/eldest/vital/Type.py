@@ -18,9 +18,27 @@ class Type (EldestFunctor):
 		this.arg.kw.optional['parameter'] = None
 		this.arg.kw.optional['execution'] = []
 
+		# Types should not try to grab and cement execution or similar values from anything other than what is strictly specified.
+		this.fetch.use = [
+			'args',
+		]
+
+		this.alreadyDefined = None
+
+		this.fetch.useForExistingEval = [
+			'args', # used in for loops, etc.
+			'this',
+			'current_invokation',
+			'history',
+			'context',
+			'executor',
+			'globals'
+		]
+
 
 	def BeforeFunction(this):
 		this.unsetCurrentlyTryingToDefine = False
+		this.alreadyDefined = None
 
 		try:
 			this.Set('currentlyTryingToDefine', currentlyTryingToDefine) # easy global fetch.
@@ -31,20 +49,52 @@ class Type (EldestFunctor):
 			this.originalName = this.name
 			this.originallyTryingToDefine = this.currentlyTryingToDefine
 			this.name = f"{this.currentlyTryingToDefine}_{this.name}"
-			this.executor.SetGlobal('currentlyTryingToDefine', this.name)
 		else:
-			this.executor.SetGlobal('currentlyTryingToDefine', this.name)
 			this.unsetCurrentlyTryingToDefine = True
+
+		if (this.kind == [TYPE]): # i.e. no type specified.
+			try:
+				this.alreadyDefined = this.Fetch(this.name, fetchFrom=this.fetch.useForExistingEval)
+				if (this.alreadyDefined is not None):
+					logging.debug(f"Type {this.name} already defined as {this.alreadyDefined}")
+			except:
+				pass
+
+		this.executor.SetGlobal('currentlyTryingToDefine', this.name)
 
 		return super().BeforeFunction()
 
 
 	def Function(this):
-		# alreadyDefined = None
-		# try:
-		# 	alreadyDefined = EVAL(this.parameter, unwrapReturn=False, shouldAutoType=False, currentlyTryingToDefine=this.name)
-		# except:
-		# 	pass
+		if (this.alreadyDefined is not None and this.parameter is not None):
+			for param in EVAL(this.parameter, unwrapReturn=False, shouldAutoType=True, shouldAttemptInvokation=False, currentlyTryingToDefine=this.name)[0]:
+				if (param is None):
+					continue
+				if (not isinstance(param, eons.Functor)):
+					continue
+
+				paramName = param.name
+				if (paramName.startswith(this.name)):
+					paramName = paramName[len(this.name)+1:]
+
+				if (hasattr(this.alreadyDefined, paramName)):
+					getattr(this.alreadyDefined, paramName).AssignTo(param, merge=True)
+				else:
+					this.alreadyDefined.Set(paramName, param)
+					default = None
+					if (hasattr(param, 'default')):
+						default = param.default
+
+					logging.debug(f"Adding {paramName} to {this.alreadyDefined} with default {default}")
+					this.alreadyDefined.arg.kw.optional[paramName] = default
+					this.alreadyDefined.arg.type[paramName] = param.__class__
+					this.alreadyDefined.arg.mapping.append(paramName)
+
+			this.AddToContext(this.alreadyDefined) # This may not be necessary.
+			this.alreadyDefined.EXEC_NO_EXECUTE = True
+			this.result.data.product = this.alreadyDefined
+			return this.alreadyDefined
+
 
 		parameters = {
 			'constructor': eons.util.DotDict({
@@ -68,7 +118,7 @@ if ('value' in kwargs):
 					'default': a.default if hasattr(a, 'default') else None,
 					'type': a.__class__
 				})
-				for a in EVAL(this.parameter, unwrapReturn=False, shouldAutoType=True, currentlyTryingToDefine=this.name)[0]
+				for a in EVAL(this.parameter, unwrapReturn=False, shouldAutoType=True, shouldAttemptInvokation=False, currentlyTryingToDefine=this.name)[0]
 				if a is not None # TODO: why???
 			}
 
@@ -106,13 +156,7 @@ if ('value' in kwargs):
 
 		ret.WarmUp(executor=this.executor)
 
-		# if (alreadyDefined is not None and this.kind == [TYPE]):
-		# 	this.CombineWithExisting(alreadyDefined, ret)
-		# 	return alreadyDefined
-
-		# Export this symbol to the current context iff we're not adding a parameter to another type.
-		if (this.currentlyTryingToDefine is None):
-			this.context.Set(this.name, ret)
+		this.AddToContext(ret)
 
 		ret.EXEC_NO_EXECUTE = True
 		this.result.data.product = ret
@@ -132,12 +176,8 @@ if ('value' in kwargs):
 
 		return super().AfterFunction()
 
-
-	def CombineWithExisting(this, existing, new):
-		pass
-		# for key, val in new.__dict__.items():
-		# 	if (key in existing.__dict__):
-		# 		if (isinstance(val, eons.Functor)):
-		# 			this.CombineWithExisting(existing.__dict__[key], val)
-		# 		else:
-		# 			existing.__dict__[key] = val
+	
+	# Export this symbol to the current context iff we're not adding a parameter to another type.
+	def AddToContext(this, obj):
+		if (this.currentlyTryingToDefine is None):
+			this.context.Set(this.name, obj)
