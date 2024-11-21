@@ -16,12 +16,12 @@ class SourceTargetFunctor (EldestFunctor):
 
 	def BeforeFunction(this):
 		if (this.needs.source):
-			this.Set('name', f"source_name_{this.Fetch('name', None, ['args'])}")
+			this.Set('name', f"source_{this.Fetch('name', None, ['args'])}")
 			possibleSource = this.Fetch('source', None, ['args'])
 			if (hasattr(this, 'source') and this.source is not None):
 				possibleSource = this.source
-			elif (this.name != 'source_name_None'):
-				possibleSource = EVAL(this.name[len('source_name_'):], shouldAutoType=False)[0]
+			elif (this.name != 'source_None'):
+				possibleSource = EVAL(this.name[len('source_'):], shouldAutoType=False)[0]
 			else:
 				if (len(this.args)):
 					possibleSource = this.args[0]

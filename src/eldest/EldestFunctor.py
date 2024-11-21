@@ -129,7 +129,7 @@ class EldestFunctor (eons.Functor):
 					continue
 				if (name == 'Within'):
 					continue
-				if (name == 'source_name_None'): # TODO: ???
+				if (name == 'source_None'): # TODO: ???
 					continue
 				
 				if (isinstance(obj, Type.__class__)):
