@@ -12,15 +12,6 @@ def SimpleType(
 ):
 	return f"Type(name={this.GetProduct(0)},kind={this.Engulf(this.GetProduct(1))})"
 
-@eons.kind(BlockSyntax)
-def ContainerAccess(
-	blocks = [
-		'Name',
-		'ContainerBlock',
-	]
-):
-	return f"Within(name={this.GetProduct(0)},container={this.Engulf(this.GetProduct(1))})"
-
 @eons.kind(Invokation)
 def StandardInvokation(
 	blocks = [
@@ -138,6 +129,29 @@ def EOL(
 	],
 ):
 	return ''
+
+@eons.kind(FlexibleTokenSyntax)
+def ContainerAccess(
+	match = [
+		{
+			'first': [
+				r'name',
+			],
+			'second': [
+				r'containerblock',
+			]
+		}
+	]
+):
+	name = this.GetProduct(0)
+
+	# Distinguishing between container *access* and *assignment* is non-trivial.
+	# For example `x = [1]` should be assignment, but we don't treat `=` as something special: it's a name just like any other. So, how do we distingquish `=[1]` from `x[1]`?
+	# For now, we'll say that anything in the operatorMap get's transmuted from access to assignment.
+	if (name in this.executor.sanitize.operatorMap.keys()):
+		return f"Invoke(name='{name}',parameter={this.Engulf(this.GetProduct(1))})"
+
+	return f"Within(name={name},container={this.Engulf(this.GetProduct(1))})"
 
 @eons.kind(FlexibleTokenSyntax)
 def ComplexInvokation(

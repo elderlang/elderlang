@@ -75,7 +75,6 @@ summary.syntax = eons.util.DotDict()
 
 summary.syntax.block = [
 	"SimpleType",
-	"ContainerAccess",
 	"StandardInvokation",
 	"AccessInvokation",
 	"InvokationWithExecution",
@@ -104,6 +103,7 @@ summary.syntax.exact = [
 	"ComplexSequence",
 	"AutofillAccessOrInvokation",
 	"AutofillInvokation",
+	"ContainerAccess",
 	"EOL",
 	"ShortType",
 	"SimpleTypeWithShortTypeAssignment",

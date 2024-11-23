@@ -50,6 +50,7 @@ next:
 			- "../generator/lexer.py": "src/lexer.py"
 			- "../generator/parser.py": "src/parser.py"
 			- "/src/exe/ELDERLANG.py": "src/ELDERLANG.py"
+			- "/src/exe/Executor.py": "src/Executor.py"
 			- "/README.md": "README.md"
 			- "/LICENSE": "LICENSE"
 			config:

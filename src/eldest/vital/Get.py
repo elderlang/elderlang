@@ -25,7 +25,7 @@ class Get (SourceTargetFunctor):
 		elif (isinstance(source, types.FunctionType) or isinstance(source, types.MethodType)):
 			source = source()
 
-		if (type(source) in [int, float, str, bool] and this.target in this.executor.sanitize.operatorMap.keys()):
+		if (type(source) in [int, float, str, bool, list, dict] and this.target in this.executor.sanitize.operatorMap.keys()):
 			return source.__getattribute__(this.executor.sanitize.operatorMap[this.target])
 
 		return getattr(source, this.target)

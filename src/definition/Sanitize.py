@@ -101,6 +101,7 @@ class Sanitize (eons.Functor):
 	]
 
 	operatorMap = {
+		'EQ': '__eq__',
 		'PLUS': '__add__',
 		'MINUS': '__sub__',
 		'TIMES': '__mul__',

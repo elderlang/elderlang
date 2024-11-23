@@ -2191,6 +2191,11 @@ class Parser(metaclass=ParserMeta):
 						logging.debug(f"Attempting to correct improper product selection for {pname} in {symstack}")
 
 						offset = 0
+
+						# Start from the top.
+						while (offset > t and prod[-t+offset].name == pname):
+							offset -= 1
+
 						while (not matched):
 							offset += 1
 							try:

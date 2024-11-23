@@ -154,7 +154,14 @@ if ('value' in kwargs):
 		)
 		ret = ret() # class -> object
 
-		ret.WarmUp(executor=this.executor)
+		# Not all Functors can be naïvely warmed (e.g. if they have any unmet required args).
+		# However, some Functors require warming at this stage.
+		# So, we'll give it our best shot and not worry about failure.
+		# If a user designs a Functor that both cannot be warmed and requires warming, we'll kindly ask them to go back to the drawing board.
+		try:
+			ret.WarmUp(executor=this.executor)
+		except:
+			ret.executor = this.executor
 
 		this.AddToContext(ret)
 
