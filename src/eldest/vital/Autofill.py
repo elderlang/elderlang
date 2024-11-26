@@ -68,7 +68,7 @@ class Autofill (EldestFunctor):
 					target.type = 2
 				except Exception as e:
 					if (this.target.startswith('Invoke')):
-						argRetrieval = this.target.replace('Invoke', 'GetKWArgs')
+						argRetrieval = f"GetKWArgs{this.target[6:]}"
 						args = eval(argRetrieval)
 						target.name = this.target
 						toReplace = args['source']
