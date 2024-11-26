@@ -10,3 +10,9 @@ class STRING(TYPE):
 
 	def Function(this):
 		return this.value
+
+	def startswith(this, other):
+		return this.value.startswith(other)
+	
+	def endswith(this, other):
+		return this.value.endswith(other)
