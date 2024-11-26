@@ -136,6 +136,7 @@ def ContainerAccess(
 		{
 			'first': [
 				r'name',
+				r'this',
 			],
 			'second': [
 				r'containerblock',
@@ -160,6 +161,7 @@ def ComplexInvokation(
 			'first': [
 				r'complexexplicitaccess',
 				r'complexinvokation',
+				r'this',
 				# TODO: We probably need more here, but adding may introduce reduce / reduce conflicts.
 			],
 			'second': [
@@ -268,6 +270,7 @@ def AutofillInvokation(
 				r'shorttype',
 			],
 			'second': [
+				r'name',
 				r'number',
 				r'stringblock',
 				r'sequence',
