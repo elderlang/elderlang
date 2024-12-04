@@ -1,5 +1,6 @@
 import eons
 import logging
+import types
 from .SourceTargetFunctor import SourceTargetFunctor
 from ..EVAL import EVAL
 from ..EXEC import EXEC
@@ -52,5 +53,18 @@ class Invoke (SourceTargetFunctor):
 
 		if (isFunctor):
 			return this.source(*evaluatedParameter, container=this.container, execution=this.execution)
+
+		# Support Elder -> Python casting
+		elif (isinstance(this.source, types.BuiltinFunctionType)):
+			if (not isinstance(evaluatedParameter[0], CONTAINER)):
+				raise RuntimeError(f"Cannot call {this.source} with {evaluatedParameter[0]}: not a container.")
+			if (type(this.source) is type(dict.update)):
+				return this.source(evaluatedParameter[0].__dict__())
+			if (type(this.source) is type(list.extend)):
+				return this.source(evaluatedParameter[0].__list__())
+
+			else:
+				raise RuntimeError(f"Cannot call {this.source} with {evaluatedParameter[0]}: not supported.")
+
 		else:
 			return this.source(*evaluatedParameter)

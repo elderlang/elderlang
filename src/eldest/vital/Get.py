@@ -25,7 +25,27 @@ class Get (SourceTargetFunctor):
 		elif (isinstance(source, types.FunctionType) or isinstance(source, types.MethodType)):
 			source = source()
 
-		if (type(source) in [int, float, str, bool, list, dict] and this.target in this.executor.sanitize.operatorMap.keys()):
-			return source.__getattribute__(this.executor.sanitize.operatorMap[this.target])
+		if (type(source) in [int, float, str, bool, list, dict]
+			or isinstance(source, list)
+			or isinstance(source, dict)
+		):
+			
+			# For Python objects, the __eq__ method will assign to value, not to reference.
+			# We want to modify the original object here.
+			if (this.target == 'EQ'):
+				if (isinstance(source, list)):
+					source.clear()
+					return source.extend
+				elif (isinstance(source, dict)):
+					source.clear()
+					return source.update
+				else:
+					# TODO: What else can we do here?
+					logging.warning(f"Cannot assign {source}: {type(source)} is immutable.")
+					# Let's still return. Maybe we're wrong!
+					return source.__eq__
+
+			elif (this.target in this.executor.sanitize.operatorMap.keys()):
+				return source.__getattribute__(this.executor.sanitize.operatorMap[this.target])
 
 		return getattr(source, this.target)
