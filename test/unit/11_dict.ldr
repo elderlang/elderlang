@@ -5,4 +5,20 @@ test_container := [
 	3,
 ]
 
-dict_test(test_container)
+// dict_test(test_container)
+
+nested_dict := [
+	layer_1 := [
+		layer_2 := [
+			item_1 := 3,
+			item_2 := 4,
+			item_3 := 5,
+		],
+	],
+]
+
+for (nested_dict['layer_1']['layer_2']) [key]
+{
+	print(key)
+	print(nested_dict['layer_1']['layer_2'][key])
+}
